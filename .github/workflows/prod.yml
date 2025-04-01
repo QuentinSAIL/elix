@@ -34,4 +34,4 @@ jobs:
         username: ${{ secrets.PROD_USERNAME }}
         port: ${{ secrets.PROD_PORT }}
         password: "${{ secrets.PROD_PASSWORD }}"
-        script: "cd ~/docker/QRD/elix && ./deploy.sh"
+        script: "cd ~/services/elix && ./deploy.sh"
