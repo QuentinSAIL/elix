@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer('order')->default(0);
             $table->boolean('autoskip')->default(false);
             $table->boolean('is_active')->default(true);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

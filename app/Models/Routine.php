@@ -25,4 +25,14 @@ class Routine extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function frequency()
+    {
+        return $this->belongsTo(Frequency::class);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(RoutineTask::class);
+    }
 }

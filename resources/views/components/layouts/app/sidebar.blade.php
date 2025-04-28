@@ -19,7 +19,7 @@
 
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Platform')" class="grid">
-                    <flux:navlist.item icon="clock" :href="route('routine')" :current="request()->routeIs('routine')" wire:navigate>{{ __('Routine') }}</flux:navlist.item>
+                    <flux:navlist.item icon="clock" :href="route('routines.index')" :current="request()->routeIs('routines.index')" wire:navigate>{{ __('Routine') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
