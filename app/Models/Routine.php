@@ -15,8 +15,8 @@ class Routine extends Model
         'user_id',
         'name',
         'description',
-        'start_time',
-        'end_time',
+        'start_datetime',
+        'end_datetime',
         'frequency_id',
         'is_active',
     ];

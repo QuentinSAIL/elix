@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->time('start_time');
-            $table->time('end_time')->nullable();
+            $table->time('start_datetime');
+            $table->time('end_datetime')->nullable();
             $table->foreignId('frequency_id')->constrained()->cascadeOnDelete();
             $table->boolean('is_active')->default(true);
             $table->softDeletes();

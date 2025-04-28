@@ -18,8 +18,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('reccurence')->nullable();
             $table->integer('duration')->default(0); // in seconds
-            $table->integer('order')->unique();
+            $table->integer('order')->default(0);
             $table->boolean('autoskip')->default(false);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

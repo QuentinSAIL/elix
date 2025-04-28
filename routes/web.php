@@ -5,9 +5,15 @@ use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 
+use App\Livewire\Routine\Index as RoutineIndex;
+
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+Route::get('routines', RoutineIndex::class)
+    ->middleware(['auth', 'verified'])
+    ->name('routines.index');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])

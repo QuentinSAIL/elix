@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id()->primary();
             $table->string('name')->unique();
             $table->string('description')->nullable();
-            $table->string('cron_expression')->unique();
             $table->timestamps();
         });
     }
