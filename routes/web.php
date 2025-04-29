@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Routine\Index as RoutineIndex;
 
 Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+    return view('dashboard');
+})->name('dashboard');
 
 Route::get('routines', RoutineIndex::class)
     ->middleware(['auth', 'verified'])
