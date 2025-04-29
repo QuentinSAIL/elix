@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Routine;
+use App\Models\RoutineTask;
 use App\Models\User;
 use App\Models\Frequency;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -18,14 +20,24 @@ class RoutineFactory extends Factory
      */
     public function definition(): array
     {
+        $frequency = Frequency::factory()->create();
         return [
-            'user_id' => User::all()->random(),
-            'name' => $this->faker->word,
-            'description' => $this->faker->sentence,
-            'start_datetime' => $this->faker->dateTime,
-            'end_datetime' => $this->faker->dateTime,
-            'frequency_id' => Frequency::where('name', 'Daily')->first()->id,
-            'is_active' => $this->faker->boolean,
+            'user_id'           => User::first()->id,
+            'frequency_id'      => $frequency->id,
+            'name'              => $this->faker->words(3, true),
+            'description'       => $this->faker->sentence(),
+            'is_active'         => $this->faker->boolean(80),
         ];
+    }
+
+    public function configure()
+    {
+        return $this->afterCreating(function (Routine $routine) {
+            RoutineTask::factory()
+                ->count(rand(1, 10))
+                ->create([
+                    'routine_id' => $routine->id,
+                ]);
+        });
     }
 }

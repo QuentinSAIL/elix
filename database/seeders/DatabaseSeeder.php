@@ -20,35 +20,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        Frequency::create([
-            'name' => 'Daily',
-            'description' => 'Runs every day at the same time',
-        ]);
-        Frequency::create([
-            'name' => 'Weekly',
-            'description' => 'Runs every week on the same day and time',
-        ]);
-        Frequency::create([
-            'name' => 'Monthly',
-            'description' => 'Runs every month on the same day and time',
-        ]);
-        Frequency::create([
-            'name' => 'Yearly',
-            'description' => 'Runs every year on the same day and time',
-        ]);
-        Frequency::create([
-            'name' => 'Every 2 Days',
-            'description' => 'Runs every 2 days at the same time',
-        ]);
-        Frequency::create([
-            'name' => 'Weekly Custom Day',
-            'description' => 'Runs every week on the selected day at the same time',
-        ]);
-
-        Routine::factory(10)->create()->each(function ($routine) {
-            RoutineTask::factory(10)->create([
-                'routine_id' => $routine->id,
-            ]);
+        Routine::factory()
+        ->count(1000)
+        ->create()
+        ->each(function ($routine) {
+            echo "Routine : " .  $routine->id . " : " . $routine->frequency->summary() . "\n";
         });
     }
 }

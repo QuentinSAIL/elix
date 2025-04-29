@@ -15,10 +15,12 @@ class Routine extends Model
         'user_id',
         'name',
         'description',
-        'start_datetime',
-        'end_datetime',
         'frequency_id',
         'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     public function user()
