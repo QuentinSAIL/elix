@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Routine::factory()
-        ->count(1000)
+        ->count(10)
         ->create()
         ->each(function ($routine) {
             echo "Routine : " .  $routine->id . " : " . $routine->frequency->summary() . "\n";

@@ -9,14 +9,12 @@ return new class extends Migration {
     {
         Schema::create('frequencies', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name')->unique();
-            $table->string('description')->nullable();
 
             // date de début de la première occurrence
             $table->dateTime('start_date')->comment('Date de début de la première occurrence');
 
             // date de fin si on choisit "jusqu’à"
-            $table->dateTime('end_date')->nullable()->comment('Date de fin de la dernière occurrence');
+            $table->date('end_date')->nullable()->comment('Date de fin de la dernière occurrence');
 
             // ─── Choix du type de fin ───
             // never        = jamais

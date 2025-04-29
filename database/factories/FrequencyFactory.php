@@ -20,18 +20,14 @@ class FrequencyFactory extends Factory
         $endType = $this->faker->randomElement(['never', 'until_date', 'occurrences']);
 
         $data = [
-            'name'              => ucfirst($interval)
-                                  . ' ' . ($interval > 1 ? Str::plural($unit) : $unit)
-                                  . ' #' . $this->faker->unique()->numberBetween(1, 1_000_000),
-            'description'       => $this->faker->sentence(),
             'interval'          => $interval,
             'unit'              => $unit,
             'weekdays'          => null,
             'month_days'        => null,
             'month_occurrences' => null,
-            'end_type'          => $endType,
-            'end_date'          => null,
             'start_date'        => $this->faker->dateTimeBetween('-1 month', 'now'),
+            'end_date'          => null,
+            'end_type'          => $endType,
             'occurrence_count'  => null,
         ];
 

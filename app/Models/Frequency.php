@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,10 +12,9 @@ class Frequency extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
-        'name',
-        'description',
-        'end_type',
+        'start_date',
         'end_date',
+        'end_type',
         'occurrence_count',
         'interval',
         'unit',
@@ -27,7 +27,8 @@ class Frequency extends Model
         'weekdays'         => 'array',
         'month_days'       => 'array',
         'month_occurrences'=> 'array',
-        'end_date'         => 'datetime',
+        'start_date'         => 'datetime',
+        'end_date'         => 'date',
     ];
 
     public function routine()
@@ -50,67 +51,73 @@ class Frequency extends Model
  * - "Tous les mois le 1er mardi (max 5 fois)"
  */
 public function summary(): string
-{
-    $int   = $this->interval;
-    $unit  = $this->unit;
-    $type  = $this->end_type;
+    {
+        // Préfixe de début
+        $prefix = '';
+        if ($this->start_date instanceof \DateTimeInterface) {
+            $start = Carbon::parse($this->start_date)->format('d/m/Y H:i');
+            $prefix = "À partir du {$start}, ";
+        }
 
-    $singular = ['day'=>'jour', 'week'=>'semaine', 'month'=>'mois',   'year'=>'année'];
-    $plural   = ['day'=>'jours','week'=>'semaines','month'=>'mois','year'=>'années'];
-    $gender   = ['day'=>'tous', 'week'=>'toutes','month'=>'tous', 'year'=>'toutes'];
+        $int   = $this->interval;
+        $unit  = $this->unit;
+        $type  = $this->end_type;
 
-    // Base de la phrase
-    if ($int === 1) {
-        $base = "Chaque {$singular[$unit]}";
-    } else {
-        $base = "{$gender[$unit]} les {$int} {$plural[$unit]}";
-    }
+        $singular = ['day'=>'jour', 'week'=>'semaine', 'month'=>'mois',   'year'=>'année'];
+        $plural   = ['day'=>'jours','week'=>'semaines','month'=>'mois','year'=>'années'];
+        $gender   = ['day'=>'tous', 'week'=>'toutes','month'=>'tous', 'year'=>'toutes'];
 
-    // Spécifique semaine
-    if ($unit === 'week' && !empty($this->weekdays)) {
-        $jours  = array_map([$this, 'dayName'], $this->weekdays);
-        $préfix = count($jours) > 1 ? 'les' : 'le';
-        $base  .= " {$préfix} ".implode(', ', $jours);
-    }
+        // Base de la phrase
+        if ($int === 1) {
+            $base = "Chaque {$singular[$unit]}";
+        } else {
+            $base = "{$gender[$unit]} les {$int} {$plural[$unit]}";
+        }
 
-    // Spécifique mois
-    if ($unit === 'month') {
-        if (!empty($this->month_occurrences)) {
-            $parts = [];
-            foreach ($this->month_occurrences as $occ) {
-                $parts[] = $this->ordinalLabel($occ['ordinal'])
-                         . ' ' . $this->dayName($occ['weekday']);
-            }
-            $préfix = count($parts) > 1 ? 'les' : 'le';
-            $base  .= " {$préfix} ".implode(', ', $parts);
-
-        } elseif (!empty($this->month_days)) {
-            $jours  = array_map([$this, 'ordinalSuffix'], $this->month_days);
+        // Spécifique semaine
+        if ($unit === 'week' && !empty($this->weekdays)) {
+            $jours  = array_map([$this, 'dayName'], $this->weekdays);
             $préfix = count($jours) > 1 ? 'les' : 'le';
             $base  .= " {$préfix} ".implode(', ', $jours);
         }
+
+        // Spécifique mois
+        if ($unit === 'month') {
+            if (!empty($this->month_occurrences)) {
+                $parts = [];
+                foreach ($this->month_occurrences as $occ) {
+                    $parts[] = $this->ordinalLabel($occ['ordinal'])
+                             . ' ' . $this->dayName($occ['weekday']);
+                }
+                $préfix = count($parts) > 1 ? 'les' : 'le';
+                $base  .= " {$préfix} ".implode(', ', $parts);
+
+            } elseif (!empty($this->month_days)) {
+                $jours  = array_map([$this, 'ordinalSuffix'], $this->month_days);
+                $préfix = count($jours) > 1 ? 'les' : 'le';
+                $base  .= " {$préfix} ".implode(', ', $jours);
+            }
+        }
+
+        // Condition de fin
+        switch ($type) {
+            case 'until_date':
+                if ($this->end_date instanceof \DateTimeInterface) {
+                    $date = Carbon::parse($this->end_date)->format('d/m/Y');
+                } else {
+                    $date = (string) $this->end_date;
+                }
+                $base .= " jusqu’au {$date}";
+                break;
+
+            case 'occurrences':
+                $base .= " (max {$this->occurrence_count} fois)";
+                break;
+        }
+
+        // Assemblage final
+        return $prefix . ucfirst($base);
     }
-
-    // Condition de fin
-    switch ($type) {
-        case 'until_date':
-            $date = $this->end_date instanceof \DateTimeInterface
-                  ? $this->end_date->format('d/m/Y')
-                  : (string) $this->end_date;
-            $base .= " jusqu’au {$date}";
-            break;
-
-        case 'occurrences':
-            $base .= " (max {$this->occurrence_count} fois)";
-            break;
-
-        // case 'never': rien à ajouter
-    }
-
-    // Première lettre en majuscule
-    return ucfirst($base);
-}
-
 
     /**
      * Mappe 1..7 → noms de jours (lundi=1…dimanche=7)

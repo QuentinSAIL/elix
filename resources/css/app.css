@@ -52,6 +52,10 @@
         @apply text-white dark:text-black;
     }
 
+    .text-custom-inverse {
+        @apply text-zinc-900 dark:text-zinc-50;
+    }
+
     .bg-custom {
         @apply bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl;
     }
@@ -61,7 +65,15 @@
     }
 
     .hover-custom {
-        @apply hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg p-1;
+        @apply hover:bg-zinc-100 dark:hover:bg-zinc-700 p-1;
+    }
+
+    .text-elix {
+        @apply dark:text-[#F2BB22] text-[#14083F];
+    }
+
+    .border-elix {
+        @apply  border dark:border-[#F2BB22] border-[#14083F] rounded-2xl
     }
 }
 
