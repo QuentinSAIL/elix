@@ -75,13 +75,7 @@ class Index extends Component
     public function mount()
     {
         $this->user = Auth::user();
-        $this->refresh();
-    }
-
-    protected function refresh()
-    {
         $this->resetForm();
-        $this->newFrequency['start_date'] = now()->setTimezone(config('app.timezone'))->addMinutes(15 - (now()->minute % 15))->format('Y-m-d H:i');
         $this->routines = $this->user->routines()->with('frequency')->get();
     }
 
@@ -159,7 +153,7 @@ class Index extends Component
         if ($r = Routine::find($id)) {
             $r->delete();
             Toaster::success("La routine « {$r->name} » a été supprimée.");
-            $this->refresh();
+            $this->routines = $this->routines->filter(fn($n) => $n->id !== $id);
         }
     }
 
@@ -217,7 +211,8 @@ class Index extends Component
         ]);
 
         Toaster::success("La routine « {$routine->name} » a bien été créée !");
-        $this->refresh();
+        $this->routines->push($routine);
+        $this->resetForm();
     }
 
     protected function resetForm()
@@ -239,6 +234,7 @@ class Index extends Component
         'month_occurrences' => [],
         ];
         $this->freqMonthType = 'days';
+        $this->newFrequency['start_date'] = now()->setTimezone(config('app.timezone'))->addMinutes(15 - (now()->minute % 15))->format('Y-m-d H:i');
     }
 
     public function render()

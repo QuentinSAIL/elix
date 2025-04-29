@@ -14,7 +14,7 @@
         @forelse($routines as $routine)
             <div class="flex-shrink-0 w-1/4 bg-custom p-6 shadow-sm hover:shadow-md transition-shadow relative">
                 <div wire:click="delete('{{ $routine->id }}')"
-                    class="cursor-pointer absolute top-4 right-4 hover-custom hover:text-red-600">
+                    class="cursor-pointer absolute top-4 right-4 hover-custom hover:text-red-600 rounded-lg">
                     <flux:icon.x-mark />
                 </div>
                 <h3 class="text-xl font-semibold">{{ $routine->name }}</h3>

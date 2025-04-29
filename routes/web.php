@@ -6,14 +6,19 @@ use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 
 use App\Livewire\Routine\Index as RoutineIndex;
+use App\Livewire\Note\Index as NoteIndex;
 
 Route::get('/', function () {
-    return view('home');
+    return view('welcolme');
 })->name('home');
 
 Route::get('routines', RoutineIndex::class)
     ->middleware(['auth', 'verified'])
     ->name('routines.index');
+
+Route::get('notes', NoteIndex::class)
+    ->middleware(['auth', 'verified'])
+    ->name('notes.index');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
