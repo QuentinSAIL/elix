@@ -2,7 +2,7 @@
     <div x-data="{ markdownContent: @js($markdownContent ?? '') }" class="flex flex-row h-full overflow-y-scroll">
         <div class="py-3 flex-1 flex flex-col">
             <textarea x-model="markdownContent" class="w-full flex-1 p-4 mt-2 focus:outline-none resize-none"
-                placeholder="Contenu de la note"></textarea>
+                placeholder="Contenu de la note" wire:change.lazy="save"></textarea>
         </div>
 
         <!-- Divider with a big border -->

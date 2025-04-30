@@ -29,7 +29,7 @@ class Index extends Component
     {
         $note = Note::findOrFail($note['id']);
         $index = $this->notes->search(fn($n) => $n->id === $note->id);
-        if (!$index) {
+        if ($index === false) {
             $this->notes->prepend($note);
         } else {
             $this->notes[$index] = $note;

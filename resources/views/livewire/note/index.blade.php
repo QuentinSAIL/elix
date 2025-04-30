@@ -22,7 +22,7 @@
                             }
                         }
                     @endphp
-                <h3 class="font-bold text-2xl">{{ $excerpt }}</h3>
+                <h3 class="font-bold text-xl">{{ $excerpt }}</h3>
 
 
             </div>
