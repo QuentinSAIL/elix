@@ -1,15 +1,13 @@
 <div class="flex flex-col h-full">
     <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-48">
-        <div
-            class="flex-shrink-0 w-1/4 h-full bg-custom p-6 shadow-sm hover:shadow-md transition-shadow flex items-center justify-center">
-            <flux:modal.trigger name="create-note" class="w-full h-full flex items-center justify-center cursor-pointer">
-                <span class="m-1">Ajouter une note</span>
-                <flux:icon.plus class="text-2xl text-white" />
-            </flux:modal.trigger>
+        <div class="flex-shrink-0 w-1/4 h-full bg-custom p-6 shadow-sm hover:shadow-md transition-shadow flex items-center justify-center cursor-pointer {{ $selectedNote?->id === null ? 'border-elix border-2' : '' }}"
+            wire:click="selectNote('{{ null }}')">
+            <span class="m-1">Ajouter une note</span>
+            <flux:icon.plus class="text-2xl text-white" />
         </div>
 
         @forelse($notes as $note)
-            <div class="flex-shrink-0 w-1/4 h-full bg-custom p-6 shadow-sm hover:shadow-md transition-shadow relative cursor-pointer"
+            <div class="flex-shrink-0 w-1/4 h-full bg-custom p-6 shadow-sm hover:shadow-md transition-shadow relative cursor-pointer {{ $selectedNote?->id === $note->id ? 'border-elix border-2' : '' }}"
                 wire:click="selectNote('{{ $note->id }}')">
                 <div wire:click.stop="delete('{{ $note->id }}')"
                     class="cursor-pointer absolute top-4 right-4 hover:text-red-600 rounded-lg z-10">

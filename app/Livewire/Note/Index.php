@@ -38,13 +38,21 @@ class Index extends Component
 
     public function selectNote($noteId)
     {
-        $note = Note::findOrFail($noteId);
-        $this->selectedNote = $note;
+        if (!$noteId) {
+            $this->selectedNote = null;
+        } else {
+            $note = Note::findOrFail($noteId);
+            $this->selectedNote = $note;
+        }
     }
 
     public function delete($id)
     {
-        if ($r = Note::findOrFail($id)) {
+        if ($r = Note::find($id)) {
+            if (!$r) {
+                Toaster::error('Vous ne pouvez pas supprimer cette note.');
+                return;
+            }
             $r->delete();
             Toaster::success('Note supprimée.');
             $this->notes = $this->notes->filter(fn($n) => $n->id !== $id);
