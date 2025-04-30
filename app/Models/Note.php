@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,9 +15,17 @@ class Note extends Model
 
     protected $fillable = [
         'user_id',
-        'name',
         'content',
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope('userNotes', function (Builder $builder) {
+            if (Auth::check()) {
+                $builder->where('user_id', Auth::id())->orderBy('created_at', 'desc');
+            }
+        });
+    }
 
     public function user()
     {

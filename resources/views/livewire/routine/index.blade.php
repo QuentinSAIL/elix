@@ -15,7 +15,7 @@
             <div class="flex-shrink-0 w-1/4 bg-custom p-6 shadow-sm hover:shadow-md transition-shadow relative">
                 <div wire:click="delete('{{ $routine->id }}')"
                     class="cursor-pointer absolute top-4 right-4 hover-custom hover:text-red-600 rounded-lg">
-                    <flux:icon.x-mark />
+                    <flux:icon.trash />
                 </div>
                 <h3 class="text-xl font-semibold">{{ $routine->name }}</h3>
                 <p class="mt-2 text-sm">{{ $routine->description }}</p>
@@ -31,7 +31,7 @@
                 @endif
             </div>
         @empty
-            <div class="flex-shrink-0 w-full text-center py-10">
+            <div class="my-auto mx-auto">
                 Vous n'avez aucune routine pour le moment...
             </div>
         @endforelse

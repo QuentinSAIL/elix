@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Note;
 use App\Models\User;
 use App\Models\Routine;
-use App\Models\RoutineTask;
 use App\Models\Frequency;
+use App\Models\RoutineTask;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -26,5 +27,9 @@ class DatabaseSeeder extends Seeder
         ->each(function ($routine) {
             echo "Routine : " .  $routine->id . " : " . $routine->frequency->summary() . "\n";
         });
+
+        Note::factory()
+        ->count(50)
+        ->create();
     }
 }

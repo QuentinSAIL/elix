@@ -123,4 +123,5 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'Markdom' => Sinnbeck\Markdom\Facades\Markdom::class,
 ];

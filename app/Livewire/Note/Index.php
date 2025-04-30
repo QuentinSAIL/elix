@@ -4,59 +4,53 @@ namespace App\Livewire\Note;
 
 use Flux\Flux;
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
-use Livewire\Component;
 use App\Models\Note;
+use Livewire\Component;
 use App\Models\Frequency;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Arr;
+use Livewire\Attributes\On;
 use Masmerise\Toaster\Toaster;
+use Illuminate\Support\Facades\Auth;
 
 class Index extends Component
 {
-    // La collection de notes à afficher
     public $notes;
+    public $selectedNote;
     public $user;
 
-    // Les champs du formulaire de création
-    public $newNote = [
-        'name'    => '',
-        'content' => '',
-    ];
-
-    // Règles de validation pour la création
-    protected $rules = [
-        'newNote.name'    => 'required|string|max:255',
-        'newNote.content' => 'required|string',
-    ];
-
-    // Initialisation : on charge toutes les notes
     public function mount()
     {
         $this->user = Auth::user();
         $this->notes = Note::all();
     }
 
-    // Création d'une nouvelle note
-    public function create()
+    #[On('noteSaved')]
+    public function refresh($note)
     {
-        $this->validate();
-
-        $note = $this->user->notes()->create([
-            'name'    => $this->newNote['name'],
-            'content' => $this->newNote['content'],
-        ]);
-
-        $this->notes->push($note);
-        $this->newNote = ['name' => '', 'content' => ''];
+        $note = Note::findOrFail($note['id']);
+        $index = $this->notes->search(fn($n) => $n->id === $note->id);
+        if (!$index) {
+            $this->notes->prepend($note);
+        } else {
+            $this->notes[$index] = $note;
+        }
     }
 
-    // Suppression d'une note
+    public function selectNote($noteId)
+    {
+        $note = Note::findOrFail($noteId);
+        $this->selectedNote = $note;
+    }
+
     public function delete($id)
     {
-        if ($r = Note::find($id)) {
+        if ($r = Note::findOrFail($id)) {
             $r->delete();
-            Toaster::success("La note « {$r->name} » a été supprimée.");
+            Toaster::success('Note supprimée.');
             $this->notes = $this->notes->filter(fn($n) => $n->id !== $id);
+            if ($this->selectedNote && $this->selectedNote->id === $id) {
+                $this->selectedNote = null;
+            }
         }
     }
 
