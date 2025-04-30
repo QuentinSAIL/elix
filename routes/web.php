@@ -8,28 +8,17 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Routine\Index as RoutineIndex;
 use App\Livewire\Note\Index as NoteIndex;
 
-Route::get('/', function () {
-    return view('welcolme');
-})->name('home');
-
-Route::get('routines', RoutineIndex::class)
-    ->middleware(['auth', 'verified'])
-    ->name('routines.index');
-
-Route::get('notes', NoteIndex::class)
-    ->middleware(['auth', 'verified'])
-    ->name('notes.index');
-
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
 Route::middleware(['auth'])->group(function () {
-    Route::redirect('settings', 'settings/profile');
+    Route::get('routines', RoutineIndex::class)->name('routines.index');
+    Route::get('notes', NoteIndex::class)->name('notes.index');
+    Route::view('/', 'dashboard')->name('dashboard');
 
-    Route::get('settings/profile', Profile::class)->name('settings.profile');
-    Route::get('settings/password', Password::class)->name('settings.password');
-    Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+    Route::redirect('settings', 'settings/profile');
+    Route::group(['prefix' => 'settings'], function () {
+        Route::get('profile', Profile::class)->name('settings.profile');
+        Route::get('password', Password::class)->name('settings.password');
+        Route::get('appearance', Appearance::class)->name('settings.appearance');
+    });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
