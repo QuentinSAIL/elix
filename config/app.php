@@ -118,6 +118,10 @@ return [
     |
     */
 
+    'supported_locales' => ['en' => 'english', 'fr' => 'français', 'es' => 'español', 'de' => 'deutsch'],
+    'locale'            => 'fr',
+    'fallback_locale'   => 'en',
+
     'maintenance' => [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
