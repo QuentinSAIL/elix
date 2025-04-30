@@ -14,8 +14,8 @@
         @forelse($routines as $routine)
             <div class="flex-shrink-0 w-1/4 bg-custom p-6 shadow-sm hover:shadow-md transition-shadow relative">
                 <div wire:click="delete('{{ $routine->id }}')"
-                    class="cursor-pointer absolute top-4 right-4 hover-custom hover:text-red-600">
-                    <flux:icon.x-mark />
+                    class="cursor-pointer absolute top-4 right-4 hover-custom hover:text-red-600 rounded-lg">
+                    <flux:icon.trash />
                 </div>
                 <h3 class="text-xl font-semibold">{{ $routine->name }}</h3>
                 <p class="mt-2 text-sm">{{ $routine->description }}</p>
@@ -31,7 +31,7 @@
                 @endif
             </div>
         @empty
-            <div class="flex-shrink-0 w-full text-center py-10">
+            <div class="my-auto mx-auto">
                 Vous n'avez aucune routine pour le moment...
             </div>
         @endforelse
@@ -96,9 +96,7 @@
                         @foreach ($days as $num => $lbl)
                             <button type="button" wire:click.prevent="toggleWeekday({{ $num }})"
                                 class="w-8 h-8 flex items-center justify-center border rounded
-                                {{ in_array($num, $newFrequency['weekdays'] ?? [])
-                                    ? 'bg-custom text-elix border-elix'
-                                    : 'bg-custom' }}">
+                                {{ in_array($num, $newFrequency['weekdays'] ?? []) ? 'bg-custom text-elix border-elix' : 'bg-custom' }}">
                                 {{ strtoupper(substr($lbl, 0, 1)) }}
                             </button>
                         @endforeach
@@ -107,7 +105,8 @@
 
                 {{-- Mois --}}
                 @if ($newFrequency['unit'] === 'month')
-                    <flux:radio.group label="Récurrence mensuelle" wire:model.lazy="freqMonthType" wire:change="updateMonthType">
+                    <flux:radio.group label="Récurrence mensuelle" wire:model.lazy="freqMonthType"
+                        wire:change="updateMonthType">
                         @foreach ($freqMonthTypes as $type => $label)
                             <flux:radio :value="$type" :label="$label"></flux:radio>
                         @endforeach
@@ -118,9 +117,7 @@
                             @foreach (range(1, 31) as $day)
                                 <button type="button" wire:click.prevent="toggleMonthDay({{ $day }})"
                                     class="w-8 h-8 flex items-center justify-center border rounded
-                    {{ in_array($day, $newFrequency['month_days'] ?? [])
-                                    ? 'bg-custom text-elix border-elix'
-                                    : 'bg-custom' }}">
+                    {{ in_array($day, $newFrequency['month_days'] ?? []) ? 'bg-custom text-elix border-elix' : 'bg-custom' }}">
                                     {{ $day }}
                                 </button>
                             @endforeach
@@ -131,12 +128,12 @@
                         <div class="grid grid-cols-2 gap-4">
                             <flux:select label="Occurrence" wire:model.lazy="newFrequency.month_occurrences.0.ordinal">
                                 @foreach ($freqMonthTypesOrdinalList as $num => $lbl)
-                                    <flux:select.option :value="$num" :label="$lbl"/>
+                                    <flux:select.option :value="$num" :label="$lbl" />
                                 @endforeach
                             </flux:select>
                             <flux:select label="Jour" wire:model.lazy="newFrequency.month_occurrences.0.weekday">
                                 @foreach ($days as $num => $lbl)
-                                    <flux:select.option :value="$num" :label="$lbl"/>
+                                    <flux:select.option :value="$num" :label="$lbl" />
                                 @endforeach
                             </flux:select>
                         </div>

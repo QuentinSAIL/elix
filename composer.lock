@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "82dbd522605e3cccde6e17b145341a7f",
+    "content-hash": "0b99789b9e3793db436939ac04147fe1",
     "packages": [
         {
             "name": "brick/math",
@@ -580,6 +580,55 @@
                 }
             ],
             "time": "2023-10-12T05:21:21+00:00"
+        },
+        {
+            "name": "gajus/dindent",
+            "version": "2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gajus/dindent.git",
+                "reference": "d81c3a6f78fbe1ab26f5e753098bbbef6b6a9f3c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gajus/dindent/zipball/d81c3a6f78fbe1ab26f5e753098bbbef6b6a9f3c",
+                "reference": "d81c3a6f78fbe1ab26f5e753098bbbef6b6a9f3c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Gajus\\Dindent\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Gajus Kuizinas",
+                    "email": "gk@anuary.com"
+                }
+            ],
+            "description": "HTML indentation library for development and testing.",
+            "homepage": "https://github.com/gajus/dindent",
+            "keywords": [
+                "format",
+                "html",
+                "indent"
+            ],
+            "support": {
+                "issues": "https://github.com/gajus/dindent/issues",
+                "source": "https://github.com/gajus/dindent/tree/master"
+            },
+            "time": "2014-10-08T10:03:04+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -2292,6 +2341,73 @@
             "time": "2025-02-25T16:02:54+00:00"
         },
         {
+            "name": "masterminds/html5",
+            "version": "2.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Masterminds/html5-php.git",
+                "reference": "f5ac2c0b0a2eefca70b2ce32a5809992227e75a6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/f5ac2c0b0a2eefca70b2ce32a5809992227e75a6",
+                "reference": "f5ac2c0b0a2eefca70b2ce32a5809992227e75a6",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35 || ^5.7.21 || ^6 || ^7 || ^8 || ^9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.7-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Masterminds\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Butcher",
+                    "email": "technosophos@gmail.com"
+                },
+                {
+                    "name": "Matt Farina",
+                    "email": "matt@mattfarina.com"
+                },
+                {
+                    "name": "Asmir Mustafic",
+                    "email": "goetas@gmail.com"
+                }
+            ],
+            "description": "An HTML5 parser and serializer.",
+            "homepage": "http://masterminds.github.io/html5-php",
+            "keywords": [
+                "HTML5",
+                "dom",
+                "html",
+                "parser",
+                "querypath",
+                "serializer",
+                "xml"
+            ],
+            "support": {
+                "issues": "https://github.com/Masterminds/html5-php/issues",
+                "source": "https://github.com/Masterminds/html5-php/tree/2.9.0"
+            },
+            "time": "2024-03-31T07:05:07+00:00"
+        },
+        {
             "name": "monolog/monolog",
             "version": "3.9.0",
             "source": {
@@ -3572,6 +3688,142 @@
             "time": "2024-04-27T21:32:50+00:00"
         },
         {
+            "name": "scrivo/highlight.php",
+            "version": "v9.18.1.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scrivo/highlight.php.git",
+                "reference": "850f4b44697a2552e892ffe71490ba2733c2fc6e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scrivo/highlight.php/zipball/850f4b44697a2552e892ffe71490ba2733c2fc6e",
+                "reference": "850f4b44697a2552e892ffe71490ba2733c2fc6e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8|^5.7",
+                "sabberworm/php-css-parser": "^8.3",
+                "symfony/finder": "^2.8|^3.4|^5.4",
+                "symfony/var-dumper": "^2.8|^3.4|^5.4"
+            },
+            "suggest": {
+                "ext-mbstring": "Allows highlighting code with unicode characters and supports language with unicode keywords"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "HighlightUtilities/functions.php"
+                ],
+                "psr-0": {
+                    "Highlight\\": "",
+                    "HighlightUtilities\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Geert Bergman",
+                    "homepage": "http://www.scrivo.org/",
+                    "role": "Project Author"
+                },
+                {
+                    "name": "Vladimir Jimenez",
+                    "homepage": "https://allejo.io",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Martin Folkers",
+                    "homepage": "https://twobrain.io",
+                    "role": "Contributor"
+                }
+            ],
+            "description": "Server side syntax highlighter that supports 185 languages. It's a PHP port of highlight.js",
+            "keywords": [
+                "code",
+                "highlight",
+                "highlight.js",
+                "highlight.php",
+                "syntax"
+            ],
+            "support": {
+                "issues": "https://github.com/scrivo/highlight.php/issues",
+                "source": "https://github.com/scrivo/highlight.php"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/allejo",
+                    "type": "github"
+                }
+            ],
+            "time": "2022-12-17T21:53:22+00:00"
+        },
+        {
+            "name": "sinnbeck/markdom",
+            "version": "2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sinnbeck/markdom.git",
+                "reference": "0f01be5092edd2ef866bf3a518bc70d7a8ff2396"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sinnbeck/markdom/zipball/0f01be5092edd2ef866bf3a518bc70d7a8ff2396",
+                "reference": "0f01be5092edd2ef866bf3a518bc70d7a8ff2396",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "gajus/dindent": "^2.0",
+                "league/commonmark": "^2.0",
+                "scrivo/highlight.php": "^9.18.1.3",
+                "wa72/htmlpagedom": "^3.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.0|^7.0",
+                "pestphp/pest": "^1.0",
+                "phpunit/phpunit": "9.3.10",
+                "spatie/pest-plugin-snapshots": "^1.0",
+                "symfony/var-dumper": "^5.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Sinnbeck\\Markdom\\MarkdomServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Sinnbeck\\Markdom\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "René Sinnbeck",
+                    "email": "rene.sinnbeck@gmail.com"
+                }
+            ],
+            "description": "Converts markdown to html with classes",
+            "support": {
+                "issues": "https://github.com/sinnbeck/markdom/issues",
+                "source": "https://github.com/sinnbeck/markdom/tree/2.1"
+            },
+            "time": "2024-03-13T08:08:47+00:00"
+        },
+        {
             "name": "symfony/clock",
             "version": "v7.2.0",
             "source": {
@@ -3869,6 +4121,73 @@
                 }
             ],
             "time": "2024-09-25T14:20:29+00:00"
+        },
+        {
+            "name": "symfony/dom-crawler",
+            "version": "v7.2.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/dom-crawler.git",
+                "reference": "19cc7b08efe9ad1ab1b56e0948e8d02e15ed3ef7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/19cc7b08efe9ad1ab1b56e0948e8d02e15ed3ef7",
+                "reference": "19cc7b08efe9ad1ab1b56e0948e8d02e15ed3ef7",
+                "shasum": ""
+            },
+            "require": {
+                "masterminds/html5": "^2.6",
+                "php": ">=8.2",
+                "symfony/polyfill-ctype": "~1.8",
+                "symfony/polyfill-mbstring": "~1.0"
+            },
+            "require-dev": {
+                "symfony/css-selector": "^6.4|^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\DomCrawler\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Eases DOM navigation for HTML and XML documents",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/dom-crawler/tree/v7.2.4"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-02-17T15:53:07+00:00"
         },
         {
             "name": "symfony/error-handler",
@@ -6013,6 +6332,73 @@
             "time": "2024-11-21T01:49:47+00:00"
         },
         {
+            "name": "wa72/htmlpagedom",
+            "version": "v3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wasinger/htmlpagedom.git",
+                "reference": "9fa7dfea493e913e81a2b0f8d61f7a94324a04ea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wasinger/htmlpagedom/zipball/9fa7dfea493e913e81a2b0f8d61f7a94324a04ea",
+                "reference": "9fa7dfea493e913e81a2b0f8d61f7a94324a04ea",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-libxml": "*",
+                "php": "^8.0",
+                "symfony/css-selector": "^6.0 || ^7.0",
+                "symfony/dom-crawler": "^6.0 || ^7.0",
+                "symfony/polyfill-mbstring": "~1.0"
+            },
+            "require-dev": {
+                "clean/phpdoc-md": "^0.19.3",
+                "mikey179/vfsstream": "^1.6.10",
+                "phpunit/phpunit": "^9",
+                "scrutinizer/ocular": "^1.9",
+                "wa72/html-pretty-min": "~0.1"
+            },
+            "suggest": {
+                "wa72/html-pretty-min": "Minify or indent HTML documents"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Wa72\\HtmlPageDom\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christoph Singer",
+                    "email": "singer@webagentur72.de",
+                    "homepage": "http://www.webagentur72.de"
+                }
+            ],
+            "description": "jQuery-inspired DOM manipulation extension for Symfony's Crawler",
+            "homepage": "http://github.com/wasinger/htmlpagedom",
+            "keywords": [
+                "crawler",
+                "dom",
+                "html"
+            ],
+            "support": {
+                "issues": "https://github.com/wasinger/htmlpagedom/issues",
+                "source": "https://github.com/wasinger/htmlpagedom/tree/v3.0.2"
+            },
+            "time": "2023-12-05T20:36:58+00:00"
+        },
+        {
             "name": "webmozart/assert",
             "version": "1.11.0",
             "source": {
@@ -6164,6 +6550,108 @@
                 }
             ],
             "time": "2025-03-05T08:29:11+00:00"
+        },
+        {
+            "name": "davidbadura/faker-markdown-generator",
+            "version": "1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DavidBadura/FakerMarkdownGenerator.git",
+                "reference": "6fe32b77c3abe3cdf31445ba0b753a2d2f170476"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DavidBadura/FakerMarkdownGenerator/zipball/6fe32b77c3abe3cdf31445ba0b753a2d2f170476",
+                "reference": "6fe32b77c3abe3cdf31445ba0b753a2d2f170476",
+                "shasum": ""
+            },
+            "require": {
+                "davidbadura/markdown-builder": "^1.0.4",
+                "fakerphp/faker": "^1.6",
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DavidBadura\\FakerMarkdownGenerator\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "David Badura",
+                    "email": "david.badura@patchlevel.de"
+                }
+            ],
+            "description": "Faker Markdown Generator",
+            "keywords": [
+                "faker",
+                "generator",
+                "markdown"
+            ],
+            "support": {
+                "issues": "https://github.com/DavidBadura/FakerMarkdownGenerator/issues",
+                "source": "https://github.com/DavidBadura/FakerMarkdownGenerator/tree/1.1.1"
+            },
+            "time": "2021-10-22T15:04:49+00:00"
+        },
+        {
+            "name": "davidbadura/markdown-builder",
+            "version": "1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DavidBadura/markdown-builder.git",
+                "reference": "cdc1a29eb14f3202efb0e59ac80c2acb6f883af0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DavidBadura/markdown-builder/zipball/cdc1a29eb14f3202efb0e59ac80c2acb6f883af0",
+                "reference": "cdc1a29eb14f3202efb0e59ac80c2acb6f883af0",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "infection/infection": "^0.22.1",
+                "patchlevel/coding-standard": "^1.0.0",
+                "phpstan/phpstan": "^0.12.85",
+                "phpunit/phpunit": "^9.5.4",
+                "symfony/var-dumper": "^5.2.3",
+                "vimeo/psalm": "^4.7.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DavidBadura\\MarkdownBuilder\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "DavidBadura",
+                    "email": "d.badura@gmx.de"
+                }
+            ],
+            "description": "Markdown Builder",
+            "keywords": [
+                "builder",
+                "markdown",
+                "render",
+                "writer"
+            ],
+            "support": {
+                "issues": "https://github.com/DavidBadura/markdown-builder/issues",
+                "source": "https://github.com/DavidBadura/markdown-builder/tree/1.1.1"
+            },
+            "time": "2021-10-23T09:22:02+00:00"
         },
         {
             "name": "doctrine/deprecations",

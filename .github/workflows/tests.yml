@@ -7,8 +7,8 @@ on:
       # - main
   pull_request:
     branches:
-      - develop
-      - main
+      # - develop
+      # - main
 
 jobs:
   ci:
