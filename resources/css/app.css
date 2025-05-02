@@ -73,7 +73,7 @@
     }
 
     .border-elix {
-        @apply  border dark:border-[#F2BB22] border-[#14083F] rounded-2xl
+        @apply  border-2 dark:border-[#F2BB22] border-[#14083F] rounded-2xl
     }
 }
 

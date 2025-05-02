@@ -21,8 +21,19 @@ class Index extends Component
 
     public function mount()
     {
+        $this->selectedRoutine = Routine::first();
         $this->user = Auth::user();
         $this->routines = $this->user->routines()->with('frequency')->get();
+    }
+
+    public function selectRoutine($routineId)
+    {
+        if (!$routineId) {
+            $this->selectedRoutine = null;
+        } else {
+            $routine = Routine::findOrFail($routineId);
+            $this->selectedRoutine = $routine;
+        }
     }
 
     public function delete(string $id)

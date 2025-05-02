@@ -1,8 +1,7 @@
-<div>
-    <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-96">
-        {{-- Bouton d’ouverture du modal --}}
+<div class="h-screen">
+    <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-1/5">
         <div
-            class="flex-shrink-0 w-1/4 bg-custom p-6 shadow-sm hover-custom transition-shadow flex items-center justify-center">
+            class="flex-shrink-0 w-1/4 bg-custom p-6 shadow-sm hover-custom transition-shadow flex items-center justify-center cursor-pointer">
             <div>
                 <livewire:routine.form />
             </div>
@@ -10,13 +9,14 @@
 
         {{-- Liste des routines existantes --}}
         @forelse($routines as $routine)
-            <div class="flex-shrink-0 w-1/4 bg-custom p-6 shadow-sm hover:shadow-md transition-shadow relative">
+            <div class="flex-shrink-0 w-1/4 bg-custom p-6 shadow-sm hover:shadow-md transition-shadow relative cursor-pointer"
+                wire:click="selectRoutine('{{ $routine->id }}')">
                 <div class="absolute top-4 right-4" x-data="{ open: false }">
                     <div class="relative">
                         <button @click="open = !open" class="cursor-pointer hover-custom rounded-lg">
                             <flux:icon.ellipsis-vertical />
                         </button>
-                        <div x-show="open" @click.away="open = false" @keydown.escape.window="open = false"
+                        <div x-show="open" @click.away="open = false" @keydown.escape.window="open = false" @click.stop
                             class="absolute right-0 mt-2 w-32 bg-custom-accent rounded-lg shadow-lg z-10">
                             <livewire:routine.form :routine="$routine" />
                             <button wire:click="delete('{{ $routine->id }}')" @click="open = false"
@@ -32,7 +32,7 @@
                 <p class="mt-2 text-sm">{{ $routine->description }}</p>
                 @if ($routine->tasks->count())
                     <div class="mt-4 space-y-2">
-                        @foreach ($routine->tasks->take(2) as $task)
+                        @foreach ($routine->tasks->take(0) as $task)
                             <div class="rounded-xl p-3 bg-custom-accent">
                                 <h4 class="font">{{ $task->name }}</h4>
                                 <p class="text-sm 0">@limit($task->description, 10)</p>
@@ -46,5 +46,10 @@
                 Vous n'avez aucune routine pour le moment...
             </div>
         @endforelse
+    </div>
+    <div class="bg-custom flex-1 overflow-y-scroll h-3/4">
+    @if ($selectedRoutine)
+        <livewire:routine.show :routine="$selectedRoutine" wire:key="routine-{{ $selectedRoutine->id }}" />
+    @endif
     </div>
 </div>
