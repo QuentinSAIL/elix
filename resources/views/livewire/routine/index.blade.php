@@ -1,5 +1,5 @@
-<div class="h-screen">
-    <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-1/5">
+<div class="">
+    <div class="flex flex-row gap-4 overflow-x-scroll py-4">
         <div
             class="flex-shrink-0 w-1/4 bg-custom p-6 shadow-sm hover-custom transition-shadow flex items-center justify-center cursor-pointer">
             <div>
@@ -47,9 +47,9 @@
             </div>
         @endforelse
     </div>
-    <div class="bg-custom flex-1 overflow-y-scroll h-3/4">
-    @if ($selectedRoutine)
-        <livewire:routine.show :routine="$selectedRoutine" wire:key="routine-{{ $selectedRoutine->id }}" />
-    @endif
+    <div class="bg-custom flex-1">
+        @if ($selectedRoutine)
+            <livewire:routine.show :routine="$selectedRoutine" wire:key="routine-{{ $selectedRoutine->id }}" />
+        @endif
     </div>
 </div>

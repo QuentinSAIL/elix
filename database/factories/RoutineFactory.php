@@ -26,7 +26,8 @@ class RoutineFactory extends Factory
             'frequency_id'      => $frequency->id,
             'name'              => $this->faker->words(3, true),
             'description'       => $this->faker->sentence(),
-            'is_active'         => $this->faker->boolean(80),
+            // 'is_active'         => $this->faker->boolean(80),
+            'is_active'         => true
         ];
     }
 

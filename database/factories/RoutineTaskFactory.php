@@ -23,10 +23,10 @@ class RoutineTaskFactory extends Factory
             'name' => $this->faker->word,
             'description' => $this->faker->sentence,
             'reccurence' => $this->faker->randomElement(['tout le temps', 'toutes les deux fois', 'toutes les trois fois']),
-            'duration' => $this->faker->numberBetween(1, 36), // in seconds
+            'duration' => $this->faker->numberBetween(1, 60), // in seconds
             'order' => $order++,
-            'autoskip' => $this->faker->boolean,
-            'is_active' => $this->faker->boolean,
+            'autoskip' => true,
+            'is_active' => true,
         ];
     }
 }
