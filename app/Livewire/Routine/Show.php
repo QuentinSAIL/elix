@@ -14,7 +14,7 @@ class Show extends Component
     public $currentTaskIndex = null; // null = pas encore démarré
 
     protected $listeners = [
-        'timerFinished' => 'onTimerFinished',
+        'timer-finished' => 'onTimerFinished',
     ];
 
     public function mount()
@@ -42,28 +42,20 @@ class Show extends Component
         }
     }
 
-    /**
-     * Appelé depuis JS quand le timer arrive à 0
-     */
     public function onTimerFinished()
     {
-        // Si autoskip = true, on passe automatiquement à la suivante
         if ($this->currentTask && $this->currentTask->autoskip) {
             $this->next();
         }
-        // sinon on reste sur la tâche et l'utilisateur doit cliquer « Fait »
     }
 
-    /**
-     * Émet l’événement JS pour démarrer le timer de la tâche courante
-     */
     private function startTimerForCurrentTask()
     {
         if (! $this->currentTask) {
             return;
         }
 
-        $this->dispatch('start-timer', ['duration' => $this->currentTask->duration, 'taskName' => $this->currentTask->name]);
+        $this->dispatch('start-timer', ['duration' => $this->currentTask->duration, 'currentIndex' => $this->currentTaskIndex]);
     }
 
     public function getCurrentTaskProperty()

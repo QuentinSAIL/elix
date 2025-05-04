@@ -1,28 +1,41 @@
 <div class="grid grid-cols-2">
-    <!-- Colonne rouge : infos tâche + timer -->
-    <div class="col-span-1 bg-red-400 p-4">
-        <h2 class="text-2xl text-center mb-6 text-custom-inverse">
-            {{ $currentTaskIndex === null ? 'Bienvenue dans les détails de la routine' : 'Tâche en cours' }}
+    <!-- Colonne gauche : infos tâche + timer -->
+    <div class="col-span-1 p-6">
+        <h2 class="text-2xl text-center mb-6">
+            {{ $currentTaskIndex === null ? 'Bienvenue dans les détails de la routine ' . $routine->name : 'Tâche en cours' }}
         </h2>
 
         @if ($currentTaskIndex !== null && $currentTask)
-            <div class="space-y-2 text-center">
-                <div class="font-bold text-elix">{{ $currentTask->name }}</div>
+            <div class="space-y-4 text-center">
+                {{-- Nom de la tâche --}}
+                <div class="font-bold text-xl">{{ $currentTask->name }}</div>
+
+                {{-- Timer de la tâche --}}
                 <div>
-                    Temps restant :
-                    <span id="remaining" class="font-mono text-xl text-custom-inverse">
-                        {{ $currentTask->duration }}
-                    </span>s
+                    <span class="font-bold uppercase text-sm tracking-widest">Temps restant</span>
+                    <div class="mt-2 inline-block">
+                        <span id="remaining" class="font-mono text-7xl border-4 rounded-2xl inline-block px-8 py-4">
+                            00:00
+                        </span>
+                    </div>
+                </div>
+
+                {{-- **NOUVEAU** Timer total restant --}}
+                <div>
+                    <span class="font-bold uppercase text-sm tracking-widest">Temps total restant</span>
+                    <div class="mt-2 inline-block">
+                        <span id="remaining-total" class="font-mono text-3xl border-2 rounded inline-block px-4 py-2">
+                            00:00
+                        </span>
+                    </div>
                 </div>
             </div>
         @else
-            <div class="text-center font-bold text-elix">
-                {{ $routine->name }}
-            </div>
+            {{-- … si pas démarré … --}}
         @endif
     </div>
 
-    <!-- Colonne de droite : timeline & contenu -->
+    <!-- Colonne droite : timeline & contenu -->
     <div class="col-span-1 grid grid-cols-10 gap-4 overflow-y-scroll h-128">
         <!-- Timeline -->
         <div class="col-span-2 flex flex-col items-center mt-32">
@@ -35,7 +48,7 @@
 
                 @if (!$loop->last)
                     <span
-                        class="flex-1 {{ $loop->index < $currentTaskIndex ? 'border-elix' : 'border-zinc-300 dark:border-zinc-700' }} border-dashed border-2">
+                        class="flex-1 {{ $loop->index < $currentTaskIndex ? 'border-elix' : 'border-zinc-300' }} border-dashed border-2">
                     </span>
                 @else
                     <span class="flex-1 mb-8"></span>
@@ -59,7 +72,9 @@
 
                         <div class="flex items-center mt-2">
                             <flux:icon.flag class="text-elix" />
-                            <span class="ml-2 text-white">@limit($task->description, 100)</span>
+                            <span class="ml-2 text-white">
+                                @limit($task->description, 100)
+                            </span>
                         </div>
 
                         <div class="flex items-center mt-1 text-custom-inverse">
@@ -89,49 +104,65 @@
 </div>
 
 <script>
-    document.addEventListener('livewire:init', () => {
-        let timerIntervalId = null;
-        console.log('Timer initialized');
+document.addEventListener('livewire:init', () => {
+    // 1) Récupère et convertit en nombres
+    const durations = @json($routine->tasks->pluck('duration'))
+        .map(d => Number(d));
 
-        function updateRemainingTime(duration) {
-            console.log('Updating remaining time:', duration);
-            const remEl = document.getElementById('remaining');
-            if (remEl) {
-                remEl.textContent = duration;
-            } else {
-                console.warn('Remaining time element not found');
-            }
+    let endTime = 0;
+    let rafId = null;
+    let currentIndex = 0;
+
+    function formatTime(sec) {
+        const m = String(Math.floor(sec / 60)).padStart(2, '0');
+        const s = String(sec % 60).padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    function update() {
+        const now = Date.now();
+        let diff = endTime - now;
+        if (diff < 0) diff = 0;
+
+        // Temps restant sur la tâche courante
+        const secCurrent = Math.ceil(diff / 1000);
+
+        // Somme des durées (en secondes) des tâches suivantes
+        const secFollowing = durations
+            .slice(currentIndex + 1)
+            .reduce((sum, d) => sum + Number(d), 0);
+
+        // Total restant = tâche courante + tâches suivantes
+        const secTotal = secCurrent + secFollowing;
+
+        // Mise à jour du DOM
+        const remEl = document.getElementById('remaining');
+        const totalEl = document.getElementById('remaining-total');
+        if (remEl)   remEl.textContent   = formatTime(secCurrent);
+        if (totalEl) totalEl.textContent = formatTime(secTotal);
+
+        if (diff > 0) {
+            rafId = requestAnimationFrame(update);
+        } else {
+            Livewire.dispatch('timer-finished');
         }
+    }
 
-        Livewire.on('start-timer', (event) => {
-            let remaining = event[0].duration || 0;
-            updateRemainingTime(remaining);
+    Livewire.on('start-timer', ([payload = {}]) => {
+        const { duration = 0, currentIndex: idx = 0 } = payload;
+        currentIndex = idx;
+        endTime = Date.now() + duration * 1000;
 
-            if (timerIntervalId) {
-                console.log('Clearing existing timer interval');
-                clearInterval(timerIntervalId);
-            }
+        if (rafId) cancelAnimationFrame(rafId);
+        update();
+    });
 
-            timerIntervalId = setInterval(() => {
-                console.log('Timer tick, remaining:', remaining);
-                if (remaining > 0) {
-                    remaining--;
-                    updateRemainingTime(remaining);
-                } else {
-                    console.log('Timer finished, clearing interval');
-                    clearInterval(timerIntervalId);
-                    Livewire.dispatch('timerFinished');
-                }
-            }, 1000);
-        });
-
-        Livewire.on('stop-timer', () => {
-            console.log('Received stop-timer event');
-            if (timerIntervalId) {
-                console.log('Clearing timer interval');
-                clearInterval(timerIntervalId);
-            }
-            updateRemainingTime(0);
+    Livewire.on('stop-timer', () => {
+        if (rafId) cancelAnimationFrame(rafId);
+        ['remaining', 'remaining-total'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = formatTime(0);
         });
     });
+});
 </script>
