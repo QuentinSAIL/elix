@@ -43,6 +43,7 @@ class Index extends Component
             Toaster::success("La routine « {$r->name} » a été supprimée.");
             $this->routines = $this->routines->filter(fn($n) => $n->id !== $id);
         }
+        $this->selectedRoutine = null;
     }
 
     #[On('routine-saved')]

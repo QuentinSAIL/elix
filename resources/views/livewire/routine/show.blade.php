@@ -1,16 +1,14 @@
 <div class="grid grid-cols-2">
-    <!-- Colonne gauche : infos tâche + timer -->
     <div class="col-span-1 p-6">
+
         <h2 class="text-2xl text-center mb-6">
             {{ $currentTaskIndex === null ? 'Bienvenue dans les détails de la routine ' . $routine->name : 'Tâche en cours' }}
         </h2>
 
         @if ($currentTaskIndex !== null && $currentTask)
             <div class="space-y-4 text-center">
-                {{-- Nom de la tâche --}}
                 <div class="font-bold text-xl">{{ $currentTask->name }}</div>
 
-                {{-- Timer de la tâche --}}
                 <div>
                     <span class="font-bold uppercase text-sm tracking-widest">Temps restant</span>
                     <div class="mt-2 inline-block">
@@ -20,7 +18,6 @@
                     </div>
                 </div>
 
-                {{-- **NOUVEAU** Timer total restant --}}
                 <div>
                     <span class="font-bold uppercase text-sm tracking-widest">Temps total restant</span>
                     <div class="mt-2 inline-block">
@@ -35,9 +32,7 @@
         @endif
     </div>
 
-    <!-- Colonne droite : timeline & contenu -->
     <div class="col-span-1 grid grid-cols-10 gap-4 overflow-y-scroll h-128">
-        <!-- Timeline -->
         <div class="col-span-2 flex flex-col items-center mt-32">
             @foreach ($routine->tasks as $task)
                 <span
@@ -56,53 +51,49 @@
             @endforeach
         </div>
 
-        <!-- Contenu des tâches -->
-        <div class="col-span-8 flex flex-col">
+        <div class="col-span-8 flex flex-col" x-data="{
+            tasks: @js($routine->tasks->map->id),
+            init() {
+                new Sortable(this.$refs.list, {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    onEnd: evt => {
+                        this.tasks.splice(evt.newIndex, 0,
+                            this.tasks.splice(evt.oldIndex, 1)[0]
+                        );
+                        $wire.updateTaskOrder(this.tasks);
+                    },
+                });
+            },
+        }">
             <div class="flex items-end justify-end m-4 gap-1">
-                @if ($currentTaskIndex === null)
-                    <flux:button wire:click="start" variant="primary">
-                        <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" />
-                        Démarrer
-                    </flux:button>
-                @else
-                    <flux:button wire:click="start" variant="primary">
-                        <flux:icon.arrow-path variant="micro" class="w-5 h-5 inline-block mr-1" />
-                        Recommencer
-                    </flux:button>
-                    <flux:button wire:click="playPause" variant="primary">
-                        @if ($isPaused === true)
-                            <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" />
-                            Reprendre
-                        @else
-                            <flux:icon.pause variant="micro" class="w-5 h-5 inline-block mr-1" />
-                            Pause
-                        @endif
-                    </flux:button>
-                    <flux:button wire:click="stop" variant="danger">
-                        <flux:icon.stop variant="micro" class="w-5 h-5 inline-block mr-1" />
-                        Arrêter
-                    </flux:button>
-                @endif
+                {{-- Démarrer / Reprendre / Pause / Arrêter --}}
             </div>
 
-            <div class="flex-1 overflow-y-auto p-4">
-                @forelse ($routine->tasks as $task)
+            <div x-ref="list" class="flex-1 overflow-y-auto p-4 space-y-4">
+                @foreach ($routine->tasks as $task)
                     <div
-                        class="bg-custom-accent p-4 m-4 h-48 {{ $loop->index === $currentTaskIndex ? 'border-3 border-elix' : '' }}">
-                        <h3 class="text-lg font-bold">{{ $task->name }} - {{ $task->order }}</h3>
+                        class="bg-custom-accent p-4 h-48 flex items-center justify-between
+               {{ $loop->index === $currentTaskIndex ? 'border-3 border-elix' : '' }}">
+                        <div class="flex items-center space-x-4">
+                            {{-- handle seulement si la routine n'a pas démarré --}}
+                            @if ($currentTaskIndex === null)
+                                <button type="button" class="drag-handle cursor-move">
+                                    <flux:icon.bars-4 class="w-6 h-6 text-zinc-300 hover:text-zinc-500" />
+                                </button>
+                            @endif
 
-                        <div class="flex items-center mt-2">
-                            <flux:icon.flag class="text-elix" />
-                            <span class="ml-2 text-white">
-                                @limit($task->description, 100)
-                            </span>
-                        </div>
-
-                        <div class="flex items-center mt-1 text-custom-inverse">
-                            <flux:icon.clock class="text-white" />
-                            <span class="ml-2">
-                                {{ $task->duration }}s
-                            </span>
+                            <div>
+                                <h3 class="text-lg font-bold">{{ $task->name }} - {{ $task->order }}</h3>
+                                <div class="flex items-center mt-2">
+                                    <flux:icon.flag class="text-elix" />
+                                    <span class="ml-2 text-white">@limit($task->description, 100)</span>
+                                </div>
+                                <div class="flex items-center mt-1 text-custom-inverse">
+                                    <flux:icon.clock class="text-white" />
+                                    <span class="ml-2">{{ $task->duration }}s</span>
+                                </div>
+                            </div>
                         </div>
 
                         @if ($loop->index === $currentTaskIndex)
@@ -111,97 +102,102 @@
                             </flux:button>
                         @endif
                     </div>
-                @empty
-                    <p class="text-gray-500">Aucune tâche trouvée pour cette routine.</p>
-                @endforelse
+                @endforeach
 
                 <div
-                    class="bg-custom hover-custom p-4 m-4 h-24 border-3 border-dashed flex items-center justify-center text-center cursor-pointer">
+                    class="bg-custom hover-custom p-4 h-24 border-3 border-dashed flex items-center
+             justify-center text-center cursor-pointer">
                     {{ __('Ajouter une tâche') }}
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
 <script>
-document.addEventListener('livewire:init', () => {
-    const durations = @json($routine->tasks->pluck('duration')).map(d => Number(d));
-    let endTime      = 0;
-    let rafId        = null;
-    let currentIndex = 0;
-    let remainingMs  = 0;
+    document.addEventListener('livewire:init', () => {
+        const durations = @json($routine->tasks->pluck('duration')).map(d => Number(d));
+        let endTime = 0;
+        let rafId = null;
+        let currentIndex = 0;
+        let remainingMs = 0;
 
-    /**
-     * Transforme un total de secondes en hh:mm:ss,
-     * avec deux chiffres par partie (00 à 99).
-     */
-    function formatTime(sec) {
-        const h = Math.floor(sec / 3600);
-        const m = Math.floor((sec % 3600) / 60);
-        const s = sec % 60;
-        return [
-            String(h).padStart(2, '0'),
-            String(m).padStart(2, '0'),
-            String(s).padStart(2, '0'),
-        ].join(':');
-    }
-
-    /** Met à jour l’affichage figé ou en pause */
-    function updateDisplay(remMs) {
-        const secCurrent   = Math.ceil(remMs / 1000);
-        const secFollowing = durations
-            .slice(currentIndex + 1)
-            .reduce((sum, d) => sum + d, 0);
-        const secTotal     = secCurrent + secFollowing;
-
-        const remEl   = document.getElementById('remaining');
-        const totalEl = document.getElementById('remaining-total');
-        if (remEl)   remEl.textContent   = formatTime(secCurrent);
-        if (totalEl) totalEl.textContent = formatTime(secTotal);
-    }
-
-    /** Boucle d’animation du timer */
-    function update() {
-        const now = Date.now();
-        let diff  = endTime - now;
-        if (diff < 0) diff = 0;
-
-        updateDisplay(diff);
-
-        if (diff > 0) {
-            rafId = requestAnimationFrame(update);
-        } else {
-            Livewire.dispatch('timer-finished');
+        /**
+         * Transforme un total de secondes en hh:mm:ss,
+         * avec deux chiffres par partie (00 à 99).
+         */
+        function formatTime(sec) {
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60);
+            const s = sec % 60;
+            return [
+                String(h).padStart(2, '0'),
+                String(m).padStart(2, '0'),
+                String(s).padStart(2, '0'),
+            ].join(':');
         }
-    }
 
-    Livewire.on('start-timer', ([{ duration = 0, currentIndex: idx = 0 } = {}]) => {
-        currentIndex = idx;
-        remainingMs  = duration * 1000;
-        endTime      = Date.now() + remainingMs;
-        if (rafId) cancelAnimationFrame(rafId);
-        update();
-    });
+        /** Met à jour l’affichage figé ou en pause */
+        function updateDisplay(remMs) {
+            const secCurrent = Math.ceil(remMs / 1000);
+            const secFollowing = durations
+                .slice(currentIndex + 1)
+                .reduce((sum, d) => sum + d, 0);
+            const secTotal = secCurrent + secFollowing;
 
-    Livewire.on('stop-timer', () => {
-        if (rafId) cancelAnimationFrame(rafId);
-        remainingMs = 0;
-        updateDisplay(0);
-    });
+            const remEl = document.getElementById('remaining');
+            const totalEl = document.getElementById('remaining-total');
+            if (remEl) remEl.textContent = formatTime(secCurrent);
+            if (totalEl) totalEl.textContent = formatTime(secTotal);
+        }
 
-    Livewire.on('play-pause', ([{ isPaused: pause } = {}]) => {
-        if (pause) {
-            // PAUSE : gèle l’affichage
-            if (rafId) cancelAnimationFrame(rafId);
-            remainingMs = Math.max(endTime - Date.now(), 0);
-            updateDisplay(remainingMs);
-        } else {
-            // REPRISE : remet endTime et relance
+        /** Boucle d’animation du timer */
+        function update() {
+            const now = Date.now();
+            let diff = endTime - now;
+            if (diff < 0) diff = 0;
+
+            updateDisplay(diff);
+
+            if (diff > 0) {
+                rafId = requestAnimationFrame(update);
+            } else {
+                Livewire.dispatch('timer-finished');
+            }
+        }
+
+        Livewire.on('start-timer', ([{
+            duration = 0,
+            currentIndex: idx = 0
+        } = {}]) => {
+            currentIndex = idx;
+            remainingMs = duration * 1000;
             endTime = Date.now() + remainingMs;
             if (rafId) cancelAnimationFrame(rafId);
             update();
-        }
+        });
+
+        Livewire.on('stop-timer', () => {
+            if (rafId) cancelAnimationFrame(rafId);
+            remainingMs = 0;
+            updateDisplay(0);
+        });
+
+        Livewire.on('play-pause', ([{
+            isPaused: pause
+        } = {}]) => {
+            if (pause) {
+                // PAUSE : gèle l’affichage
+                if (rafId) cancelAnimationFrame(rafId);
+                remainingMs = Math.max(endTime - Date.now(), 0);
+                updateDisplay(remainingMs);
+            } else {
+                // REPRISE : remet endTime et relance
+                endTime = Date.now() + remainingMs;
+                if (rafId) cancelAnimationFrame(rafId);
+                update();
+            }
+        });
     });
-});
 </script>

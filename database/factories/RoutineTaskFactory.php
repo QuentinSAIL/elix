@@ -21,7 +21,7 @@ class RoutineTaskFactory extends Factory
             'name' => $this->faker->word,
             'description' => $this->faker->sentence,
             'reccurence' => $this->faker->randomElement(['tout le temps', 'toutes les deux fois', 'toutes les trois fois']),
-            'duration' => $this->faker->numberBetween(1, 3600), // in seconds
+            'duration' => $this->faker->numberBetween(1, 3600),
             'order' => 0,
             'autoskip' => true,
             'is_active' => true,

@@ -5,6 +5,7 @@ namespace App\Livewire\Routine;
 use App\Models\Routine;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class Show extends Component
@@ -79,6 +80,18 @@ class Show extends Component
     public function getCurrentTaskProperty()
     {
         return $this->routine->tasks[$this->currentTaskIndex] ?? null;
+    }
+
+    public function updateTaskOrder(array $orderedIds)
+    {
+        foreach ($orderedIds as $newOrder => $taskId) {
+            DB::table('routine_tasks')
+                ->where('id', $taskId)
+                ->update(['order' => $newOrder + 1]);
+        }
+
+        $this->routine->refresh();
+        Toaster::success('Ordre des tâches mis à jour !');
     }
 
     public function render()

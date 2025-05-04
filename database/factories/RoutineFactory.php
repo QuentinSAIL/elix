@@ -36,7 +36,7 @@ class RoutineFactory extends Factory
     public function configure()
     {
         return $this->afterCreating(function (Routine $routine) {
-            $count = rand(1, 50);
+            $count = rand(1, 20);
 
             RoutineTask::factory()
                 ->count($count)
