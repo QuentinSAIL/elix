@@ -2,9 +2,10 @@
 
 namespace App\Livewire\Routine;
 
-use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Routine;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
+use Illuminate\Support\Facades\Auth;
 
 class Show extends Component
 {
@@ -12,6 +13,8 @@ class Show extends Component
     public $routine;
     public $currentTask = null; // null = pas encore démarré
     public $currentTaskIndex = null; // null = pas encore démarré
+
+    public $isPaused = false;
 
     protected $listeners = [
         'timer-finished' => 'onTimerFinished',
@@ -26,6 +29,22 @@ class Show extends Component
     {
         $this->currentTaskIndex = -1;
         $this->next();
+    }
+
+    public function stop()
+    {
+        $this->currentTaskIndex = null;
+        $this->currentTask = null;
+        $this->dispatch('stop-timer');
+        Toaster::success('Routine stopped !');
+    }
+    
+
+    public function playPause()
+    {
+        $this->isPaused = !$this->isPaused;
+        $this->dispatch('play-pause', ['isPaused' => $this->isPaused]);
+        Toaster::success("" . ($this->isPaused ? 'Paused' : 'Play') . " !");
     }
 
     public function updateCurrentTask($index)
