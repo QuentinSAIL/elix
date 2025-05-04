@@ -22,7 +22,7 @@ class Show extends Component
 
     public function mount()
     {
-        $this->user    = Auth::user();
+        $this->user = Auth::user();
     }
 
     public function start()
@@ -38,13 +38,12 @@ class Show extends Component
         $this->dispatch('stop-timer');
         Toaster::success('Routine stopped !');
     }
-    
 
     public function playPause()
     {
         $this->isPaused = !$this->isPaused;
         $this->dispatch('play-pause', ['isPaused' => $this->isPaused]);
-        Toaster::success("" . ($this->isPaused ? 'Paused' : 'Play') . " !");
+        Toaster::success('' . ($this->isPaused ? 'Paused' : 'Play') . ' !');
     }
 
     public function updateCurrentTask($index)
@@ -70,7 +69,7 @@ class Show extends Component
 
     private function startTimerForCurrentTask()
     {
-        if (! $this->currentTask) {
+        if (!$this->currentTask) {
             return;
         }
 

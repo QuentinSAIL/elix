@@ -16,15 +16,13 @@ class RoutineTaskFactory extends Factory
      */
     public function definition(): array
     {
-        static $order = 1;
-
         return [
             'routine_id' => null,
             'name' => $this->faker->word,
             'description' => $this->faker->sentence,
             'reccurence' => $this->faker->randomElement(['tout le temps', 'toutes les deux fois', 'toutes les trois fois']),
-            'duration' => $this->faker->numberBetween(1, 60), // in seconds
-            'order' => $order++,
+            'duration' => $this->faker->numberBetween(1, 3600), // in seconds
+            'order' => 0,
             'autoskip' => true,
             'is_active' => true,
         ];

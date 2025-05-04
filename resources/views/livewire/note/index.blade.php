@@ -1,5 +1,5 @@
 <div class="h-screen">
-    <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-1/5">
+    <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-48">
         <div class="flex-shrink-0 w-1/4 h-full bg-custom p-6 shadow-sm hover:shadow-md transition-shadow flex items-center justify-center cursor-pointer {{ $selectedNote?->id === null ? 'border-elix border-2' : '' }}"
             wire:click="selectNote('{{ null }}')">
             <span class="m-1">Ajouter une note</span>

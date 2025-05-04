@@ -1,5 +1,5 @@
 <div class="">
-    <div class="flex flex-row gap-4 overflow-x-scroll py-4">
+    <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-48">
         <div
             class="flex-shrink-0 w-1/4 bg-custom p-6 shadow-sm hover-custom transition-shadow flex items-center justify-center cursor-pointer">
             <div>
@@ -29,7 +29,7 @@
                     </div>
                 </div>
                 <h3 class="text-xl font-semibold">{{ $routine->name }}</h3>
-                <p class="mt-2 text-sm">{{ $routine->description }}</p>
+                <p class="mt-2 text-sm">@limit($routine->description, 120)</p>
                 @if ($routine->tasks->count())
                     <div class="mt-4 space-y-2">
                         @foreach ($routine->tasks->take(0) as $task)

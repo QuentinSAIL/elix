@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,6 +23,16 @@ class RoutineTask extends Model
         'autoskip',
         'is_active',
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope('userRoutine', function (Builder $builder) {
+            if (Auth::check()) {
+                $user = Auth::user();
+                $builder->whereIn('routine_id', $user->routines->pluck('id'))->orderBy('order', 'asc');
+            }
+        });
+    }
 
     public function routine()
     {

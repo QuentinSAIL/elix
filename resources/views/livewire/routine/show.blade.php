@@ -15,7 +15,7 @@
                     <span class="font-bold uppercase text-sm tracking-widest">Temps restant</span>
                     <div class="mt-2 inline-block">
                         <span id="remaining" class="font-mono text-7xl border-4 rounded-2xl inline-block px-8 py-4">
-                            00:00
+                            00:00:00
                         </span>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                     <span class="font-bold uppercase text-sm tracking-widest">Temps total restant</span>
                     <div class="mt-2 inline-block">
                         <span id="remaining-total" class="font-mono text-3xl border-2 rounded inline-block px-4 py-2">
-                            00:00
+                            00:00:00
                         </span>
                     </div>
                 </div>
@@ -89,7 +89,7 @@
                 @forelse ($routine->tasks as $task)
                     <div
                         class="bg-custom-accent p-4 m-4 h-48 {{ $loop->index === $currentTaskIndex ? 'border-3 border-elix' : '' }}">
-                        <h3 class="text-lg font-bold">{{ $task->name }}</h3>
+                        <h3 class="text-lg font-bold">{{ $task->name }} - {{ $task->order }}</h3>
 
                         <div class="flex items-center mt-2">
                             <flux:icon.flag class="text-elix" />
@@ -125,79 +125,83 @@
 </div>
 
 <script>
-    document.addEventListener('livewire:init', () => {
-        const durations = @json($routine->tasks->pluck('duration')).map(d => Number(d));
-        let endTime = 0;
-        let rafId = null;
-        let currentIndex = 0;
-        let remainingMs = 0;
+document.addEventListener('livewire:init', () => {
+    const durations = @json($routine->tasks->pluck('duration')).map(d => Number(d));
+    let endTime      = 0;
+    let rafId        = null;
+    let currentIndex = 0;
+    let remainingMs  = 0;
 
-        function formatTime(sec) {
-            const m = String(Math.floor(sec / 60)).padStart(2, '0');
-            const s = String(sec % 60).padStart(2, '0');
-            return `${m}:${s}`;
+    /**
+     * Transforme un total de secondes en hh:mm:ss,
+     * avec deux chiffres par partie (00 à 99).
+     */
+    function formatTime(sec) {
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = sec % 60;
+        return [
+            String(h).padStart(2, '0'),
+            String(m).padStart(2, '0'),
+            String(s).padStart(2, '0'),
+        ].join(':');
+    }
+
+    /** Met à jour l’affichage figé ou en pause */
+    function updateDisplay(remMs) {
+        const secCurrent   = Math.ceil(remMs / 1000);
+        const secFollowing = durations
+            .slice(currentIndex + 1)
+            .reduce((sum, d) => sum + d, 0);
+        const secTotal     = secCurrent + secFollowing;
+
+        const remEl   = document.getElementById('remaining');
+        const totalEl = document.getElementById('remaining-total');
+        if (remEl)   remEl.textContent   = formatTime(secCurrent);
+        if (totalEl) totalEl.textContent = formatTime(secTotal);
+    }
+
+    /** Boucle d’animation du timer */
+    function update() {
+        const now = Date.now();
+        let diff  = endTime - now;
+        if (diff < 0) diff = 0;
+
+        updateDisplay(diff);
+
+        if (diff > 0) {
+            rafId = requestAnimationFrame(update);
+        } else {
+            Livewire.dispatch('timer-finished');
         }
+    }
 
-        // Met à jour DOM pour un temps de pause (ou initial)
-        function updateDisplay(remMs) {
-            const secCurrent = Math.ceil(remMs / 1000);
-            const secFollowing = durations
-                .slice(currentIndex + 1)
-                .reduce((sum, d) => sum + d, 0);
-            const secTotal = secCurrent + secFollowing;
+    Livewire.on('start-timer', ([{ duration = 0, currentIndex: idx = 0 } = {}]) => {
+        currentIndex = idx;
+        remainingMs  = duration * 1000;
+        endTime      = Date.now() + remainingMs;
+        if (rafId) cancelAnimationFrame(rafId);
+        update();
+    });
 
-            const remEl = document.getElementById('remaining');
-            const totalEl = document.getElementById('remaining-total');
-            if (remEl) remEl.textContent = formatTime(secCurrent);
-            if (totalEl) totalEl.textContent = formatTime(secTotal);
-        }
+    Livewire.on('stop-timer', () => {
+        if (rafId) cancelAnimationFrame(rafId);
+        remainingMs = 0;
+        updateDisplay(0);
+    });
 
-        function update() {
-            const now = Date.now();
-            let diff = endTime - now;
-            if (diff < 0) diff = 0;
-
-            // On met à jour tant que > 0
-            updateDisplay(diff);
-
-            if (diff > 0) {
-                rafId = requestAnimationFrame(update);
-            } else {
-                Livewire.dispatch('timer-finished');
-            }
-        }
-
-        Livewire.on('start-timer', ([{
-            duration = 0,
-            currentIndex: idx = 0
-        } = {}]) => {
-            currentIndex = idx;
-            remainingMs = duration * 1000;
+    Livewire.on('play-pause', ([{ isPaused: pause } = {}]) => {
+        if (pause) {
+            // PAUSE : gèle l’affichage
+            if (rafId) cancelAnimationFrame(rafId);
+            remainingMs = Math.max(endTime - Date.now(), 0);
+            updateDisplay(remainingMs);
+        } else {
+            // REPRISE : remet endTime et relance
             endTime = Date.now() + remainingMs;
             if (rafId) cancelAnimationFrame(rafId);
             update();
-        });
-
-        Livewire.on('stop-timer', () => {
-            if (rafId) cancelAnimationFrame(rafId);
-            remainingMs = 0;
-            updateDisplay(0);
-        });
-
-        Livewire.on('play-pause', ([{
-            isPaused: pause
-        } = {}]) => {
-            if (pause) {
-                // --- PAUSE ---
-                if (rafId) cancelAnimationFrame(rafId);
-                remainingMs = Math.max(endTime - Date.now(), 0);
-                updateDisplay(remainingMs);
-            } else {
-                // --- REPRISE ---
-                endTime = Date.now() + remainingMs;
-                if (rafId) cancelAnimationFrame(rafId);
-                update();
-            }
-        });
+        }
     });
+});
 </script>
