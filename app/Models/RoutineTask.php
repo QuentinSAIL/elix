@@ -17,7 +17,6 @@ class RoutineTask extends Model
         'routine_id',
         'name',
         'description',
-        'reccurence',
         'duration', // in seconds
         'order',
         'autoskip',

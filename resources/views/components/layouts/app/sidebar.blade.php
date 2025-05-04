@@ -126,6 +126,5 @@
 
         @fluxScripts
         <x-toaster-hub />
-        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     </body>
 </html>

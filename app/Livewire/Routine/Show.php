@@ -4,6 +4,8 @@ namespace App\Livewire\Routine;
 
 use App\Models\Routine;
 use Livewire\Component;
+use App\Models\RoutineTask;
+use Livewire\Attributes\On;
 use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -84,14 +86,49 @@ class Show extends Component
 
     public function updateTaskOrder(array $orderedIds)
     {
-        foreach ($orderedIds as $newOrder => $taskId) {
-            DB::table('routine_tasks')
-                ->where('id', $taskId)
-                ->update(['order' => $newOrder + 1]);
+        foreach ($orderedIds as $i => $id) {
+            RoutineTask::where('id', $id)->update(['order' => $i + 1]);
         }
-
         $this->routine->refresh();
-        Toaster::success('Ordre des tâches mis à jour !');
+        $this->dispatch('task-updated');
+        Toaster::success('Ordre mis à jour !');
+    }
+
+    public function deleteTask(RoutineTask $task)
+    {
+        DB::transaction(function () use ($task) {
+            $order = $task->order;
+            $task->delete();
+
+            // Update the order of subsequent tasks
+            RoutineTask::where('routine_id', $this->routine->id)->where('order', '>', $order)->decrement('order');
+
+            $this->routine->refresh();
+        });
+        Toaster::success('Tâche supprimée !');
+    }
+
+    public function duplicateTask(RoutineTask $task)
+    {
+        DB::transaction(function () use ($task) {
+            // Increment the order of subsequent tasks
+            RoutineTask::where('routine_id', $this->routine->id)->where('order', '>', $task->order)->increment('order');
+
+            // Create the duplicated task with the updated order
+            $newTask = $task->replicate();
+            $newTask->order = $task->order + 1;
+            $newTask->routine_id = $this->routine->id;
+            $newTask->save();
+
+            $this->routine->refresh();
+        });
+        Toaster::success('Tâche dupliquée !');
+    }
+
+    #[On('task-saved')]
+    public function onTaskSaved()
+    {
+        $this->routine->refresh();
     }
 
     public function render()

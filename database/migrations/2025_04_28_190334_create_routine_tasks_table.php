@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignUuid('routine_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->string('reccurence')->nullable();
             $table->integer('duration')->default(0); // in seconds
             $table->integer('order')->default(0);
             $table->boolean('autoskip')->default(false);
