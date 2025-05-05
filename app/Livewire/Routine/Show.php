@@ -33,6 +33,7 @@ class Show extends Component
     {
         $this->currentTaskIndex = -1;
         $this->next();
+        Toaster::info(__('Routine started.'));
     }
 
     public function stop()
@@ -40,13 +41,14 @@ class Show extends Component
         $this->currentTaskIndex = null;
         $this->currentTask = null;
         $this->dispatch('stop-timer');
+        Toaster::info(__('Routine stopped.'));
     }
 
     public function playPause()
     {
         $this->isPaused = !$this->isPaused;
         $this->dispatch('play-pause', ['isPaused' => $this->isPaused]);
-        Toaster::success(($this->isPaused ? __('Pause') : __('Resume')) . ' !');
+        Toaster::info(($this->isPaused ? __('Pause') : __('Resume')) . ' !');
     }
 
     public function updateCurrentTask($index)

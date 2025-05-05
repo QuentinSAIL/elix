@@ -22,6 +22,14 @@ class Show extends Component
         $this->markdownContent = $note?->content;
     }
 
+    public function updatedMarkdownContent()
+    {
+        if ($this->markdownContent)
+        {
+            $this->save();
+        }
+    }
+
     public function save()
     {
         try {

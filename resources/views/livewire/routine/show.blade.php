@@ -229,7 +229,6 @@
                     this.rafId = requestAnimationFrame(() => this.update());
                 } else {
                     Livewire.dispatch('timer-finished');
-                    console.log('Timer finished');
                 }
             },
 

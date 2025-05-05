@@ -9,7 +9,7 @@
 
         {{-- Liste des routines existantes --}}
         @forelse($routines as $routine)
-            <div class="flex-shrink-0 w-1/4 bg-custom p-6 shadow-sm hover:shadow-md transition-shadow relative cursor-pointer"
+            <div class="flex-shrink-0 w-1/4 bg-custom p-6 shadow-sm hover:shadow-md transition-shadow relative cursor-pointer {{ $selectedRoutine?->id === $routine->id ? 'border-elix border-2' : '' }}"
                 wire:click="selectRoutine('{{ $routine->id }}')" wire:key="routine-{{ $routine->id }}">
                 <div class="absolute top-4 right-4" x-data="{ open: false }" x-init="$watch('open', value => { if (!value) $dispatch('close-all') })" @close-all.window="open = false">
                     <div class="relative">
