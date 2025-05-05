@@ -99,51 +99,66 @@
                 @endif
             </div>
 
-            <div x-ref="list" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div x-ref="list" class="flex-1 overflow-y-scroll p-4 space-y-4">
                 @foreach ($routine->tasks as $task)
-                    <div wire:key="task-{{ $task->id }}"
-                        class="bg-custom-accent p-4 h-48 flex items-center justify-between
-                               {{ $loop->index === $currentTaskIndex ? 'border-3 border-elix' : '' }}">
-                        <div class="flex items-center space-x-4">
-                            @if ($currentTaskIndex === null)
-                                <button type="button" class="drag-handle cursor-move">
-                                    <flux:icon.bars-4 class="w-6 h-6 text-zinc-300 hover:text-zinc-500" />
-                                </button>
-                            @endif
+                    <div class="mb-4">
+                        <div wire:key="task-{{ $task->id }}"
+                            class="bg-custom-accent p-4 h-48 flex flex-col justify-between
+                    {{ $loop->index === $currentTaskIndex ? 'border-elix' : '' }}">
+                            <div class="flex items-center space-x-4">
 
-                            <div>
-                                <h3 class="text-lg font-bold">
-                                    {{ $task->name }} – {{ $task->order }}
-                                </h3>
+                                <div class="w-full">
+                                    <div class="flex justify-between items-center">
+                                        <h3 class="text-lg font-bold">
+                                            {{ $task->name }} – {{ $task->order }}
+                                        </h3>
 
-                                <div class="flex items-center mt-2">
-                                    <livewire:routine-task.form :routine="$routine" :task="$task"
-                                        wire:key="task-form-{{ $task->id }}" />
-                                    <flux:icon.trash class="cursor-pointer ml-2" variant="micro"
-                                        wire:click="deleteTask('{{ $task->id }}')" />
-                                    <flux:icon.document-duplicate class="cursor-pointer ml-2" variant="micro"
-                                        wire:click="duplicateTask('{{ $task->id }}')" />
+                                        @if ($currentTaskIndex === null)
+                                            <div class="flex items-center ml-auto">
+                                                <livewire:routine-task.form :routine="$routine" :task="$task"
+                                                    wire:key="task-form-{{ $task->id }}" />
+                                                <flux:icon.trash class="cursor-pointer ml-2" variant="micro"
+                                                    wire:click="deleteTask('{{ $task->id }}')" />
+                                                <flux:icon.document-duplicate class="cursor-pointer ml-2"
+                                                    variant="micro"
+                                                    wire:click="duplicateTask('{{ $task->id }}')" />
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="flex items-center mt-2">
+                                        @if ($task->description)
+                                            <div class="flex items-center">
+                                                <flux:icon.flag class="text-elix" />
+                                                <span class="mx-2 text-white">
+                                                    @limit($task->description, 120)
+                                                </span>
+                                            </div>
+                                        @endif
+                                        <div class="ml-auto my-auto flex items-center">
+                                            @if ($currentTaskIndex === null)
+                                                <button type="button" class="drag-handle cursor-move">
+                                                    <flux:icon.bars-4 class="text-zinc-300 hover:text-zinc-500" />
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <div class="flex items-center mt-2">
-                                    <flux:icon.flag class="text-elix" />
-                                    <span class="ml-2 text-white">
-                                        @limit($task->description, 100)
-                                    </span>
-                                </div>
-
-                                <div class="flex items-center mt-1 text-custom-inverse">
+                            </div>
+                            <div class="flex items-center text-custom-inverse">
+                                <div class="flex items-center">
                                     <flux:icon.clock class="text-white" />
                                     <span class="ml-2">{{ $task->duration }}s</span>
                                 </div>
-                            </div>
-                        </div>
 
-                        @if ($loop->index === $currentTaskIndex)
-                            <flux:button wire:click="next" variant="primary" class="mt-4">
-                                {{ __('Done') }}
-                            </flux:button>
-                        @endif
+                                @if ($loop->index === $currentTaskIndex)
+                                    <flux:button wire:click="next" variant="primary" class="ml-auto">
+                                        {{ __('Done') }}
+                                    </flux:button>
+                                @endif
+                            </div>
+
+                        </div>
                     </div>
                 @endforeach
 
@@ -161,7 +176,7 @@
 
 <script>
     document.addEventListener('livewire:init', () => {
-        const durations = @json($routine->tasks->pluck('duration')).map(d => Number(d));
+        const durations = @json($routine->tasks->pluck('duration')->toArray()).map(d => Number(d));
         let endTime = 0;
         let rafId = null;
         let currentIndex = 0;
