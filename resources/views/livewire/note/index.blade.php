@@ -1,4 +1,4 @@
-<div class="h-screen">
+<div class="">
     <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-48">
         <div class="flex-shrink-0 w-1/4 h-full bg-custom p-6 shadow-sm hover:shadow-md transition-shadow flex items-center justify-center cursor-pointer {{ $selectedNote?->id === null ? 'border-elix border-2' : '' }}"
             wire:click="selectNote('{{ null }}')">
@@ -35,7 +35,7 @@
         @endforelse
     </div>
 
-    <div class="bg-custom flex-1 overflow-y-scroll h-3/4">
+    <div class="bg-custom flex-1 ">
         <livewire:note.show :note="$selectedNote" wire:key="note-{{ $selectedNote?->id }}" />
     </div>
 </div>

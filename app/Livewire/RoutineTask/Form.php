@@ -21,20 +21,29 @@ class Form extends Component
 
     public $task; // c'est rempli quand on est en edition
 
-    public $taskForm = [
-        'name' => '',
-        'description' => '',
-        'duration' => 60,
-        'order' => 0,
-        'autoskip' => true,
-        'is_active' => true,
-    ];
+    public $taskForm;
 
     #[On('task-updated')]
     public function mount()
     {
         $this->user = Auth::user();
         $this->populateForm();
+    }
+
+    public function resetForm()
+    {
+        $this->taskForm = [
+            'name' => '',
+            'description' => '',
+            'duration' => 60,
+            'order' => 0,
+            'autoskip' => true,
+            'is_active' => true,
+        ];
+
+        // set the default order to the last task + 1
+        $order = $this->routine->tasks()->whereNull('deleted_at')->max('order');
+        $this->taskForm['order'] = $order ? $order + 1 : 1;
     }
 
     public function populateForm()
@@ -53,9 +62,7 @@ class Form extends Component
         } else {
             $this->taskId = 'create';
             $this->edition = false;
-            // set the default order to the last task + 1
-            $order = $this->routine->tasks()->max('order');
-            $this->taskForm['order'] = $order ? $order + 1 : 1;
+            $this->resetForm();
         }
     }
 

@@ -15,7 +15,7 @@
     </flux:modal.trigger>
 
     {{-- Modal de création --}}
-    <flux:modal name="task-form-{{ $taskId }}" class="w-5/6">
+    <flux:modal name="task-form-{{ $taskId }}" class="w-5/6" wire:cancel="resetForm">
         <div class="space-y-6">
             <div>
                 @if ($edition)
@@ -28,10 +28,10 @@
             <flux:input :label="__('Name of the task')" :placeholder="__('Morning task')"
                 wire:model.lazy="taskForm.name" />
             <flux:textarea :label="__('Description (optional)')" wire:model.lazy="taskForm.description" />
-            <flux:input :label="__('Time of the task (in second)')" placeholder="3600" wire:model.lazy="taskForm.duration"
+            <flux:input :label="__('Time of the task (in second)s')" placeholder="3600"
+                wire:model.lazy="taskForm.duration" type="number" min="1" />
+            <flux:input :label="__('Order in the routine')" placeholder="3" wire:model.lazy="taskForm.order"
                 type="number" min="1" />
-            <flux:input :label="__('Order in the routine')" placeholder="3" wire:model.lazy="taskForm.order" type="number"
-                min="1" />
 
             <flux:switch :label="__('Skip automatically')" wire:model.lazy="taskForm.autoskip" />
             <flux:switch :label="__('Active')" wire:model.lazy="taskForm.is_active" />

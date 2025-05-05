@@ -1,29 +1,38 @@
 <div class="grid grid-cols-2 h-[74vh]">
     <!-- Colonne gauche : infos tâche + timer -->
-    <div class="col-span-1 p-6">
-        <h2 class="text-2xl text-center mb-6">
-            {{ $currentTaskIndex === null ? __('Routine details') . $routine->name : __('Current Task') }}
+    <div class="col-span-1 p-6" x-data="timer(@json($routine->tasks->pluck('duration')->toArray()))" x-init="init()">
+        <h2 class="text-2xl text-center mb-6 font-semibold">
+            @if ($isFinished)
+                {{ __('Routine finished') . ' ' . $routine->name }}
+            @elseif ($currentTaskIndex === null)
+                {{ __('Routine details') . ' ' . $routine->name }}
+            @else
+                {{ __('Current Task') . ' ' . $currentTask->name }}
+            @endif
         </h2>
-
         @if ($currentTaskIndex !== null && $currentTask)
-            <div class="space-y-4 text-center">
-                <div class="font-bold text-xl">{{ $currentTask->name }}</div>
-                <div>
-                    <span class="font-bold uppercase text-sm tracking-widest">{{ __('Remaining time') }}</span>
-                    <div class="mt-2 inline-block">
-                        <span id="remaining" class="font-mono text-7xl border-4 rounded-2xl inline-block px-8 py-4">
-                            00:00:00
-                        </span>
+            <div class="relative w-96 h-96 mx-auto mb-6">
+                <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
+                    <circle cx="50" cy="50" r="45" :stroke-dasharray="circum"
+                        :stroke-dashoffset="circum - (percent() / 100) * circum" stroke-linecap="round"
+                        class="transform -rotate-90 origin-center stroke-elix stroke-4 fill-transparent" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center space-y-3">
+                    <div class="text-center">
+                        <div class="text-sm uppercase tracking-widest text-zinc-400">{{ __('Elapsed Time') }}</div>
+                        <div class="font-mono text-4xl font-bold text-elix" x-text="hhmmss(elapsedAllMs())"></div>
                     </div>
-                </div>
-                <div>
-                    <span class="font-bold uppercase text-sm tracking-widest">
-                        {{ __('Total remaining time') }}
-                    </span>
-                    <div class="mt-2 inline-block">
-                        <span id="remaining-total" class="font-mono text-3xl border-2 rounded inline-block px-4 py-2">
-                            00:00:00
-                        </span>
+                    <div class="text-center">
+                        <div class="text-xs uppercase tracking-widest text-zinc-500">{{ __('Remaining (Current Task)') }}</div>
+                        <div class="font-mono text-2xl font-semibold text-white" x-text="hhmmss(remainingMs)"></div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs uppercase tracking-widest text-zinc-500">{{ __('Total Remaining') }}</div>
+                        <div class="font-mono text-2xl font-semibold text-white" x-text="hhmmss(totalRemainingMs())"></div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs uppercase tracking-widest text-zinc-400">{{ __('Progress') }}</div>
+                        <div class="text-lg font-semibold text-elix" x-text="Math.min(Math.floor(percent()), 100) + '%'"></div>
                     </div>
                 </div>
             </div>
@@ -101,70 +110,65 @@
 
             <div x-ref="list" class="flex-1 overflow-y-scroll p-4 space-y-4">
                 @foreach ($routine->tasks as $task)
-                    <div class="mb-4">
-                        <div wire:key="task-{{ $task->id }}"
-                            class="bg-custom-accent p-4 h-48 flex flex-col justify-between
-                    {{ $loop->index === $currentTaskIndex ? 'border-elix' : '' }}">
-                            <div class="flex items-center space-x-4">
+                    <div id="{{ $task->id }}" wire:key="task-{{ $task->id }}"
+                        class="bg-custom-accent p-4 h-48 flex flex-col justify-between {{ $loop->index === $currentTaskIndex ? 'border-elix' : '' }}">
+                        <div class="flex items-center space-x-4">
 
-                                <div class="w-full">
-                                    <div class="flex justify-between items-center">
-                                        <h3 class="text-lg font-bold">
-                                            {{ $task->name }} – {{ $task->order }}
-                                        </h3>
+                            <div class="w-full">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="text-lg font-bold">
+                                        {{ $task->name }} – {{ $task->order }}
+                                    </h3>
 
-                                        @if ($currentTaskIndex === null)
-                                            <div class="flex items-center ml-auto">
-                                                <livewire:routine-task.form :routine="$routine" :task="$task"
-                                                    wire:key="task-form-{{ $task->id }}" />
-                                                <flux:icon.trash class="cursor-pointer ml-2" variant="micro"
-                                                    wire:click="deleteTask('{{ $task->id }}')" />
-                                                <flux:icon.document-duplicate class="cursor-pointer ml-2"
-                                                    variant="micro"
-                                                    wire:click="duplicateTask('{{ $task->id }}')" />
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <div class="flex items-center mt-2">
-                                        @if ($task->description)
-                                            <div class="flex items-center">
-                                                <flux:icon.flag class="text-elix" />
-                                                <span class="mx-2 text-white">
-                                                    @limit($task->description, 120)
-                                                </span>
-                                            </div>
-                                        @endif
-                                        <div class="ml-auto my-auto flex items-center">
-                                            @if ($currentTaskIndex === null)
-                                                <button type="button" class="drag-handle cursor-move">
-                                                    <flux:icon.bars-4 class="text-zinc-300 hover:text-zinc-500" />
-                                                </button>
-                                            @endif
+                                    @if ($currentTaskIndex === null)
+                                        <div class="flex items-center ml-auto">
+                                            <livewire:routine-task.form :routine="$routine" :task="$task"
+                                                wire:key="task-form-{{ $task->id }}" />
+                                            <flux:icon.trash class="cursor-pointer ml-2" variant="micro"
+                                                wire:click="deleteTask('{{ $task->id }}')" />
+                                            <flux:icon.document-duplicate class="cursor-pointer ml-2" variant="micro"
+                                                wire:click="duplicateTask('{{ $task->id }}')" />
                                         </div>
+                                    @endif
+                                </div>
+
+                                <div class="flex items-center align-middle my-2 h-full">
+                                    @if ($task->description)
+                                        <div class="flex items-center">
+                                            <flux:icon.flag class="text-elix" />
+                                            <span class="mx-2 text-white">
+                                                @limit($task->description, 120)
+                                            </span>
+                                        </div>
+                                    @endif
+                                    <div class="ml-auto my-auto flex items-center">
+                                        @if ($currentTaskIndex === null)
+                                            <button type="button" class="drag-handle cursor-move">
+                                                <flux:icon.bars-4 class="text-zinc-300 hover:text-zinc-500" />
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex items-center text-custom-inverse">
-                                <div class="flex items-center">
-                                    <flux:icon.clock class="text-white" />
-                                    <span class="ml-2">{{ $task->duration }}s</span>
-                                </div>
-
-                                @if ($loop->index === $currentTaskIndex)
-                                    <flux:button wire:click="next" variant="primary" class="ml-auto">
-                                        {{ __('Done') }}
-                                    </flux:button>
-                                @endif
+                        </div>
+                        <div class="flex items-center text-custom-inverse">
+                            <div class="flex items-center">
+                                <flux:icon.clock class="text-white" />
+                                <span class="ml-2">{{ $task->duration }}s</span>
                             </div>
 
+                            @if ($loop->index === $currentTaskIndex)
+                                <flux:button wire:click="next" variant="primary" class="ml-auto">
+                                    {{ __('Done') }}
+                                </flux:button>
+                            @endif
                         </div>
+
                     </div>
                 @endforeach
 
                 <div
-                    class="bg-custom hover-custom p-4 h-24 border-3 border-dashed flex items-center
-                           justify-center text-center cursor-pointer">
+                    class="bg-custom hover-custom p-4 h-24 border-3 border-dashed flex items-center justify-center text-center cursor-pointer">
                     <livewire:routine-task.form :routine="$routine" wire:key="task-form-create" />
                 </div>
             </div>
@@ -173,81 +177,101 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-
 <script>
-    document.addEventListener('livewire:init', () => {
-        const durations = @json($routine->tasks->pluck('duration')->toArray()).map(d => Number(d));
-        let endTime = 0;
-        let rafId = null;
-        let currentIndex = 0;
-        let remainingMs = 0;
-        /**
-         * Transforme un total de secondes en hh:mm:ss,
-         * avec deux chiffres par partie (00 à 99).
-         */
-        function formatTime(sec) {
-            const h = Math.floor(sec / 3600);
-            const m = Math.floor((sec % 3600) / 60);
-            const s = sec % 60;
-            return [
-                String(h).padStart(2, '0'),
-                String(m).padStart(2, '0'),
-                String(s).padStart(2, '0'),
-            ].join(':');
-        }
-        /** Met à jour l’affichage figé ou en pause */
-        function updateDisplay(remMs) {
-            const secCurrent = Math.ceil(remMs / 1000);
-            const secFollowing = durations
-                .slice(currentIndex + 1)
-                .reduce((sum, d) => sum + d, 0);
-            const secTotal = secCurrent + secFollowing;
-            const remEl = document.getElementById('remaining');
-            const totalEl = document.getElementById('remaining-total');
-            if (remEl) remEl.textContent = formatTime(secCurrent);
-            if (totalEl) totalEl.textContent = formatTime(secTotal);
-        }
-        /** Boucle d’animation du timer */
-        function update() {
-            const now = Date.now();
-            let diff = endTime - now;
-            if (diff < 0) diff = 0;
-            updateDisplay(diff);
-            if (diff > 0) {
-                rafId = requestAnimationFrame(update);
-            } else {
-                Livewire.dispatch('timer-finished');
-            }
-        }
-        Livewire.on('start-timer', ([{
-            duration = 0,
-            currentIndex: idx = 0
-        } = {}]) => {
-            currentIndex = idx;
-            remainingMs = duration * 1000;
-            endTime = Date.now() + remainingMs;
-            if (rafId) cancelAnimationFrame(rafId);
-            update();
-        });
-        Livewire.on('stop-timer', () => {
-            if (rafId) cancelAnimationFrame(rafId);
-            remainingMs = 0;
-            updateDisplay(0);
-        });
-        Livewire.on('play-pause', ([{
-            isPaused: pause
-        } = {}]) => {
-            if (pause) {
-                // PAUSE : gèle l’affichage
-                if (rafId) cancelAnimationFrame(rafId);
-                remainingMs = Math.max(endTime - Date.now(), 0);
-                updateDisplay(remainingMs);
-            } else {
-                // REPRISE : remet endTime et relance
-                endTime = Date.now() + remainingMs;
-                if (rafId) cancelAnimationFrame(rafId);
-                update();
-            }
-        });
-    });
+    function timer(durations) {
+        const segments = durations.length;
+        const r = 45;
+        const circum = 2 * Math.PI * r;
+        const totalDuration = durations.reduce((sum, d) => sum + d, 0) * 1000;
+
+        return {
+            durations,
+            segments,
+            circum,
+            totalDuration,
+            currentIndex: 0,
+            remainingMs: 0,
+            upcomingMs: 0,
+            endTime: 0,
+            rafId: null,
+
+            init() {
+                Livewire.on('start-timer', ([{
+                    duration = 0,
+                    currentIndex: idx = 0
+                } = {}]) => {
+                    this.currentIndex = idx;
+                    this.remainingMs = duration * 1000;
+                    this.upcomingMs = this.durations
+                        .slice(idx + 1)
+                        .reduce((sum, d) => sum + d, 0) * 1000;
+                    this.endTime = Date.now() + this.remainingMs;
+                    this.start();
+                });
+                Livewire.on('stop-timer', () => this.stop());
+                Livewire.on('play-pause', ([{
+                        isPaused: pause
+                    } = {}]) =>
+                    pause ? this.pause() : this.resume()
+                );
+            },
+
+            start() {
+                if (this.rafId) cancelAnimationFrame(this.rafId);
+                this.rafId = requestAnimationFrame(() => this.update());
+            },
+
+            update() {
+                const now = Date.now();
+                const diff = this.endTime - now;
+                this.remainingMs = diff > 0 ? diff : 0;
+                if (diff > 0) {
+                    this.rafId = requestAnimationFrame(() => this.update());
+                } else {
+                    Livewire.dispatch('timer-finished');
+                    console.log('Timer finished');
+                }
+            },
+
+            pause() {
+                if (this.rafId) cancelAnimationFrame(this.rafId);
+                this.remainingMs = Math.max(this.endTime - Date.now(), 0);
+            },
+
+            resume() {
+                this.endTime = Date.now() + this.remainingMs;
+                this.start();
+            },
+
+            stop() {
+                if (this.rafId) cancelAnimationFrame(this.rafId);
+                this.remainingMs = 0;
+            },
+
+            elapsedAllMs() {
+                return this.totalDuration - (this.remainingMs + this.upcomingMs) - 1000;
+            },
+
+            totalRemainingMs() {
+                return this.remainingMs + this.upcomingMs;
+            },
+
+            percent() {
+                const elapsed = this.elapsedAllMs();
+                return this.totalDuration > 0 ?
+                    (elapsed / this.totalDuration) * 100 :
+                    0;
+            },
+
+            hhmmss(ms) {
+                const sec = Math.ceil(ms / 1000);
+                const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+                const m = Math.floor((sec % 3600) / 60)
+                    .toString()
+                    .padStart(2, '0');
+                const s = (sec % 60).toString().padStart(2, '0');
+                return `${h}:${m}:${s}`;
+            },
+        };
+    }
 </script>

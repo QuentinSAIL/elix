@@ -16,6 +16,7 @@ class Show extends Component
     public $routine;
     public $currentTask = null; // null = pas encore démarré
     public $currentTaskIndex = null; // null = pas encore démarré
+    public $isFinished = false;
 
     public $isPaused = false;
 
@@ -39,7 +40,6 @@ class Show extends Component
         $this->currentTaskIndex = null;
         $this->currentTask = null;
         $this->dispatch('stop-timer');
-        Toaster::success(__('Routine stopped.'));
     }
 
     public function playPause()
@@ -52,6 +52,11 @@ class Show extends Component
     public function updateCurrentTask($index)
     {
         $this->currentTask = $this->routine->tasks[$index] ?? null;
+        if (!$this->currentTask) {
+            $this->isFinished = true;
+            $this->stop();
+            Toaster::success(__('Routine finished.'));
+        }
     }
 
     public function next()

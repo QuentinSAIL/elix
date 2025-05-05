@@ -1,4 +1,4 @@
-<div class="">
+<div class="h-[74vh]">
     <div x-data="{ markdownContent: @js($markdownContent ?? '') }" class="flex flex-row h-full overflow-y-scroll">
         <div class="py-3 flex-1 flex flex-col">
             <textarea x-model="markdownContent" class="w-full flex-1 p-4 mt-2 focus:outline-none resize-none"
@@ -15,10 +15,5 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="text-right mr-2">
-        <flux:button variant="primary" wire:click="save" class="bg-custom-accent">
-            {{ __('Save') }}
-        </flux:button>
     </div>
 </div>
