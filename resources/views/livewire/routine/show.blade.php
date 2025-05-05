@@ -2,14 +2,14 @@
     <!-- Colonne gauche : infos tâche + timer -->
     <div class="col-span-1 p-6">
         <h2 class="text-2xl text-center mb-6">
-            {{ $currentTaskIndex === null ? 'Bienvenue dans les détails de la routine ' . $routine->name : 'Tâche en cours' }}
+            {{ $currentTaskIndex === null ? __('Routine details') . $routine->name : __('Current Task') }}
         </h2>
 
         @if ($currentTaskIndex !== null && $currentTask)
             <div class="space-y-4 text-center">
                 <div class="font-bold text-xl">{{ $currentTask->name }}</div>
                 <div>
-                    <span class="font-bold uppercase text-sm tracking-widest">Temps restant</span>
+                    <span class="font-bold uppercase text-sm tracking-widest">{{ __('Remaining time') }}</span>
                     <div class="mt-2 inline-block">
                         <span id="remaining" class="font-mono text-7xl border-4 rounded-2xl inline-block px-8 py-4">
                             00:00:00
@@ -17,7 +17,9 @@
                     </div>
                 </div>
                 <div>
-                    <span class="font-bold uppercase text-sm tracking-widest">Temps total restant</span>
+                    <span class="font-bold uppercase text-sm tracking-widest">
+                        {{ __('Total remaining time') }}
+                    </span>
                     <div class="mt-2 inline-block">
                         <span id="remaining-total" class="font-mono text-3xl border-2 rounded inline-block px-4 py-2">
                             00:00:00
@@ -74,25 +76,25 @@
                 @if ($currentTaskIndex === null)
                     <flux:button wire:click="start" variant="primary">
                         <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" />
-                        Démarrer
+                        {{ __('Start') }}
                     </flux:button>
                 @else
                     <flux:button wire:click="start" variant="primary">
                         <flux:icon.arrow-path variant="micro" class="w-5 h-5 inline-block mr-1" />
-                        Recommencer
+                        {{ __('Restart') }}
                     </flux:button>
                     <flux:button wire:click="playPause" variant="primary">
                         @if ($isPaused)
                             <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" />
-                            Reprendre
+                            {{ __('Resume') }}
                         @else
                             <flux:icon.pause variant="micro" class="w-5 h-5 inline-block mr-1" />
-                            Pause
+                            {{ __('Pause') }}
                         @endif
                     </flux:button>
                     <flux:button wire:click="stop" variant="danger">
                         <flux:icon.stop variant="micro" class="w-5 h-5 inline-block mr-1" />
-                        Arrêter
+                        {{ __('Stop') }}
                     </flux:button>
                 @endif
             </div>
@@ -119,7 +121,7 @@
                                         wire:key="task-form-{{ $task->id }}" />
                                     <flux:icon.trash class="cursor-pointer ml-2" variant="micro"
                                         wire:click="deleteTask('{{ $task->id }}')" />
-                                        <flux:icon.document-duplicate class="cursor-pointer ml-2" variant="micro"
+                                    <flux:icon.document-duplicate class="cursor-pointer ml-2" variant="micro"
                                         wire:click="duplicateTask('{{ $task->id }}')" />
                                 </div>
 

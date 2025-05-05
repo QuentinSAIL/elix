@@ -25,7 +25,6 @@ class Form extends Component
     public $frequency; // c'est rempli quand on est en edition
 
     public $routineForm = [
-        // si on est edition, on populate ca sinon on y rempli au fur a mesure du form normale quoi
         'name' => '',
         'description' => '',
         'is_active' => true,
@@ -33,7 +32,6 @@ class Form extends Component
     ];
 
     public $frequencyForm = [
-        // pareil que pour $this->routine
         'start_date' => '',
         'end_date' => null,
         'end_type' => 'never', // never|until_date|occurrences
@@ -45,7 +43,6 @@ class Form extends Component
         'month_occurrences' => [],
     ];
 
-    //c'est de la constante apres faudra peut être modifier tout ca
     public $days = [
         1 => 'Lundi',
         2 => 'Mardi',

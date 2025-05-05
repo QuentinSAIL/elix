@@ -73,7 +73,7 @@ class Form extends Component
         try {
             $this->validate($rules);
         } catch (ValidationException $e) {
-            Toaster::error('Le contenu de la tâche est invalide.');
+            Toaster::error(__('Task content is invalid.'));
             return;
         }
 

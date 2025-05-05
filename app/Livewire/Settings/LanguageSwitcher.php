@@ -11,18 +11,29 @@ class LanguageSwitcher extends Component
 {
     public string $locale;
 
+    public array $supportedLocales;
+
     public function mount()
     {
-        $this->locale = App::getLocale();
+        // $this->locale = App::getLocale();
+        $this->locale = Session::get('locale', App::getLocale());
+        $this->supportedLocales = config('app.supported_locales');
+        if (in_array($this->locale, array_keys($this->supportedLocales))) {
+            $this->locale = array_key_first($this->supportedLocales);
+        }
+
+        dump($this->locale);
     }
 
     public function switchTo(string $lang)
     {
-        if (in_array($lang, array_keys(config('app.supported_locales')))) {
-            Session::put('locale', $lang);
+        if (array_key_exists($lang, $this->supportedLocales)) {
             App::setLocale($lang);
+            Session::put('locale', $lang);
             $this->locale = $lang;
-            Toaster::info(__('Language switched successfully. to ' . $lang));
+            Toaster::info(__('Language switched successfully to ' . $lang));
+        } else {
+            Toaster::danger(__('Language not supported.'));
         }
     }
 }

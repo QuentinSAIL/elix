@@ -29,21 +29,21 @@ class Show extends Component
                 'markdownContent' => 'required|string|different:' . $this->note?->content,
             ]);
         } catch (ValidationException $e) {
-            Toaster::error('Le contenu de la note est requis.');
+            Toaster::error(__('Note content is required.'));
             return;
         }
 
         if ($this->note) {
             $this->note->content = $this->markdownContent;
             $this->note->save();
-            Toaster::success('Note mise à jour.');
+            Toaster::success(__('Note updated successfully.'));
         } else {
             $this->note = $this->user->notes()->create([
                 'content' => $this->markdownContent,
             ]);
-            Toaster::success('Note Créée.');
+            Toaster::success(__('Note created successfully.'));
         }
-        $this->dispatch('noteSaved', $this->note);
+        $this->dispatch('note-saved', $this->note);
     }
 
     public function render()

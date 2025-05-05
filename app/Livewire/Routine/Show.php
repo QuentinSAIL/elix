@@ -39,14 +39,14 @@ class Show extends Component
         $this->currentTaskIndex = null;
         $this->currentTask = null;
         $this->dispatch('stop-timer');
-        Toaster::success('Routine stopped !');
+        Toaster::success(__('Routine stopped.'));
     }
 
     public function playPause()
     {
         $this->isPaused = !$this->isPaused;
         $this->dispatch('play-pause', ['isPaused' => $this->isPaused]);
-        Toaster::success('' . ($this->isPaused ? 'Paused' : 'Play') . ' !');
+        Toaster::success(($this->isPaused ? __('Pause') : __('Resume')) . ' !');
     }
 
     public function updateCurrentTask($index)
@@ -91,7 +91,7 @@ class Show extends Component
         }
         $this->routine->refresh();
         $this->dispatch('task-updated');
-        Toaster::success('Ordre mis à jour !');
+        Toaster::success(__('Task order updated.'));
     }
 
     public function deleteTask(RoutineTask $task)
@@ -105,7 +105,7 @@ class Show extends Component
 
             $this->routine->refresh();
         });
-        Toaster::success('Tâche supprimée !');
+        Toaster::success(__('Task deleted successfully.'));
     }
 
     public function duplicateTask(RoutineTask $task)
@@ -122,7 +122,7 @@ class Show extends Component
 
             $this->routine->refresh();
         });
-        Toaster::success('Tâche dupliquée !');
+        Toaster::success(__('Task duplicated successfully.'));
     }
 
     #[On('task-saved')]

@@ -40,7 +40,7 @@ class Index extends Component
     {
         if ($r = Routine::find($id)) {
             $r->delete();
-            Toaster::success("La routine « {$r->name} » a été supprimée.");
+            Toaster::success(__('Routine deleted successfully.'));
             $this->routines = $this->routines->filter(fn($n) => $n->id !== $id);
         }
         $this->selectedRoutine = null;

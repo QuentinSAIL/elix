@@ -24,7 +24,7 @@ class Index extends Component
         $this->notes = Note::all();
     }
 
-    #[On('noteSaved')]
+    #[On('note-saved')]
     public function refresh($note)
     {
         $note = Note::findOrFail($note['id']);
@@ -50,11 +50,11 @@ class Index extends Component
     {
         if ($r = Note::find($id)) {
             if (!$r) {
-                Toaster::error('Vous ne pouvez pas supprimer cette note.');
+                Toaster::error(__('You cannot delete this note.'));
                 return;
             }
             $r->delete();
-            Toaster::success('Note supprimée.');
+            Toaster::success(__('Note deleted successfully.'));
             $this->notes = $this->notes->filter(fn($n) => $n->id !== $id);
             if ($this->selectedNote && $this->selectedNote->id === $id) {
                 $this->selectedNote = null;

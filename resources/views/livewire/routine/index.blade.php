@@ -21,7 +21,7 @@
                             <livewire:routine.form :routine="$routine" />
                             <button wire:click="delete('{{ $routine->id }}')" @click="open = false"
                                 class="block w-full px-2 py-2 text-sm text-red-600 hover-custom rounded-b-lg">
-                                Supprimer <span class="inline-flex items-center ml-2">
+                                {{ __('Delete') }} <span class="inline-flex items-center ml-2">
                                     <flux:icon.trash variant="micro" />
                                 </span>
                             </button>
@@ -43,7 +43,7 @@
             </div>
         @empty
             <div class="my-auto mx-auto">
-                Vous n'avez aucune routine pour le moment...
+                {{ __('You don\'t have any routines at the moment...') }}
             </div>
         @endforelse
     </div>
