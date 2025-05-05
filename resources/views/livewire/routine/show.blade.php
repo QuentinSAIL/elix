@@ -125,9 +125,11 @@
                                             <livewire:routine-task.form :routine="$routine" :task="$task"
                                                 wire:key="task-form-{{ $task->id }}" />
                                             <flux:icon.trash class="cursor-pointer ml-2" variant="micro"
-                                                wire:click="deleteTask('{{ $task->id }}')" />
+                                                wire:click="deleteTask('{{ $task->id }}')"
+                                                wire:key="delete-task-{{ $task->id }}" />
                                             <flux:icon.document-duplicate class="cursor-pointer ml-2" variant="micro"
-                                                wire:click="duplicateTask('{{ $task->id }}')" />
+                                                wire:click="duplicateTask('{{ $task->id }}')"
+                                                wire:key="duplicate-task-{{ $task->id }}" />
                                         </div>
                                     @endif
                                 </div>
