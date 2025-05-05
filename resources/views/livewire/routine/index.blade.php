@@ -18,7 +18,7 @@
                         </button>
                         <div x-show="open" @click.away="open = false" @keydown.escape.window="open = false" @click.stop
                             class="absolute right-0 mt-2 w-32 bg-custom-accent rounded-lg shadow-lg z-10" wire:ignore>
-                            <livewire:routine.form :routine="$routine" />
+                            <livewire:routine.form :routine="$routine" :wire:key="'routine-form-'.$routine->id" />
                             <button wire:click="delete('{{ $routine->id }}')" @click="open = false"
                                 class="block w-full px-2 py-2 text-sm text-red-600 hover-custom rounded-b-lg">
                                 {{ __('Delete') }} <span class="inline-flex items-center ml-2">
@@ -47,7 +47,8 @@
             </div>
         @endforelse
     </div>
-    <div class="bg-custom flex-1">
+    {{-- h-[50vh] --}}
+    <div class="bg-custom flex-1 ">
         @if ($selectedRoutine)
             <livewire:routine.show :routine="$selectedRoutine" wire:key="routine-show-{{ $selectedRoutine->id }}" />
         @endif

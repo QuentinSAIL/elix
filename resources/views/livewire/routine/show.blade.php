@@ -1,4 +1,4 @@
-<div class="grid grid-cols-2">
+<div class="grid grid-cols-2 h-[74vh]">
     <!-- Colonne gauche : infos tâche + timer -->
     <div class="col-span-1 p-6">
         <h2 class="text-2xl text-center mb-6">
@@ -31,7 +31,7 @@
     </div>
 
     <!-- Colonne droite : timeline & contenu -->
-    <div class="col-span-1 grid grid-cols-10 gap-4 overflow-y-scroll h-128">
+    <div class="col-span-1 grid grid-cols-10 gap-4 overflow-y-scroll">
         <!-- Timeline -->
         <div class="col-span-2 flex flex-col items-center mt-32">
             @foreach ($routine->tasks as $task)

@@ -109,6 +109,10 @@ class Form extends Component
             $this->freqMonthType = $this->routine->frequency->month_occurrences ? 'ordinal' : 'daysNum';
         } else {
             $this->routineId = 'create';
+            $this->frequencyForm['start_date'] = now()
+                ->setTimezone(config('app.timezone'))
+                ->addMinutes(15 - (now()->minute % 15))
+                ->format('Y-m-d H:i');
             $this->edition = false;
         }
     }
@@ -203,11 +207,11 @@ class Form extends Component
         if ($this->routine) {
             $this->routine->update($this->routineForm);
             $this->routine->frequency()->update($freqData);
-            Toaster::success('Routine mise à jour.');
+            Toaster::success(__('Routine updated successfully.'));
         } else {
             $this->routineForm['frequency_id'] = $frequency->id;
             $this->routine = $this->user->routines()->create($this->routineForm);
-            Toaster::success('Routine Créée.');
+            Toaster::success(__('Routine created successfully.'));
         }
         Flux::modals()->close('routine-form-' . $this->routineId);
         $this->dispatch('routine-saved', routine: $this->routine);
