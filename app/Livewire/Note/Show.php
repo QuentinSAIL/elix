@@ -11,7 +11,6 @@ use Illuminate\Validation\ValidationException;
 class Show extends Component
 {
     public $note;
-    public $notes;
     public $markdownContent;
     public $user;
 
@@ -24,8 +23,7 @@ class Show extends Component
 
     public function updatedMarkdownContent()
     {
-        if ($this->markdownContent)
-        {
+        if ($this->markdownContent) {
             $this->save();
         }
     }
@@ -51,6 +49,7 @@ class Show extends Component
             ]);
             Toaster::success(__('Note created successfully.'));
         }
+
         $this->dispatch('note-saved', $this->note);
     }
 
