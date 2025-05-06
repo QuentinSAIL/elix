@@ -6,7 +6,9 @@ use App\Models\Note;
 use App\Models\User;
 use App\Models\Routine;
 use App\Models\Frequency;
+use App\Models\BankAccount;
 use App\Models\RoutineTask;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
