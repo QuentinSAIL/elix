@@ -13,15 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BankAccount extends Model
 {
-    protected $fillable = [
-        'id',
-        'user_id',
-        'name',
-        'gocardless_account_id',
-        'balance',
-        'created_at',
-        'updated_at',
-    ];
+    protected $fillable = ['id', 'user_id', 'name', 'gocardless_account_id', 'balance', 'created_at', 'updated_at'];
 
     protected $keyType = 'string';
     public $incrementing = false;
@@ -65,11 +57,9 @@ class BankAccount extends Model
             });
     }
 
-
-
     public function updateFromGocardless(GoCardlessDataService $gocardless): void
     {
-        $gocardless->updateAccountTransactions($this->gocardless_account_id);
         $gocardless->updateAccountBalance($this->gocardless_account_id);
+        $gocardless->updateAccountTransactions($this->gocardless_account_id);
     }
 }

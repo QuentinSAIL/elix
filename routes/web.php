@@ -29,7 +29,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('appearance', Appearance::class)->name('settings.appearance');
     });
 
-    Route::get('/bank-data', [App\Http\Controllers\BankDataController::class, 'showAccounts']);
+    // Route::get('/bank-data', [App\Http\Controllers\BankDataController::class, 'showAccounts']);
 });
 
 require __DIR__ . '/auth.php';
