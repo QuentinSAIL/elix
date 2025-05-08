@@ -115,5 +115,11 @@
     "Language not supported.": "Langue non prise en charge.",
     "Language switched successfully to ": "Langue changée avec succès en ",
     "Routine finished.": "Routine terminée.",
-    "Money": "Argent"
+    "Money": "Argent",
+    "Add": "Ajouter",
+    "Add a category to your transaction": "Ajouter une catégorie à votre transaction",
+    "Expense": "Dépense",
+    "Income": "Revenu",
+    "Attach": "Rattacher",
+    "Link a category" : "Lier une catégorie"
 }

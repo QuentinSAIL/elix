@@ -3,9 +3,10 @@
 namespace App\Livewire\Money;
 
 use Livewire\Component;
+use Illuminate\Support\Str;
+use Livewire\Attributes\On;
 use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Services\GoCardlessDataService;
 
@@ -15,8 +16,10 @@ class BankTransactionIndex extends Component
     public $accounts;
     public $selectedAccount;
 
-    public $onInitialLoad = 40;
-    public $increasedLoad = 20;
+    public $transactions;
+
+    public $onInitialLoad = 30;
+    public $increasedLoad = 10;
     public $perPage;
     public $search = '';
 
@@ -25,9 +28,11 @@ class BankTransactionIndex extends Component
 
     public function mount()
     {
-        $this->user     = Auth::user();
+        $this->user = Auth::user();
         $this->accounts = $this->user->bankAccounts;
         $this->selectedAccount = $this->accounts->first(); //TODO: remove this line
+        $this->perPage = $this->onInitialLoad;
+        $this->getTransactionsProperty();
     }
 
     public function refreshTransaction()
@@ -48,7 +53,7 @@ class BankTransactionIndex extends Component
     public function updateSelectedAccount($accountId)
     {
         $this->selectedAccount = $this->accounts->find($accountId);
-        $this->perPage         = $this->onInitialLoad;
+        $this->perPage = $this->onInitialLoad;
     }
 
     public function loadMore()
@@ -66,18 +71,26 @@ class BankTransactionIndex extends Component
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
-            $this->sortField     = $field;
+            $this->sortField = $field;
             $this->sortDirection = 'asc';
         }
     }
 
-    public function getTransactionsProperty(): Collection
+    #[On('transactions-edited')]
+    public function refreshTransactions()
+    {
+        $this->perPage = $this->onInitialLoad;
+        $this->transactions = null;
+        $this->getTransactionsProperty();
+    }
+
+    public function getTransactionsProperty()
     {
         if (! $this->selectedAccount) {
             return collect();
         }
 
-        return $this->selectedAccount
+        $this->transactions = $this->selectedAccount
             ->transactions()
             ->when(Str::length($this->search), function ($query) {
                 $query->whereRaw('LOWER(description) LIKE ?', ['%' . strtolower($this->search) . '%']);
@@ -90,8 +103,7 @@ class BankTransactionIndex extends Component
 
     public function render()
     {
-        return view('livewire.money.bank-transaction-index', [
-            'transactions' => $this->transactions,
-        ]);
+        $this->getTransactionsProperty();
+        return view('livewire.money.bank-transaction-index');
     }
 }

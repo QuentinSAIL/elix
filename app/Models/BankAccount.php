@@ -8,11 +8,15 @@ use Illuminate\Support\Collection;
 use App\Services\GoCardlessDataService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class BankAccount extends Model
 {
+    use HasFactory, HasUuids;
+
     protected $fillable = ['id', 'user_id', 'name', 'gocardless_account_id', 'balance', 'created_at', 'updated_at'];
 
     protected $keyType = 'string';

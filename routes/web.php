@@ -19,8 +19,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('routines', RoutineIndex::class)->name('routines.index');
     Route::get('notes', NoteIndex::class)->name('notes.index');
     Route::group(['prefix' => 'money'], function () {
-        Route::get('/', MoneyIndex::class)->name('money.index');
+        Route::get('dashboard', BankTransactionIndex::class)->name('money.dashboard');
         Route::get('transactions', BankTransactionIndex::class)->name('money.transactions');
+        Route::get('categories', BankTransactionIndex::class)->name('money.categories');
     });
     Route::redirect('settings', 'settings/profile');
     Route::group(['prefix' => 'settings'], function () {

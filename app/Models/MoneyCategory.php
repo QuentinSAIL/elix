@@ -7,12 +7,18 @@ use App\Models\BankTransactions;
 use App\Models\MoneyCategoryMatch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MoneyCategory extends Model
 {
+    use HasFactory, HasUuids;
+
     protected $fillable = [
+        'id',
+        'user_id',
         'name',
         'description',
         'is_expense',

@@ -68,6 +68,10 @@
         @apply hover:bg-zinc-100 dark:hover:bg-zinc-700 p-1;
     }
 
+    .hover-custom-accent {
+        @apply hover:bg-zinc-200 dark:hover:bg-zinc-500 p-1;
+    }
+
     .stroke-elix {
         @apply dark:stroke-[#F2BB22] stroke-[#14083F];
     }

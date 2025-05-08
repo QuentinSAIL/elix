@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('money_categories', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->boolean('is_expense')->default(true);

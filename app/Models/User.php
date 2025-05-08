@@ -81,4 +81,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(MoneyCategory::class);
     }
+
+    public function moneyCategoryMatches()
+    {
+        return $this->hasMany(MoneyCategoryMatch::class);
+    }
 }
