@@ -39,5 +39,6 @@ class DatabaseSeeder extends Seeder
         MoneyCategory::factory()
         ->count(50)
         ->create();
+
     }
 }

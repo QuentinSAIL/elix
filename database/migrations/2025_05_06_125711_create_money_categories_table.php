@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
+            $table->string('color')->nullable();
             $table->boolean('is_expense')->default(true);
             $table->timestamps();
         });

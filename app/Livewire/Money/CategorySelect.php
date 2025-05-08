@@ -90,15 +90,17 @@ class CategorySelect extends Component
 
         if ($this->addOtherTransactions) {
             $this->user->moneyCategoryMatches()->updateOrCreate([
-                'money_category_id' => $category->id,
                 'keyword' => $this->keyword,
+                'user_id' => $this->user->id,
+            ], [
+                'keyword' => $this->keyword,
+                'money_category_id' => $category->id,
+                'user_id' => $this->user->id,
             ]);
 
             if (!$this->addOnlyFutureTransactions) {
-                $this->user->moneyCategoryMatches()->where('keyword', $this->keyword)->each(function ($match) use ($category) {
-                    $match->applyCategoryToEveryMatchingTransaction($this->transaction, $category);
-                });
-                Toaster::success('Category applied to all matching transactions');
+                $transactionEdited = MoneyCategoryMatch::searchAndApplyCategory();
+                Toaster::success('Category applied to all matching transactions (' . $transactionEdited . ')');
             }
         }
 

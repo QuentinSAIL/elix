@@ -9,6 +9,7 @@ use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use App\Services\GoCardlessDataService;
+use Illuminate\Support\Facades\Storage;
 
 class BankTransactionIndex extends Component
 {
@@ -30,22 +31,22 @@ class BankTransactionIndex extends Component
     {
         $this->user = Auth::user();
         $this->accounts = $this->user->bankAccounts;
-        $this->selectedAccount = $this->accounts->first(); //TODO: remove this line
         $this->perPage = $this->onInitialLoad;
         $this->getTransactionsProperty();
     }
 
-    public function refreshTransaction()
+    public function getTransactions()
     {
         $gocardless = new GoCardlessDataService();
 
         foreach ($this->accounts as $account) {
-            try {
-                $account->updateFromGocardless($gocardless);
-                break;
-            } catch (\Exception $e) {
-                Toaster::error($e->getMessage());
-                break;
+            $responses = $account->updateFromGocardless($gocardless);
+            foreach ($responses as $response) {
+                if (isset($response['status']) && $response['status'] === 'error') {
+                    Toaster::error($response['message'])->duration(30000);
+                } else {
+                    Toaster::success($response['message'])->duration(30000);
+                }
             }
         }
     }
@@ -79,14 +80,12 @@ class BankTransactionIndex extends Component
     #[On('transactions-edited')]
     public function refreshTransactions()
     {
-        $this->perPage = $this->onInitialLoad;
-        $this->transactions = null;
         $this->getTransactionsProperty();
     }
 
     public function getTransactionsProperty()
     {
-        if (! $this->selectedAccount) {
+        if (!$this->selectedAccount) {
             return collect();
         }
 

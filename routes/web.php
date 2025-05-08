@@ -1,17 +1,17 @@
 <?php
 
-use App\Livewire\Settings\Appearance;
-use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
+use App\Livewire\Settings\Password;
+use App\Livewire\Settings\Appearance;
 use Illuminate\Support\Facades\Route;
+use App\Services\GoCardlessDataService;
+
+use App\Livewire\Note\Index as NoteIndex;
 
 use App\Livewire\Routine\Index as RoutineIndex;
-use App\Livewire\Note\Index as NoteIndex;
-use App\Livewire\Money\Index as MoneyIndex;
-use App\Livewire\Money\BankTransactionIndex as BankTransactionIndex;
 
-use App\Services\GoCardlessDataService;
-Route::get('/gocardless/callback', GoCardLessDataService::class . '@handleCallback');
+use App\Livewire\Money\BankAccountIndex as AccountIndex;
+use App\Livewire\Money\BankTransactionIndex as TransactionIndex;
 
 Route::middleware(['auth'])->group(function () {
     Route::view('/', 'dashboard')->name('dashboard');
@@ -19,9 +19,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('routines', RoutineIndex::class)->name('routines.index');
     Route::get('notes', NoteIndex::class)->name('notes.index');
     Route::group(['prefix' => 'money'], function () {
-        Route::get('dashboard', BankTransactionIndex::class)->name('money.dashboard');
-        Route::get('transactions', BankTransactionIndex::class)->name('money.transactions');
-        Route::get('categories', BankTransactionIndex::class)->name('money.categories');
+        Route::get('dashboard', TransactionIndex::class)->name('money.dashboard');
+        Route::get('accounts', AccountIndex::class)->name('money.accounts');
+        Route::get('transactions', TransactionIndex::class)->name('money.transactions');
+        Route::get('categories', TransactionIndex::class)->name('money.categories');
     });
     Route::redirect('settings', 'settings/profile');
     Route::group(['prefix' => 'settings'], function () {
@@ -29,8 +30,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('password', Password::class)->name('settings.password');
         Route::get('appearance', Appearance::class)->name('settings.appearance');
     });
-
-    // Route::get('/bank-data', [App\Http\Controllers\BankDataController::class, 'showAccounts']);
+    Route::get('/bank-accounts/callback', [GoCardLessDataService::class, '@handleCallback'])->name('bank-accounts.callback');
 });
+
 
 require __DIR__ . '/auth.php';

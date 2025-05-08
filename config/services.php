@@ -38,7 +38,7 @@ return [
     'gocardless_data' => [
         'secret_id' => env('GOCARDLESS_DATA_SECRET_ID'),
         'secret_key' => env('GOCARDLESS_DATA_SECRET_KEY'),
-        'environment' => 'sandbox',
+        'environment' =>  env('GOCARDLESS_DATA_ENVIRONMENT', 'live'),
     ],
 
 ];

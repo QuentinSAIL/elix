@@ -21,6 +21,7 @@ class MoneyCategory extends Model
         'user_id',
         'name',
         'description',
+        'color',
         'is_expense',
         'user_id',
         'created_at',

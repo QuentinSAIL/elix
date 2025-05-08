@@ -13,7 +13,7 @@
             @endforeach
         </select>
 
-        <flux:button wire:click="refreshTransaction" variant="primary">
+        <flux:button wire:click="getTransactions" variant="primary">
             {{ __('Reload') }}
         </flux:button>
     </div>

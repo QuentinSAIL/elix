@@ -61,9 +61,13 @@ class BankAccount extends Model
             });
     }
 
-    public function updateFromGocardless(GoCardlessDataService $gocardless): void
+    public function updateFromGocardless(GoCardlessDataService $gocardless)
     {
-        $gocardless->updateAccountBalance($this->gocardless_account_id);
-        $gocardless->updateAccountTransactions($this->gocardless_account_id);
+        $balanceResponse = $gocardless->updateAccountBalance($this->gocardless_account_id);
+        $transactionResponse = $gocardless->updateAccountTransactions($this->gocardless_account_id);
+        return [
+            'balance' => $balanceResponse,
+            'transactions' => $transactionResponse,
+        ];
     }
 }

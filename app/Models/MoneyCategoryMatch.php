@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\MoneyCategory;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -14,6 +15,7 @@ class MoneyCategoryMatch extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
+        'user_id',
         'money_category_id',
         'keyword',
         'created_at',
@@ -41,17 +43,30 @@ class MoneyCategoryMatch extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function applyCategory($transaction, $category)
+    public static function checkAndApplyCategory($transaction)
     {
-        $transaction->money_category_id = $category->id;
-        $transaction->save();
+        $category = self::where('keyword', $transaction->description)->first()?->category;
+        if ($category) {
+            $transaction->money_category_id = $category->id;
+            $transaction->save();
+        }
     }
 
-    public function applyCategoryToEveryMatchingTransaction($transaction, $category)
+    // searc in the database in bank_transaction.description if a matching keyword exist
+    // and is not already assigned to a category
+    public static function searchAndApplyCategory()
     {
-        $matchingTransactions = $transaction->where('description', 'like', '%' . $this->keyword . '%')->get();
-        foreach ($matchingTransactions as $matchingTransaction) {
-            $this->applyCategory($matchingTransaction, $category);
+        $transactions = Auth::user()->bankTransactions()->get();
+        $i = 0;
+        foreach ($transactions as $transaction) {
+            $category = self::where('keyword', $transaction->description)->first()?->category;
+            if ($category) {
+                $transaction->money_category_id = $category->id;
+                $transaction->save();
+                $i++;
+            }
         }
+
+        return $i;
     }
 }
