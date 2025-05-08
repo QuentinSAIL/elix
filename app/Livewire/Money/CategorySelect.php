@@ -27,11 +27,7 @@ class CategorySelect extends Component
 
     public $addOtherTransactions = false;
 
-    public $addOnlyFutureTransactions = false;
-
     public $categoryForm;
-
-    public $isExpense;
 
     public $keyword;
 
@@ -45,7 +41,6 @@ class CategorySelect extends Component
         $this->categories = $this->user->moneyCategories;
         $this->selectedCategory = $this->transaction ? $this->transaction->category?->name : null;
         $this->keyword = $this->transaction ? $this->transaction->description : null;
-        $this->isExpense = $this->transaction ? $this->transaction->amount < 0 : true;
         $this->modalId = $this->transaction ? $this->transaction->id : ($this->selectedCategory ? $this->selectedCategory : 'create-' . Str::random(32));
     }
 
@@ -80,7 +75,6 @@ class CategorySelect extends Component
             $category = $this->user->moneyCategories()->create([
                 'name' => $this->selectedCategory,
                 'description' => $this->description,
-                'is_expense' => $this->isExpense,
             ]);
         }
 
@@ -89,19 +83,16 @@ class CategorySelect extends Component
         }
 
         if ($this->addOtherTransactions) {
-            $this->user->moneyCategoryMatches()->updateOrCreate([
-                'keyword' => $this->keyword,
-                'user_id' => $this->user->id,
-            ], [
-                'keyword' => $this->keyword,
-                'money_category_id' => $category->id,
-                'user_id' => $this->user->id,
-            ]);
+            $this->user->moneyCategoryMatches()->updateOrCreate(
+                [
+                    'keyword' => $this->keyword,
+                ],
+                [
+                    'money_category_id' => $category->id,
+                ],
+            );
 
-            if (!$this->addOnlyFutureTransactions) {
-                $transactionEdited = MoneyCategoryMatch::searchAndApplyCategory();
-                Toaster::success('Category applied to all matching transactions (' . $transactionEdited . ')');
-            }
+            $this->dispatch('update-category-match');
         }
 
         $this->dispatch('transactions-edited');

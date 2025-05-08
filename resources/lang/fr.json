@@ -118,9 +118,11 @@
     "Money": "Argent",
     "Add": "Ajouter",
     "Add a category to your transaction": "Ajouter une catégorie à votre transaction",
-    "Expense": "Dépense",
     "Income": "Revenu",
     "Attach": "Rattacher",
     "Link a category" : "Lier une catégorie",
-    "Bank Account": "Compte bancaire"
+    "Bank Account": "Compte bancaire",
+    "Add a new category": "Ajouter une nouvelle catégorie",
+    "Select a category": "Sélectionner une catégorie",
+    "Select a bank account": "Sélectionner un compte bancaire"
 }

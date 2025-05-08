@@ -6,6 +6,7 @@ use Livewire\Component;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Masmerise\Toaster\Toaster;
+use App\Models\MoneyCategoryMatch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use App\Services\GoCardlessDataService;
@@ -16,13 +17,15 @@ class BankTransactionIndex extends Component
     public $user;
     public $accounts;
     public $selectedAccount;
+    public $allAccounts = false;
 
     public $transactions;
 
-    public $onInitialLoad = 30;
+    public $onInitialLoad = 50;
     public $increasedLoad = 10;
     public $perPage;
     public $search = '';
+    public $noMoreToLoad = false;
 
     public $sortField = 'transaction_date';
     public $sortDirection = 'desc';
@@ -31,6 +34,7 @@ class BankTransactionIndex extends Component
     {
         $this->user = Auth::user();
         $this->accounts = $this->user->bankAccounts;
+        $this->selectedAccount = $this->accounts->find('3dbd3046-5762-419f-bae5-350c936da944');
         $this->perPage = $this->onInitialLoad;
         $this->getTransactionsProperty();
     }
@@ -51,8 +55,16 @@ class BankTransactionIndex extends Component
         }
     }
 
+    #[On('update-category-match')]
+    public function searchAndApplyCategory()
+    {
+        $transactionEdited = MoneyCategoryMatch::searchAndApplyCategory();
+        Toaster::success('Category applied to all matching transactions (' . $transactionEdited . ')');
+    }
+
     public function updateSelectedAccount($accountId)
     {
+        $this->allAccounts = $accountId === 'all';
         $this->selectedAccount = $this->accounts->find($accountId);
         $this->perPage = $this->onInitialLoad;
     }
@@ -60,6 +72,9 @@ class BankTransactionIndex extends Component
     public function loadMore()
     {
         $this->perPage += $this->increasedLoad;
+        if ($this->perPage > $this->transactions->count()) {
+            $this->noMoreToLoad = true;
+        }
     }
 
     public function updatingSearch()
@@ -85,12 +100,19 @@ class BankTransactionIndex extends Component
 
     public function getTransactionsProperty()
     {
-        if (!$this->selectedAccount) {
+        // dump($this->selectedAccount, $this->allAccounts);
+        if (!$this->selectedAccount && !$this->allAccounts) {
             return collect();
         }
 
-        $this->transactions = $this->selectedAccount
-            ->transactions()
+
+        if ($this->allAccounts) {
+            $this->transactions = $this->user->bankTransactions();
+        } else {
+            $this->transactions = $this->selectedAccount->transactions();
+        }
+
+        $this->transactions = $this->transactions
             ->when(Str::length($this->search), function ($query) {
                 $query->whereRaw('LOWER(description) LIKE ?', ['%' . strtolower($this->search) . '%']);
             })

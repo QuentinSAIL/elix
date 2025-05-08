@@ -21,7 +21,6 @@ class MoneyCategoryFactory extends Factory
             'user_id' => User::all()->random()->id,
             'name' => $this->faker->word,
             'description' => $this->faker->sentence,
-            'is_expense' => $this->faker->boolean,
         ];
     }
 }

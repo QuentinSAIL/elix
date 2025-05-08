@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\MoneyCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -14,13 +13,7 @@ class MoneyCategoryMatch extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = [
-        'user_id',
-        'money_category_id',
-        'keyword',
-        'created_at',
-        'updated_at',
-    ];
+    protected $fillable = ['user_id', 'money_category_id', 'keyword', 'created_at', 'updated_at'];
 
     protected static function boot()
     {
@@ -45,9 +38,9 @@ class MoneyCategoryMatch extends Model
 
     public static function checkAndApplyCategory($transaction)
     {
-        $category = self::where('keyword', $transaction->description)->first()?->category;
-        if ($category) {
-            $transaction->money_category_id = $category->id;
+        $match = MoneyCategoryMatch::whereRaw('? LIKE \'%\' || LOWER(keyword) || \'%\'', [strtolower($transaction->description)])->first();
+        if ($match) {
+            $transaction->money_category_id = $match->category->id;
             $transaction->save();
         }
     }
@@ -59,9 +52,9 @@ class MoneyCategoryMatch extends Model
         $transactions = Auth::user()->bankTransactions()->get();
         $i = 0;
         foreach ($transactions as $transaction) {
-            $category = self::where('keyword', $transaction->description)->first()?->category;
-            if ($category) {
-                $transaction->money_category_id = $category->id;
+            $match = MoneyCategoryMatch::whereRaw('? LIKE \'%\' || LOWER(keyword) || \'%\'', [strtolower($transaction->description)])->first();
+            if ($match && $transaction->money_category_id !== $match->category->id) {
+                $transaction->money_category_id = $match->category->id;
                 $transaction->save();
                 $i++;
             }

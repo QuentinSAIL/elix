@@ -4,7 +4,6 @@
             @if ($category)
                 <span class="cursor-pointer">@limit($category->name, 24)</span>
             @else
-                {{-- <span class="cursor-pointer">{{ __('Add') }}</span> --}}
                 <span class="cursor-pointer">-</span>
             @endif
         </div>
@@ -13,7 +12,7 @@
     <flux:modal name="category-form-{{ $modalId }}" class="w-5/6">
         <div class="space-y-6">
             <div>
-                <flux:heading size="2xl">{{ __('Create a new category') }}</flux:heading>
+                <flux:heading size="2xl">{{ __('Add a new category') }}</flux:heading>
                 @if ($transaction)
                     <flux:text class="mt-2">
                         @if ($category)
@@ -29,13 +28,16 @@
                 <label for="category" class="font-bold">Catégorie</label>
 
                 <div class="flex flex-col space-y-4">
-                    <input type="text" name="category_name" id="category" placeholder="— Sélectionnez ou tapez —"
-                        wire:model.live.debounce.500ms="selectedCategory" list="categories-list"
+                    <input type="text" name="category_name" id="category"
+                        placeholder="{{ __('Select a category') }}" wire:model.live.debounce.500ms="selectedCategory"
+                        list="categories-list"
                         class="w-full px-4 py-2 border rounded-lg bg-custom focus:outline-none" />
+
 
                     <datalist id="categories-list">
                         @foreach ($categories as $category)
                             <option value="{{ $category->name }}"></option>
+                            j
                         @endforeach
                     </datalist>
 
@@ -46,7 +48,6 @@
 
                         <div class="space-y-6">
                             <flux:textarea :label="__('Description (optional)')" wire:model.lazy="description" />
-                            <flux:switch :label="__('Expense')" wire:model.lazy="isExpense" />
                         </div>
                     @endif
 
@@ -56,8 +57,6 @@
                     @if ($addOtherTransactions)
                         <flux:input :label="__('Keyword to match')" placeholder="Payment Amazon"
                             wire:model.lazy="keyword" />
-                        <flux:switch :label="__('Add only future transactions')"
-                            wire:model.lazy="addOnlyFutureTransactions" />
                     @endif
 
                     <div class="flex mt-6 justify-end">

@@ -83,6 +83,11 @@ class User extends Authenticatable
         return $this->hasManyThrough(BankTransactions::class, BankAccount::class);
     }
 
+    public function sumBalances()
+    {
+        return $this->bankAccounts->sum('balance');
+    }
+
     public function moneyCategories()
     {
         return $this->hasMany(MoneyCategory::class);

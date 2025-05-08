@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('color')->nullable();
-            $table->boolean('is_expense')->default(true);
             $table->timestamps();
         });
     }

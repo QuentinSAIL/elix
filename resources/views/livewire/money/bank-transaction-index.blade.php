@@ -7,7 +7,8 @@
     <div class="mt-4 flex items-center space-x-3">
         <select wire:change="updateSelectedAccount($event.target.value)"
             class="flex-1 px-4 py-2 border rounded-lg bg-custom">
-            <option value="">-- Sélectionnez --</option>
+            <option value="">{{ __('Select a bank account') }}</option>
+            <option value="all">Tous</option>
             @foreach ($accounts as $acct)
                 <option value="{{ $acct->id }}">{{ $acct->name }}</option>
             @endforeach
@@ -18,17 +19,19 @@
         </flux:button>
     </div>
 
-    @if ($selectedAccount)
+    @if ($selectedAccount || $allAccounts)
         <div>
             <h4 class="mt-6 text-lg font-medium custom">
-                Transactions pour « {{ $selectedAccount->name }} »
+                Transactions pour « {{ $selectedAccount->name ?? 'Tous les comptes bancaire' }} »
             </h4>
             <p class="mt-2 text-sm text-zinc-500">
-                {{ count($selectedAccount->transactions) }} transactions,
-                Solde : {{ number_format($selectedAccount->balance, 2, ',', ' ') }} €
+                {{ count($selectedAccount->transactions ?? $user->bankTransactions()->get()) }} transactions,
+                Solde : {{ number_format($selectedAccount->balance ?? $user->sumBalances(), 2, ',', ' ') }} €
             </p>
         </div>
-        <div x-data x-init="$el.addEventListener('scroll', () => {
+        <div x-data x-init="
+        $el.scrollTop = 0;
+        $el.addEventListener('scroll', () => {
             if ($el.scrollTop + $el.clientHeight >= $el.scrollHeight - 5) {
                 $wire.loadMore()
             }
@@ -48,8 +51,7 @@
                                 @endif
                             @endif
 
-                            <input wire:model.live.debounce.500ms="search" x-on:click.stop
-                                placeholder="Rechercher..."
+                            <input wire:model.live.debounce.500ms="search" x-on:click.stop placeholder="Rechercher..."
                                 class="ml-8 px-4 py-2 border rounded-lg flex-1 text-md focus:outline-none" />
 
                         </th>
@@ -100,12 +102,14 @@
                                 </td>
                                 @if ($tx->category)
                                     <td class="px-4 py-2 text-xs text-center">
-                                        <livewire:money.category-select wire:key="transaction-form-{{ $tx->id }}-{{ $loop->index }}"
+                                        <livewire:money.category-select
+                                            wire:key="transaction-form-{{ $tx->id }}-{{ $loop->index }}"
                                             :category="$tx->category" :transaction="$tx" />
                                     </td>
                                 @else
                                     <td class="px-4 py-2 text-xs text-center">
-                                        <livewire:money.category-select wire:key="transaction-form-{{ $tx->id }}-{{ $loop->index }}"
+                                        <livewire:money.category-select
+                                            wire:key="transaction-form-{{ $tx->id }}-{{ $loop->index }}"
                                             :transaction="$tx" />
                                     </td>
                                 @endif
@@ -124,9 +128,11 @@
                     @endif
                 </tbody>
             </table>
-            <div wire:loading class="py-4 text-center text-sm text-zinc-500">
-                Chargement…
-            </div>
+            @if (!$noMoreToLoad)
+                <div wire:loading class="py-4 text-center text-sm text-zinc-500">
+                    Chargement…
+                </div>
+            @endif
         </div>
     @endif
 </div>
