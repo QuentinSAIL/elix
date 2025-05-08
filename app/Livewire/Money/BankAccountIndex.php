@@ -4,25 +4,19 @@ namespace App\Livewire\Money;
 
 use Flux\Flux;
 use Livewire\Component;
-use Illuminate\Support\Str;
 use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
-use App\Services\GoCardlessDataService;
 
 class BankAccountIndex extends Component
 {
     public $user;
     public $accounts;
 
+
     public function mount()
     {
         $this->user = Auth::user();
         $this->accounts = $this->user->bankAccounts;
-    }
-
-    public function addNewAccount(GoCardlessDataService $gocardless)
-    {
-        //
     }
 
     public function updateAccountName($accountId, $name)

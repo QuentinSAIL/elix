@@ -39,12 +39,6 @@
                 </flux:modal>
             </div>
         @endforeach
-        <div class="flex-shrink-0 w-1/4 h-full cursor-pointer bg-custom p-6 shadow-sm hover:shadow-md transition-shadow flex items-center justify-center"
-            wire:click="addNewAccount">
-            <span class="m-1">
-                {{ __('Add new bank account') }}
-            </span>
-            <flux:icon.plus class="text-2xl text-white" />
-        </div>
+        <livewire:money.bank-account-create wire:key="create-bank-account" />
     </div>
 </div>

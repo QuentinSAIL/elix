@@ -131,6 +131,30 @@ class GoCardlessDataService
         return ['status' => 'success', 'message' => __('Account transactions for "' . $account->name . '" updated successfully.')];
     }
 
+    public function getBanks($country = 'fr')
+    {
+        return Cache::remember('gocardless_banks', 10000, function () use ($country) {
+            $response = Http::withToken($this->accessToken())
+                ->get("{$this->baseUrl}/institutions/?country={$country}")
+                ->json();
+
+            return $response;
+        });
+    }
+
+    public function userAgreement($institutionId, $maxHistoricalDays, $accessValidForDays)
+    {
+        $response = Http::withToken($this->accessToken())
+            ->post("{$this->baseUrl}/agreements/enduser/", [
+                'institution_id' => $institutionId,
+                'max_historical_days' => $maxHistoricalDays,
+                'access_valid_for_days' => $accessValidForDays,
+                'access_scope' => ['balances', 'details', 'transactions'],
+            ]);
+
+        return $response;
+    }
+
     public function formatDuration(int $totalSeconds): string
     {
         $units = [
