@@ -17,6 +17,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('gocardless_account_id')->nullable();
             $table->decimal('balance', 15, 2)->default(0);
+            $table->date('end_valid_access')->nullable();
+            $table->string('institution_id')->nullable();
+            $table->string('agreement_id')->nullable();
+            $table->string('reference')->nullable();
+            $table->string('transaction_total_days')->nullable();
             $table->timestamps();
         });
     }

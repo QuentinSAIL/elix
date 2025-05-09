@@ -29,8 +29,7 @@
                 Solde : {{ number_format($selectedAccount->balance ?? $user->sumBalances(), 2, ',', ' ') }} €
             </p>
         </div>
-        <div x-data x-init="
-        $el.scrollTop = 0;
+        <div x-data x-init="$el.scrollTop = 0;
         $el.addEventListener('scroll', () => {
             if ($el.scrollTop + $el.clientHeight >= $el.scrollHeight - 5) {
                 $wire.loadMore()
@@ -128,11 +127,11 @@
                     @endif
                 </tbody>
             </table>
-            @if (!$noMoreToLoad)
-                <div wire:loading class="py-4 text-center text-sm text-zinc-500">
+            <div class="text-center w-full mx-auto py-2 text-sm text-zinc-500">
+                <div wire:loading class="text-sm text-zinc-500">
                     Chargement…
                 </div>
-            @endif
+            </div>
         </div>
     @endif
 </div>

@@ -16,7 +16,7 @@
 
             <div>
                 <select wire:change="updateSelectedBank($event.target.value)"
-                    class="flex-1 px-4 py-2 border rounded-lg bg-custom">
+                    class="flex-1 px-4 py-2 w-full border rounded-lg bg-custom outline-none">
                     <option value="">{{ __('Select a bank') }}</option>
                     @foreach ($banks as $bank)
                         <option value="{{ $bank['id'] }}">{{ $bank['name'] }}</option>
@@ -25,14 +25,19 @@
 
                 @if ($selectedBank)
                     <div class="mt-4">
-                        <p>
-                            {{ __('En cliquant sur valider, je confirme accepter de fournir mes transactions bancaire des ') . $transactionTotalDays . __(' derniers jours') }}
-                            <br>
-                            {{ __('En cliquant sur valider, je confirme accepter de fournir mes transactions bancaire pendant ') . $maxAccessValidForDays . __(' jours') }}
-                            <br>
-                            {{ __('Je comprends que je peux annuler cette autorisation à tout moment') }}
-                        </p>
-                        <flux:button class="mt-4" wire:click="acceptUserAgreement"> {{ __('Validate') }}
+                        <div class="text-sm text-gray-600 space-y-2">
+                            <flux:text>
+                                {{ __('By clicking validate, I confirm that I agree to provide my bank transactions for the last ') . $transactionTotalDays . __(' days.') }}
+                            </flux:text>
+                            <flux:text>
+                                {{ __('By clicking validate, I confirm that I agree to provide my bank transactions for a period of ') . $maxAccessValidForDays . __(' days.') }}
+                            </flux:text>
+                            <flux:text>
+                                {{ __('I understand that I can revoke this authorization at any time.') }}
+                            </flux:text>
+                        </div>
+                        <flux:button class="mt-4" variant="primary" wire:click="acceptUserAgreement">
+                            {{ __('Validate') }}
                         </flux:button>
                     </div>
                 @endif

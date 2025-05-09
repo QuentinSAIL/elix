@@ -29,10 +29,8 @@ class BankAccountCreate extends Component
     public function acceptUserAgreement()
     {
         $goCardlessDataService = new GoCardlessDataService();
-        $res = $goCardlessDataService->userAgreement($this->selectedBank, $this->transactionTotalDays, $this->maxAccessValidForDays);
-        dd($res);
+        $goCardlessDataService->userAgreement($this->selectedBank, $this->transactionTotalDays, $this->maxAccessValidForDays);
 
-        //TODO: https://developer.gocardless.com/bank-account-data/quick-start-guide STEP 4
     }
 
     public function addNewAccount()

@@ -34,7 +34,6 @@ class BankTransactionIndex extends Component
     {
         $this->user = Auth::user();
         $this->accounts = $this->user->bankAccounts;
-        $this->selectedAccount = $this->accounts->find('3dbd3046-5762-419f-bae5-350c936da944');
         $this->perPage = $this->onInitialLoad;
         $this->getTransactionsProperty();
     }

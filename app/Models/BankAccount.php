@@ -17,7 +17,20 @@ class BankAccount extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['id', 'user_id', 'name', 'gocardless_account_id', 'balance', 'created_at', 'updated_at'];
+    protected $fillable = [
+        'id',
+        'user_id',
+        'name',
+        'gocardless_account_id',
+        'balance',
+        'end_valid_access',
+        'institution_id',
+        'agreement_id',
+        'reference',
+        'transaction_total_days',
+        'created_at',
+        'updated_at'
+    ];
 
     protected $keyType = 'string';
     public $incrementing = false;

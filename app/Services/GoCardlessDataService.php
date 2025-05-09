@@ -8,6 +8,7 @@ use Masmerise\Toaster\Toaster;
 use App\Models\BankTransactions;
 use App\Models\MoneyCategoryMatch;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -42,8 +43,6 @@ class GoCardlessDataService
             ->get("{$this->baseUrl}/accounts/{$accountId}/balances/")
             ->json();
 
-        Storage::put('balances_' . Str::uuid() . "_{$accountId}.json", json_encode($res, JSON_PRETTY_PRINT));
-
         return $res;
     }
 
@@ -67,7 +66,7 @@ class GoCardlessDataService
                 }
             }
 
-            $balance = $balances['balances']['current']['amount'] ?? 0;
+            $balance = $balances['balances'][0]['balanceAmount']['amount'] ?? 0;
         } catch (\Exception $e) {
             Log::error('Error fetching account balances: ' . $e->getMessage() . ' for account ID: ' . $accountId);
             throw $e;
@@ -142,17 +141,77 @@ class GoCardlessDataService
         });
     }
 
-    public function userAgreement($institutionId, $maxHistoricalDays, $accessValidForDays)
+    public function getAccountsFromRef($ref)
     {
         $response = Http::withToken($this->accessToken())
-            ->post("{$this->baseUrl}/agreements/enduser/", [
-                'institution_id' => $institutionId,
-                'max_historical_days' => $maxHistoricalDays,
-                'access_valid_for_days' => $accessValidForDays,
-                'access_scope' => ['balances', 'details', 'transactions'],
-            ]);
+            ->get("{$this->baseUrl}/requisitions/?limit=100&offset=0")
+            ->json();
 
+        $results = $response['results'];
+        foreach ($results as $result) {
+            // dd($result);
+            // $this->deleteRequisitionFromRef($result['id']);
+            if ($result['reference'] === $ref) {
+                return $result['accounts'];
+            }
+        }
+        return [];
+    }
+
+    public function deleteRequisitionFromRef($ref)
+    {
+        $response = Http::withToken($this->accessToken())
+            ->delete("{$this->baseUrl}/requisitions/{$ref}/")
+            ->json();
         return $response;
+    }
+
+    public function userAgreement($institutionId, $maxHistoricalDays, $accessValidForDays)
+    {
+        $response = Http::withToken($this->accessToken())->post("{$this->baseUrl}/agreements/enduser/", [
+            'institution_id' => $institutionId,
+            'max_historical_days' => $maxHistoricalDays,
+            'access_valid_for_days' => $accessValidForDays,
+            'access_scope' => ['balances', 'details', 'transactions'],
+        ]);
+
+        if ($response['created']) {
+            $this->requisition($institutionId, $response['id'], now()->addDays($response['access_valid_for_days']), $response['max_historical_days']);
+        } else {
+            exit('Error creating user agreement: ' . json_encode($response));
+        }
+    }
+
+    public function requisition($institutionId, $agreementId, $accesEndDate, $maxHistoricalDays, $country = 'fr')
+    {
+        $reference = (string) Str::uuid();
+        $response = Http::withToken($this->accessToken())->post("{$this->baseUrl}/requisitions/", [
+            'redirect' => config('services.url.web') . 'money/accounts',
+            'institution_id' => $institutionId,
+            'reference' => $reference,
+            'agreement' => $agreementId,
+            'user_language' => $country,
+        ]);
+
+        if ($response['created']) {
+            $bankAccount = Auth::user()
+                ->bankAccounts()
+                ->updateOrCreate(
+                    [
+                        'gocardless_account_id' => null,
+                    ],
+                    [
+                        'name' => $institutionId,
+                        'end_valid_access' => $accesEndDate,
+                        'institution_id' => $institutionId,
+                        'agreement_id' => $agreementId,
+                        'reference' => $reference,
+                        'transaction_total_days' => $maxHistoricalDays,
+                    ],
+                );
+
+            return redirect($response['link']);
+        }
     }
 
     public function formatDuration(int $totalSeconds): string
