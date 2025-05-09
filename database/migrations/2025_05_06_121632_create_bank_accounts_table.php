@@ -22,6 +22,10 @@ return new class extends Migration
             $table->string('agreement_id')->nullable();
             $table->string('reference')->nullable();
             $table->string('transaction_total_days')->nullable();
+            $table->string('iban')->nullable();
+            $table->string('currency')->nullable();
+            $table->string('owner_name')->nullable();
+            $table->string('cash_account_type')->nullable();
             $table->timestamps();
         });
     }

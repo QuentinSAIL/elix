@@ -44,11 +44,13 @@ class BankTransactionIndex extends Component
 
         foreach ($this->accounts as $account) {
             $responses = $account->updateFromGocardless($gocardless);
-            foreach ($responses as $response) {
-                if (isset($response['status']) && $response['status'] === 'error') {
-                    Toaster::error($response['message'])->duration(30000);
-                } else {
-                    Toaster::success($response['message'])->duration(30000);
+            if ($responses) {
+                foreach ($responses as $response) {
+                    if (isset($response['status']) && $response['status'] === 'error') {
+                        Toaster::error($response['message'])->duration(30000);
+                    } else {
+                        Toaster::success($response['message'])->duration(30000);
+                    }
                 }
             }
         }

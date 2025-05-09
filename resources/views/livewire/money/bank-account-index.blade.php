@@ -5,7 +5,7 @@
                 <input type="text" class="text-lg font-bold border-none focus:ring-0 focus:outline-none stroke-0"
                     value="{{ $account->name }}"
                     wire:change="updateAccountName('{{ $account->id }}', $event.target.value)" />
-                <p class="text-gray-600">Balance: {{ $account->balance }}</p>
+                <p class="text-gray-600">{{ __('Balance: ') }}{{ $account->balance }}</p>
                 <div class="flex justify-end mt-9">
                     <flux:modal.trigger name="delete-account-{{ $account->id }}">
                         <flux:button variant="danger">
@@ -16,11 +16,11 @@
                 <flux:modal name="delete-account-{{ $account->id }}">
                     <div class="space-y-6">
                         <div>
-                            <flux:heading size="lg">Delete bank account?</flux:heading>
+                            <flux:heading size="lg">{{ __('Delete bank account?') }}</flux:heading>
 
                             <flux:text class="mt-2">
-                                <p>You're about to delete this bank account.</p>
-                                <p>This action cannot be reversed.</p>
+                                <p>{{ __('You\'re about to delete this bank account.') }}</p>
+                                <p>{{ __('This action cannot be reversed.') }}</p>
                             </flux:text>
                         </div>
 
@@ -28,7 +28,7 @@
                             <flux:spacer />
 
                             <flux:modal.close>
-                                <flux:button variant="ghost">Cancel</flux:button>
+                                <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
                             </flux:modal.close>
 
                             <flux:button wire:click="delete('{{ $account->id }}')" variant="danger">

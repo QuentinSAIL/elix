@@ -1,15 +1,13 @@
 <?php
 
+use App\Livewire\Settings\ApiKey;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\Password;
+use App\Livewire\Note\Index as NoteIndex;
 use App\Livewire\Settings\Appearance;
 use Illuminate\Support\Facades\Route;
 use App\Services\GoCardlessDataService;
-
-use App\Livewire\Note\Index as NoteIndex;
-
 use App\Livewire\Routine\Index as RoutineIndex;
-
 use App\Livewire\Money\BankAccountIndex as AccountIndex;
 use App\Livewire\Money\BankTransactionIndex as TransactionIndex;
 
@@ -29,6 +27,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('profile', Profile::class)->name('settings.profile');
         Route::get('password', Password::class)->name('settings.password');
         Route::get('appearance', Appearance::class)->name('settings.appearance');
+        Route::get('api-keys', ApiKey::class)->name('settings.api-keys');
     });
     Route::get('/bank-accounts/callback', [GoCardLessDataService::class, '@handleCallback'])->name('bank-accounts.callback');
 });

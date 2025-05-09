@@ -31,19 +31,35 @@ class GoCardlessDataService
 
     public function getAccountTransactions(string $accountId)
     {
-        $res = Http::withToken($this->accessToken())
-            ->get("{$this->baseUrl}/accounts/{$accountId}/transactions/")
-            ->json();
-        return $res;
+        return Cache::remember("gocardless_account_transactions_{$accountId}", 3600 * 20, function () use ($accountId) {
+            $res = Http::withToken($this->accessToken())
+                ->get("{$this->baseUrl}/accounts/{$accountId}/transactions/")
+                ->json();
+
+            return $res;
+        });
     }
 
     public function getAccountBalances(string $accountId)
     {
-        $res = Http::withToken($this->accessToken())
-            ->get("{$this->baseUrl}/accounts/{$accountId}/balances/")
-            ->json();
+        return Cache::remember("gocardless_account_balances_{$accountId}", 3600 * 20, function () use ($accountId) {
+            $res = Http::withToken($this->accessToken())
+                ->get("{$this->baseUrl}/accounts/{$accountId}/balances/")
+                ->json();
 
-        return $res;
+            return $res;
+        });
+    }
+
+    public function getAccountDetails($accountId)
+    {
+        return Cache::remember("gocardless_account_details_{$accountId}", 3600 * 20, function () use ($accountId) {
+            $res = Http::withToken($this->accessToken())
+                ->get("{$this->baseUrl}/accounts/{$accountId}/details/")
+                ->json();
+
+            return $res;
+        });
     }
 
     public function updateAccountBalance(string $accountId)
@@ -132,12 +148,12 @@ class GoCardlessDataService
 
     public function getBanks($country = 'fr')
     {
-        return Cache::remember('gocardless_banks', 10000, function () use ($country) {
-            $response = Http::withToken($this->accessToken())
+        return Cache::remember('gocardless_banks', 3600*12, function () use ($country) {
+            $res = Http::withToken($this->accessToken())
                 ->get("{$this->baseUrl}/institutions/?country={$country}")
                 ->json();
 
-            return $response;
+            return $res;
         });
     }
 
@@ -149,13 +165,11 @@ class GoCardlessDataService
 
         $results = $response['results'];
         foreach ($results as $result) {
-            // dd($result);
-            // $this->deleteRequisitionFromRef($result['id']);
             if ($result['reference'] === $ref) {
                 return $result['accounts'];
             }
         }
-        return [];
+        return;
     }
 
     public function deleteRequisitionFromRef($ref)
@@ -166,7 +180,7 @@ class GoCardlessDataService
         return $response;
     }
 
-    public function userAgreement($institutionId, $maxHistoricalDays, $accessValidForDays)
+    public function addNewBankAccount($institutionId, $maxHistoricalDays, $accessValidForDays)
     {
         $response = Http::withToken($this->accessToken())->post("{$this->baseUrl}/agreements/enduser/", [
             'institution_id' => $institutionId,

@@ -62,17 +62,32 @@ class BankAccountIndex extends Component
             $goCardlessDataService = new GoCardlessDataService();
 
             $accountId = $goCardlessDataService->getAccountsFromRef($this->ref);
+
             if (isset($accountId[0])) {
                 $accountId = $accountId[0];
             }
+
             $bankAccount = $this->user->bankAccounts()->firstWhere('gocardless_account_id', $accountId);
+
             if (!$bankAccount) {
-                $this->user
+                $accountDetails = $goCardlessDataService->getAccountDetails($accountId);
+                if (isset($accountDetails['status_code']) && $accountDetails['status_code'] !== 200) {
+                    Toaster::error(__('Error fetching account details from GoCardless.'));
+                    return;
+                }
+                $bankAccount = $this->user
                     ->bankAccounts()
                     ->whereNull('gocardless_account_id')
                     ->firstOrFail()
-                    ->update(['gocardless_account_id' => $accountId]);
+                    ->update([
+                        'gocardless_account_id' => $accountId,
+                        'iban' => $accountDetails['account']['iban'],
+                        'currency' => $accountDetails['account']['currency'],
+                        'owner_name' => $accountDetails['account']['name'] ?? $accountDetails['account']['ownerName'],
+                        'cash_account_type' => $accountDetails['account']['cashAccountType'],
+                    ]);
             }
+            return $bankAccount;
         }
     }
 

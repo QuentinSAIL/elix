@@ -9,6 +9,7 @@ class BankAccountCreate extends Component
 {
     public $banks;
     public $selectedBank;
+    public $searchTerm = '';
     public $maxAccessValidForDays;
     public $transactionTotalDays;
     protected $goCardlessDataService;
@@ -22,21 +23,23 @@ class BankAccountCreate extends Component
     public function updateSelectedBank($value)
     {
         $this->selectedBank = $value;
+        $this->searchTerm = collect($this->banks)->firstWhere('id', $this->selectedBank)['name'];
         $this->maxAccessValidForDays = collect($this->banks)->firstWhere('id', $this->selectedBank)['max_access_valid_for_days'];
         $this->transactionTotalDays = collect($this->banks)->firstWhere('id', $this->selectedBank)['transaction_total_days'];
     }
 
-    public function acceptUserAgreement()
+    public function getFilteredBanksProperty()
+    {
+        return collect($this->banks)->filter(fn($b) => stripos($b['name'], $this->searchTerm) !== false)->values()->toArray();
+    }
+
+    public function addNewBankAccount()
     {
         $goCardlessDataService = new GoCardlessDataService();
-        $goCardlessDataService->userAgreement($this->selectedBank, $this->transactionTotalDays, $this->maxAccessValidForDays);
-
+        $goCardlessDataService->addNewBankAccount($this->selectedBank, $this->transactionTotalDays, $this->maxAccessValidForDays);
     }
 
-    public function addNewAccount()
-    {
-
-    }
+    public function addNewAccount() {}
 
     public function render()
     {

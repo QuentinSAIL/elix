@@ -76,6 +76,9 @@ class BankAccount extends Model
 
     public function updateFromGocardless(GoCardlessDataService $gocardless)
     {
+        if (!$this->gocardless_account_id) {
+            return;
+        }
         $balanceResponse = $gocardless->updateAccountBalance($this->gocardless_account_id);
         $transactionResponse = $gocardless->updateAccountTransactions($this->gocardless_account_id);
         return [

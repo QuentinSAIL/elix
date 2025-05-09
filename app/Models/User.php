@@ -97,4 +97,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(MoneyCategoryMatch::class);
     }
+
+    public function apiKeys()
+    {
+        return $this->hasMany(ApiKey::class);
+    }
 }
