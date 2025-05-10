@@ -3,9 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Routine;
 use App\Models\Note;
+use App\Models\Routine;
 use Illuminate\Support\Str;
+use App\Models\BankTransactions;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -70,5 +71,40 @@ class User extends Authenticatable
     public function notes()
     {
         return $this->hasMany(Note::class);
+    }
+
+    public function bankAccounts()
+    {
+        return $this->hasMany(BankAccount::class);
+    }
+
+    public function bankTransactions()
+    {
+        return $this->hasManyThrough(BankTransactions::class, BankAccount::class);
+    }
+
+    public function sumBalances()
+    {
+        return $this->bankAccounts->sum('balance');
+    }
+
+    public function moneyCategories()
+    {
+        return $this->hasMany(MoneyCategory::class);
+    }
+
+    public function moneyCategoryMatches()
+    {
+        return $this->hasMany(MoneyCategoryMatch::class);
+    }
+
+    public function apiKeys()
+    {
+        return $this->hasMany(ApiKey::class);
+    }
+
+    public function hasApiKey($service)
+    {
+        return $this->apiKeys()->where('api_service_id', $service)->exists();
     }
 }

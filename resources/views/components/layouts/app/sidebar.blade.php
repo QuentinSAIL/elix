@@ -21,6 +21,13 @@
                 <flux:navlist.group :heading="__('Modules')" class="grid">
                     <flux:navlist.item icon="clock" :href="route('routines.index')" :current="request()->routeIs('routines.index')" wire:navigate>{{ __('Routine') }}</flux:navlist.item>
                     <flux:navlist.item icon="document-text" :href="route('notes.index')" :current="request()->routeIs('notes.index')" wire:navigate>{{ __('Notes') }}</flux:navlist.item>
+                    {{-- <flux:navlist.item icon="banknotes" :href="route('money.index')" :current="request()->routeIs('money.index')" wire:navigate>{{ __('Money') }}</flux:navlist.item> --}}
+                        <flux:navlist.group icon="banknotes" heading="{{ __('Money') }}" expandable>
+                            <flux:navlist.item :href="route('money.dashboard')" icon="presentation-chart-line" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                            <flux:navlist.item :href="route('money.accounts')" icon="building-library" wire:navigate>{{ __('Bank Account') }}</flux:navlist.item>
+                            <flux:navlist.item :href="route('money.transactions')" icon="arrows-up-down" wire:navigate>{{ __('Transactions') }}</flux:navlist.item>
+                            <flux:navlist.item :href="route('money.categories')" icon="tag" wire:navigate>{{ __('Categories') }}</flux:navlist.item>
+                        </flux:navlist.group>
                 </flux:navlist.group>
             </flux:navlist>
 
