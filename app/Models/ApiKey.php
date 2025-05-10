@@ -11,7 +11,7 @@ class ApiKey extends Model
 
     protected $fillable = [
         'user_id',
-        'service',
+        'api_service_id',
         'secret_id',
         'secret_key',
     ];
@@ -19,5 +19,10 @@ class ApiKey extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function apiService()
+    {
+        return $this->belongsTo(ApiService::class);
     }
 }

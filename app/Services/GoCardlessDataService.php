@@ -20,9 +20,20 @@ class GoCardlessDataService
     public function accessToken()
     {
         return Cache::remember('gocardless_access_token', 3000, function () {
+            $user = Auth::user();
             $response = Http::post("{$this->baseUrl}/token/new/", [
-                'secret_id' => config('services.gocardless_data.secret_id'),
-                'secret_key' => config('services.gocardless_data.secret_key'),
+                'secret_id' => $user
+                    ->apiKeys()
+                    ->whereHas('apiService', function ($query) {
+                        $query->where('name', 'Gocardless');
+                    })
+                    ->first()->secret_id,
+                'secret_key' => $user
+                    ->apiKeys()
+                    ->whereHas('apiService', function ($query) {
+                        $query->where('name', 'Gocardless');
+                    })
+                    ->first()->secret_key,
             ]);
 
             return $response->json('access');
@@ -148,11 +159,10 @@ class GoCardlessDataService
 
     public function getBanks($country = 'fr')
     {
-        return Cache::remember('gocardless_banks', 3600*12, function () use ($country) {
+        return Cache::remember('gocardless_banks', 3600 * 12, function () use ($country) {
             $res = Http::withToken($this->accessToken())
                 ->get("{$this->baseUrl}/institutions/?country={$country}")
                 ->json();
-
             return $res;
         });
     }
