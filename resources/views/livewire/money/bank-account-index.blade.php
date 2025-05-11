@@ -1,12 +1,28 @@
 <div>
-    <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-48">
+    <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-52">
         @foreach ($accounts as $account)
-            <div class="bg-custom shadow-md rounded-lg p-4 w-1/4">
-                <input type="text" class="text-lg font-bold border-none focus:ring-0 focus:outline-none stroke-0"
-                    value="{{ $account->name }}"
-                    wire:change="updateAccountName('{{ $account->id }}', $event.target.value)" />
-                <p class="text-gray-600">{{ __('Balance: ') }}{{ $account->balance }}</p>
-                <div class="flex justify-end mt-9">
+            <div class="bg-custom shadow-md rounded-lg p-4 w-1/3">
+                <div class="flex items-center justify-between">
+                    <input type="text" class="text-lg font-bold border-none focus:ring-0 focus:outline-none stroke-0"
+                        value="{{ $account->name }}"
+                        wire:change="updateAccountName('{{ $account->id }}', $event.target.value)" />
+                    <img src="{{ $account->logo }}" alt="Logo" class="h-12 w-12 rounded">
+                </div>
+                <flux:text>
+                    {{ __('Balance: ') }}{{ $account->balance }}
+                    @if ($account->currency === 'EUR')
+                        €
+                    @endif
+                </flux:text>
+                <flux:text>
+                    <span class="block text-sm text-gray-500">
+                        {{ chunk_split($account->iban, 4, ' ') }}
+                    </span>
+                    <span class="block text-sm text-gray-500">
+                        {{ $account->owner_name }}
+                    </span>
+                </flux:text>
+                <div class="flex justify-end">
                     <flux:modal.trigger name="delete-account-{{ $account->id }}">
                         <flux:button variant="danger">
                             {{ __('Delete') }}

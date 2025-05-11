@@ -19,7 +19,7 @@ class BankTransactions extends Model
         'money_category_id',
         'gocardless_transaction_id',
         'amount',
-        'original_description', // a stocker seulement quand je modifie description
+        'original_description', // a stocker seulement quand l'user modifie la description
         'description',
         'transaction_date', // booking date in json
         'created_at',
