@@ -17,27 +17,36 @@ class GoCardlessDataService
 {
     protected $baseUrl = 'https://bankaccountdata.gocardless.com/api/v2';
 
-    public function accessToken()
+    public function accessToken($withCache = true)
     {
-        return Cache::remember('gocardless_access_token', 3000, function () {
-            $user = Auth::user();
-            $response = Http::post("{$this->baseUrl}/token/new/", [
-                'secret_id' => $user
-                    ->apiKeys()
-                    ->whereHas('apiService', function ($query) {
-                        $query->where('name', 'Gocardless');
-                    })
-                    ->first()->secret_id,
-                'secret_key' => $user
-                    ->apiKeys()
-                    ->whereHas('apiService', function ($query) {
-                        $query->where('name', 'Gocardless');
-                    })
-                    ->first()->secret_key,
-            ]);
+        if ($withCache) {
+            return Cache::remember('gocardless_access_token', 3000, function () {
+                return $this->fetchAccessToken();
+            });
+        }
 
-            return $response->json('access');
-        });
+        return $this->fetchAccessToken();
+    }
+
+    private function fetchAccessToken()
+    {
+        $user = Auth::user();
+        $response = Http::post("{$this->baseUrl}/token/new/", [
+            'secret_id' => $user
+                ->apiKeys()
+                ->whereHas('apiService', function ($query) {
+                    $query->where('name', 'GoCardless');
+                })
+                ->first()->secret_id,
+            'secret_key' => $user
+                ->apiKeys()
+                ->whereHas('apiService', function ($query) {
+                    $query->where('name', 'GoCardless');
+                })
+                ->first()->secret_key,
+        ]);
+
+        return $response->json('access');
     }
 
     public function getAccountTransactions(string $accountId)
@@ -175,6 +184,7 @@ class GoCardlessDataService
 
         $results = $response['results'];
         foreach ($results as $result) {
+            // $this->deleteRequisitionFromRef($result['id']);
             if ($result['reference'] === $ref) {
                 return $result['accounts'];
             }
