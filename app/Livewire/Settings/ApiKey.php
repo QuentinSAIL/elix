@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\ApiService;
 use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
+use App\Services\GoCardlessDataService;
 
 class ApiKey extends Component
 {
@@ -32,15 +33,42 @@ class ApiKey extends Component
         foreach ($this->services as $service) {
             $secretId  = trim($this->secret_ids[$service->id]);
             $secretKey = trim($this->secret_keys[$service->id]);
+
+            $oldCredentials = $this->user->apiKeys()->where('api_service_id', $service->id)->first();
+
             if ($secretId !== '' || $secretKey !== '') {
                 $this->user->apiKeys()->updateOrCreate(
                     ['api_service_id' => $service->id],
                     ['secret_id' => $secretId, 'secret_key' => $secretKey]
                 );
             }
+            if ($service->name === 'GoCardless' && !$this->testGoCardless()) {
+                if ($oldCredentials) {
+                    $this->user->apiKeys()->updateOrCreate(
+                        ['api_service_id' => $service->id],
+                        ['secret_id' => $oldCredentials->secret_id, 'secret_key' => $oldCredentials->secret_key]
+                    );
+                }
+                Toaster::error(__('Failed to validate GoCardless credentials. Changes have not been saved.'));
+                return;
+            }
         }
+        $this->secret_keys[$service->id] = '';
+        $this->secret_ids[$service->id]  = '';
 
         Toaster::success(__('API Keys updated successfully!'));
+    }
+
+    public function testGoCardless()
+    {
+        $goCardlessDataService = new GoCardlessDataService();
+        return $goCardlessDataService->accessToken(false) ? true : false;
+    }
+
+    public function deleteApiKeys($serviceId)
+    {
+        $this->user->apiKeys()->where('api_service_id', $serviceId)->delete();
+        Toaster::success(__('API Key deleted successfully!'));
     }
 
     public function render()
