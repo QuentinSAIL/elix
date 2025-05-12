@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('currency')->nullable();
             $table->string('owner_name')->nullable();
             $table->string('cash_account_type')->nullable();
+            $table->string('logo')->nullable();
             $table->timestamps();
         });
     }

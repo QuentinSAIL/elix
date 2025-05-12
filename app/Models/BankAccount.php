@@ -28,6 +28,11 @@ class BankAccount extends Model
         'agreement_id',
         'reference',
         'transaction_total_days',
+        'iban',
+        'currency',
+        'owner_name',
+        'cash_account_type',
+        'logo',
         'created_at',
         'updated_at'
     ];

@@ -13,7 +13,7 @@ class MoneyCategoryMatch extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['user_id', 'money_category_id', 'keyword', 'created_at', 'updated_at'];
+    protected $fillable = ['id', 'user_id', 'money_category_id', 'keyword', 'created_at', 'updated_at'];
 
     protected static function boot()
     {
@@ -45,9 +45,7 @@ class MoneyCategoryMatch extends Model
         }
     }
 
-    // searc in the database in bank_transaction.description if a matching keyword exist
-    // and is not already assigned to a category
-    public static function searchAndApplyCategory()
+    public static function searchAndApplyAllMatchCategory()
     {
         $transactions = Auth::user()->bankTransactions()->get();
         $i = 0;
@@ -59,7 +57,23 @@ class MoneyCategoryMatch extends Model
                 $i++;
             }
         }
+        return $i;
+    }
 
+    public static function searchAndApplyMatchCategory($keyword, $applyMatchToAlreadyCategorized = false)
+    {
+        $match = MoneyCategoryMatch::whereRaw('? LIKE \'%\' || LOWER(keyword) || \'%\'', [strtolower($keyword)])->first();
+        $i = 0;
+        if ($match) {
+            $transactions = Auth::user()->bankTransactions()->where('description', 'LIKE', '%' . $keyword . '%')->get();
+            foreach ($transactions as $transaction) {
+                if ($applyMatchToAlreadyCategorized || !$transaction->money_category_id) {
+                    $transaction->money_category_id = $match->category->id;
+                    $transaction->save();
+                    $i++;
+                }
+            }
+        }
         return $i;
     }
 }

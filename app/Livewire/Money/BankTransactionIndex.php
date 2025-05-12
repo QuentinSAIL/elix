@@ -57,9 +57,9 @@ class BankTransactionIndex extends Component
     }
 
     #[On('update-category-match')]
-    public function searchAndApplyCategory()
+    public function searchAndApplyCategory($keyword)
     {
-        $transactionEdited = MoneyCategoryMatch::searchAndApplyCategory();
+        $transactionEdited = MoneyCategoryMatch::searchAndApplyMatchCategory($keyword);
         Toaster::success('Category applied to all matching transactions (' . $transactionEdited . ')');
     }
 

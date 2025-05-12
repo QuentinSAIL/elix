@@ -38,6 +38,20 @@
             <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
                 <thead class="bg-custom text-left">
                     <tr>
+                        @if ($allAccounts)
+                            <th wire:click="sortBy('bank_account_id')"
+                                class="px-4 py-2 cursor-pointer sticky top-0 z-10 bg-custom rounded-none border-none w-44">
+                                Compte
+                                @if ($sortField === 'bank_account_id')
+                                    @if ($sortDirection === 'asc')
+                                        <span class="ml-2">↑</span>
+                                    @else
+                                        <span class="ml-2">↓</span>
+                                    @endif
+                                @endif
+                            </th>
+                        @endif
+
                         <th wire:click="sortBy('description')"
                             class="px-4 py-2 cursor-pointer sticky top-0 z-10 bg-custom rounded-none border-none">
                             <span class="mx-2">Description</span>
@@ -93,6 +107,13 @@
                     @if ($transactions)
                         @forelse($transactions as $tx)
                             <tr class="hover-custom-accent transition">
+                            @if ($allAccounts)
+                                <td class="px-4 py-2 text-sm">
+                                   {{-- @limit($tx->account->name, 20) --}}
+                                   <img src="{{ $tx->account->logo }}" alt="Logo" class="w-6 h-6 inline-block mr-2">
+                                    @limit($tx->account->name, 16)
+                                </td>
+                            @endif
                                 <td class="px-4 py-2 text-sm">
                                     {{ $tx->description }}
                                 </td>

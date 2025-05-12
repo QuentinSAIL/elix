@@ -69,24 +69,24 @@ class BankAccountIndex extends Component
 
             $bankAccount = $this->user->bankAccounts()->firstWhere('gocardless_account_id', $accountId);
 
-            if (!$bankAccount) {
-                $accountDetails = $goCardlessDataService->getAccountDetails($accountId);
-                if (isset($accountDetails['status_code']) && $accountDetails['status_code'] !== 200) {
-                    Toaster::error(__('Error fetching account details from GoCardless.'));
-                    return;
-                }
-                $bankAccount = $this->user
-                    ->bankAccounts()
-                    ->whereNull('gocardless_account_id')
-                    ->firstOrFail()
-                    ->update([
-                        'gocardless_account_id' => $accountId,
-                        'iban' => $accountDetails['account']['iban'],
-                        'currency' => $accountDetails['account']['currency'],
-                        'owner_name' => $accountDetails['account']['name'] ?? $accountDetails['account']['ownerName'],
-                        'cash_account_type' => $accountDetails['account']['cashAccountType'],
-                    ]);
+            $accountDetails = $goCardlessDataService->getAccountDetails($accountId);
+            if (isset($accountDetails['status_code']) && $accountDetails['status_code'] !== 200) {
+                Toaster::error(__('Error fetching account details from GoCardless.'));
+                return;
             }
+            $bankAccount = $this->user
+                ->bankAccounts()
+                ->whereNull('gocardless_account_id')
+                ->orWhere('gocardless_account_id', $accountId)
+                ->firstOrFail()->update([
+                    'gocardless_account_id' => $accountId,
+                    'iban' => $accountDetails['account']['iban'],
+                    'currency' => $accountDetails['account']['currency'],
+                    'owner_name' => $accountDetails['account']['name'] ?? $accountDetails['account']['ownerName'],
+                    'cash_account_type' => $accountDetails['account']['cashAccountType'],
+                    // 'logo' =>
+                ]);
+
             return $bankAccount;
         }
     }

@@ -200,7 +200,7 @@ class GoCardlessDataService
         return $response;
     }
 
-    public function addNewBankAccount($institutionId, $maxHistoricalDays, $accessValidForDays)
+    public function addNewBankAccount($institutionId, $maxHistoricalDays, $accessValidForDays, $logo = null)
     {
         $response = Http::withToken($this->accessToken())->post("{$this->baseUrl}/agreements/enduser/", [
             'institution_id' => $institutionId,
@@ -210,13 +210,13 @@ class GoCardlessDataService
         ]);
 
         if ($response['created']) {
-            $this->requisition($institutionId, $response['id'], now()->addDays($response['access_valid_for_days']), $response['max_historical_days']);
+            $this->requisition($institutionId, $response['id'], now()->addDays($response['access_valid_for_days']), $response['max_historical_days'], $logo);
         } else {
             exit('Error creating user agreement: ' . json_encode($response));
         }
     }
 
-    public function requisition($institutionId, $agreementId, $accesEndDate, $maxHistoricalDays, $country = 'fr')
+    public function requisition($institutionId, $agreementId, $accesEndDate, $maxHistoricalDays, $logo, $country = 'fr')
     {
         $reference = (string) Str::uuid();
         $response = Http::withToken($this->accessToken())->post("{$this->baseUrl}/requisitions/", [
@@ -224,11 +224,11 @@ class GoCardlessDataService
             'institution_id' => $institutionId,
             'reference' => $reference,
             'agreement' => $agreementId,
-            'user_language' => $country,
+            'user_language' => $country
         ]);
 
         if ($response['created']) {
-            $bankAccount = Auth::user()
+            Auth::user()
                 ->bankAccounts()
                 ->updateOrCreate(
                     [
@@ -241,7 +241,8 @@ class GoCardlessDataService
                         'agreement_id' => $agreementId,
                         'reference' => $reference,
                         'transaction_total_days' => $maxHistoricalDays,
-                    ],
+                        'logo' => $logo
+                    ]
                 );
 
             return redirect($response['link']);

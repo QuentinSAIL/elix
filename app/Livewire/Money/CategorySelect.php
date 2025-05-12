@@ -92,7 +92,7 @@ class CategorySelect extends Component
                 ],
             );
 
-            $this->dispatch('update-category-match');
+            $this->dispatch('update-category-match', $this->keyword);
         }
 
         $this->dispatch('transactions-edited');
