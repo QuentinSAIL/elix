@@ -42,6 +42,7 @@ class CategoryForm extends Component
             'description' => '',
             'color' => '#f66151',
             'budget' => 0,
+            'include_in_dashboard' => true,
         ];
 
         $this->categoryMatchForm = [
@@ -77,7 +78,7 @@ class CategoryForm extends Component
             }
             $this->originalCategoryMatchForm = $this->categoryMatchForm;
         } else {
-            $this->categoryId = 'create';
+            $this->categoryId = 'create-' . uniqid();
             $this->edition = false;
             $this->resetForm();
         }

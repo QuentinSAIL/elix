@@ -68,10 +68,10 @@
                     @if ($categoryMatchForm && count($categoryMatchForm) > 0)
                         <div class="space-y-3">
                             @foreach ($categoryMatchForm as $index => $match)
-                                <div class="flex items-center space-x-2 p-2 bg-custom rounded-lg">
+                                <div class="flex items-center space-x-2 p-4 bg-custom rounded-lg">
                                     <flux:input :placeholder="__('Ex: Carrefour, Netflix, EDF')"
                                         wire:model.lazy="categoryMatchForm.{{ $index }}.keyword"
-                                        class="flex-1" />
+                                        class="flex-1 !focus:outline-none" />
                                     <button wire:click="removeCategoryMatch({{ $index }})" class="p-1">
                                         <flux:icon.trash class="cursor-pointer text-red-500 w-5 h-5"
                                             title="{{ __('Supprimer ce mot-clé') }}" />
@@ -87,7 +87,6 @@
                 </div>
 
                 @if ($this->getHasMatchChangesProperty())
-                    <!-- Section des options de correspondance avec boîte d'information -->
                     <div class="mt-4 p-4 bg-custom rounded-lg">
                         <div class="flex items-start space-x-3 mb-3">
                             <flux:icon.information-circle class="w-5 h-5 mt-0.5 flex-shrink-0" />
