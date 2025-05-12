@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('color')->nullable();
+            $table->decimal('budget', 15, 2)->nullable();
+            $table->boolean('include_in_dashboard')->default(true);
             $table->timestamps();
         });
     }

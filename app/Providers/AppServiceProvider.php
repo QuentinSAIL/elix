@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
     */
     public function boot(): void
     {
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         Blade::directive('euro', function ($expression) {
             return "<?php echo number_format($expression, 2, ',', ' ') . ' €'; ?>";
         });

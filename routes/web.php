@@ -3,14 +3,15 @@
 use App\Livewire\Settings\ApiKey;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\Password;
+use App\Livewire\Money\CategoryIndex;
 use App\Livewire\Note\Index as NoteIndex;
 use App\Livewire\Settings\Appearance;
 use Illuminate\Support\Facades\Route;
 use App\Services\GoCardlessDataService;
 use App\Livewire\Routine\Index as RoutineIndex;
+use App\Http\Middleware\UserHasValidGoCardlessKeys;
 use App\Livewire\Money\BankAccountIndex as AccountIndex;
 use App\Livewire\Money\BankTransactionIndex as TransactionIndex;
-use App\Http\Middleware\UserHasValidGoCardlessKeys;
 
 Route::middleware(['auth'])->group(function () {
     Route::view('/', 'dashboard')->name('dashboard');
@@ -22,7 +23,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('dashboard', TransactionIndex::class)->name('money.dashboard');
             Route::get('accounts', AccountIndex::class)->name('money.accounts');
             Route::get('transactions', TransactionIndex::class)->name('money.transactions');
-            Route::get('categories', TransactionIndex::class)->name('money.categories');
+            Route::get('categories', CategoryIndex::class)->name('money.categories');
         });
     });
     Route::redirect('settings', 'settings/profile');

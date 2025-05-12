@@ -13,7 +13,7 @@ class MoneyCategoryMatch extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['user_id', 'money_category_id', 'keyword', 'created_at', 'updated_at'];
+    protected $fillable = ['id', 'user_id', 'money_category_id', 'keyword', 'created_at', 'updated_at'];
 
     protected static function boot()
     {

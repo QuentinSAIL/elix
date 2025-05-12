@@ -22,6 +22,8 @@ class MoneyCategory extends Model
         'name',
         'description',
         'color',
+        'budget',
+        'include_in_dashboard',
         'user_id',
         'created_at',
         'updated_at',

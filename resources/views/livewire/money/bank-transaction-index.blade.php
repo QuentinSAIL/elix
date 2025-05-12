@@ -51,7 +51,7 @@
                                 @endif
                             </th>
                         @endif
-                        
+
                         <th wire:click="sortBy('description')"
                             class="px-4 py-2 cursor-pointer sticky top-0 z-10 bg-custom rounded-none border-none">
                             <span class="mx-2">Description</span>
