@@ -4,6 +4,7 @@ namespace App\Livewire\Routine;
 
 use Flux\Flux;
 use Carbon\Carbon;
+use App\Models\Module;
 use App\Models\Routine;
 use Livewire\Component;
 use App\Models\Frequency;
