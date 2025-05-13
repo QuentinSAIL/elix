@@ -2,7 +2,7 @@
     {{-- Modal de création --}}
     <flux:modal.trigger name="routine-form-{{ $routineId }}" id="routine-form-{{ $routineId }}"
         class="w-full h-full flex items-center justify-center cursor-pointer">
-        <div class="w-full text-center px-2 py-2 hover-custom rounded-t-lg">
+        <div class="w-full text-center px-2 py-2 hover rounded-t-lg">
             @if ($edition)
                 <span class="flex items-center justify-center space-x-2">
                     <span>{{ __('Edit') }}</span>
@@ -81,7 +81,7 @@
                         @foreach ($days as $num => $lbl)
                             <button type="button" wire:click.prevent="toggleWeekday({{ $num }})"
                                 class="w-8 h-8 flex items-center justify-center border rounded
-                                {{ in_array($num, $frequencyForm['weekdays'] ?? []) ? 'bg-custom text-elix border-elix' : 'bg-custom' }}">
+                                {{ in_array($num, $frequencyForm['weekdays'] ?? []) ? 'border-color title-color' : 'bg-custom' }}">
                                 {{ strtoupper(substr($lbl, 0, 1)) }}
                             </button>
                         @endforeach
@@ -102,7 +102,7 @@
                             @foreach (range(1, 31) as $day)
                                 <button type="button" wire:click.prevent="toggleMonthDay({{ $day }})"
                                     class="w-8 h-8 flex items-center justify-center border rounded
-                    {{ in_array($day, $frequencyForm['month_days'] ?? []) ? 'bg-custom text-elix border-elix' : 'bg-custom' }}">
+                    {{ in_array($day, $frequencyForm['month_days'] ?? []) ? 'border-color title-color' : 'bg-custom' }}">
                                     {{ $day }}
                                 </button>
                             @endforeach

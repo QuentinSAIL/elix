@@ -14,7 +14,6 @@
         @endif
     </flux:modal.trigger>
 
-    {{-- Modal de création --}}
     <flux:modal name="task-form-{{ $taskId }}" class="w-5/6" wire:cancel="resetForm">
         <div class="space-y-6">
             <div>
@@ -36,8 +35,12 @@
             <flux:switch :label="__('Skip automatically')" wire:model.lazy="taskForm.autoskip" />
             <flux:switch :label="__('Active')" wire:model.lazy="taskForm.is_active" />
 
-            <div class="flex mt-6 justify-between">
-
+            <div class="flex gap-2 mt-6 justify-end pt-4">
+                <flux:modal.close>
+                    <flux:button variant="ghost" class="px-4">
+                        {{ __('Annuler') }}
+                    </flux:button>
+                </flux:modal.close>
                 <flux:button wire:click="save" variant="primary" wire:keydown.enter="save">
                     @if ($edition)
                         {{ __('Update') }}

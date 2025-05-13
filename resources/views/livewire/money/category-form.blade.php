@@ -1,5 +1,4 @@
 <div>
-    <!-- Déclencheur du modal avec styles améliorés -->
     <flux:modal.trigger name="category-form-{{ $categoryId }}" id="category-form-{{ $categoryId }}"
         class="w-full h-full flex items-center justify-center cursor-pointer">
         @if ($edition)
@@ -14,8 +13,7 @@
         @endif
     </flux:modal.trigger>
 
-    <!-- Modal avec animation et structure améliorée -->
-    <flux:modal name="category-form-{{ $categoryId }}" class="w-5/6 max-w-2xl" wire:cancel="resetForm">
+    <flux:modal name="category-form-{{ $categoryId }}" class="w-5/6 max-w-2xl" wire:cancel="populateForm">
         <div class="space-y-6">
             <div>
                 @if ($edition)
@@ -28,7 +26,6 @@
                 @endif
             </div>
 
-            <!-- Section d'informations principales avec regroupement visuel -->
             <div class="space-y-4 p-4 bg-custom-accent rounded-lg">
                 <flux:heading size="lg" class="mb-2">{{ __('Informations générales') }}</flux:heading>
 
@@ -73,7 +70,7 @@
                                         wire:model.lazy="categoryMatchForm.{{ $index }}.keyword"
                                         class="flex-1 !focus:outline-none" />
                                     <button wire:click="removeCategoryMatch({{ $index }})" class="p-1">
-                                        <flux:icon.trash class="cursor-pointer text-red-500 w-5 h-5"
+                                        <flux:icon.trash class="cursor-pointer text-danger-500 w-5 h-5"
                                             title="{{ __('Supprimer ce mot-clé') }}" />
                                     </button>
                                 </div>
@@ -132,7 +129,7 @@
                 @endif
             </div>
 
-            <div class="flex gap-x-3 mt-6 justify-end pt-4">
+            <div class="flex gap-2 mt-6 justify-end pt-4">
                 <flux:modal.close>
                     <flux:button variant="ghost" class="px-4">
                         {{ __('Annuler') }}

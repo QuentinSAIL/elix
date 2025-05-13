@@ -3,47 +3,60 @@
 namespace App\Livewire\Money;
 
 use Livewire\Component;
+use App\Models\BankAccount;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
+use Livewire\WithPagination;
+use App\Models\MoneyCategory;
 use Masmerise\Toaster\Toaster;
 use App\Models\MoneyCategoryMatch;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use App\Services\GoCardlessDataService;
-use Illuminate\Support\Facades\Storage;
 
 class BankTransactionIndex extends Component
 {
     public $user;
     public $accounts;
-    public $selectedAccount;
+    public $selectedAccount = null;
     public $allAccounts = false;
 
-    public $transactions;
-
-    public $onInitialLoad = 50;
-    public $increasedLoad = 10;
-    public $perPage;
-    public $search = '';
+    public $perPage = 100;
+    public $onInitialLoad = 100;
+    public $increasedLoad = 50;
     public $noMoreToLoad = false;
 
+    public $search = '';
     public $sortField = 'transaction_date';
     public $sortDirection = 'desc';
+    public $categoryFilter = '';
+    public $dateFilter = 'all';
+
+    public $transactions = [];
+
+    public $categories = [];
 
     public function mount()
     {
         $this->user = Auth::user();
         $this->accounts = $this->user->bankAccounts;
+        $this->categories = MoneyCategory::orderBy('name')->get();
+
+        $this->allAccounts = true;
         $this->perPage = $this->onInitialLoad;
+
         $this->getTransactionsProperty();
     }
 
+    /**
+     * Récupère et met à jour les transactions depuis GoCardless
+     */
     public function getTransactions()
     {
         $gocardless = new GoCardlessDataService();
 
         foreach ($this->accounts as $account) {
             $responses = $account->updateFromGocardless($gocardless);
+
             if ($responses) {
                 foreach ($responses as $response) {
                     if (isset($response['status']) && $response['status'] === 'error') {
@@ -54,13 +67,17 @@ class BankTransactionIndex extends Component
                 }
             }
         }
+
+        $this->getTransactionsProperty();
     }
 
     #[On('update-category-match')]
     public function searchAndApplyCategory($keyword)
     {
         $transactionEdited = MoneyCategoryMatch::searchAndApplyMatchCategory($keyword);
-        Toaster::success('Category applied to all matching transactions (' . $transactionEdited . ')');
+        Toaster::success("Catégorie appliquée à toutes les transactions correspondantes ($transactionEdited)");
+
+        $this->getTransactionsProperty();
     }
 
     public function updateSelectedAccount($accountId)
@@ -68,21 +85,48 @@ class BankTransactionIndex extends Component
         $this->allAccounts = $accountId === 'all';
         $this->selectedAccount = $this->accounts->find($accountId);
         $this->perPage = $this->onInitialLoad;
+        $this->noMoreToLoad = false;
     }
 
     public function loadMore()
     {
         $this->perPage += $this->increasedLoad;
-        if ($this->perPage > $this->transactions->count()) {
+
+        if ($this->perPage > $this->getTransactionQuery()->count()) {
             $this->noMoreToLoad = true;
         }
     }
 
+    /**
+     * Réinitialise la pagination lors de l'actualisation de la recherche
+     */
     public function updatingSearch()
     {
         $this->perPage = $this->onInitialLoad;
+        $this->noMoreToLoad = false;
     }
 
+    /**
+     * Réinitialise la pagination lors du changement de filtre de catégorie
+     */
+    public function updatingCategoryFilter()
+    {
+        $this->perPage = $this->onInitialLoad;
+        $this->noMoreToLoad = false;
+    }
+
+    /**
+     * Réinitialise la pagination lors du changement de filtre de date
+     */
+    public function updatingDateFilter()
+    {
+        $this->perPage = $this->onInitialLoad;
+        $this->noMoreToLoad = false;
+    }
+
+    /**
+     * Gère le tri des colonnes
+     */
     public function sortBy($field)
     {
         if ($this->sortField === $field) {
@@ -91,34 +135,71 @@ class BankTransactionIndex extends Component
             $this->sortField = $field;
             $this->sortDirection = 'asc';
         }
+
+        // Actualiser les transactions après le changement de tri
+        $this->getTransactionsProperty();
     }
 
+    /**
+     * Rafraîchit les transactions après une édition externe
+     */
     #[On('transactions-edited')]
     public function refreshTransactions()
     {
         $this->getTransactionsProperty();
     }
 
-    public function getTransactionsProperty()
+    /**
+     * Retourne la requête de base pour les transactions
+     */
+    protected function getTransactionQuery()
     {
-        // dump($this->selectedAccount, $this->allAccounts);
         if (!$this->selectedAccount && !$this->allAccounts) {
             return collect();
         }
 
-
         if ($this->allAccounts) {
-            $this->transactions = $this->user->bankTransactions();
+            $query = $this->user->bankTransactions();
         } else {
-            $this->transactions = $this->selectedAccount->transactions();
+            $query = $this->selectedAccount->transactions();
         }
 
-        $this->transactions = $this->transactions
-            ->when(Str::length($this->search), function ($query) {
-                $query->whereRaw('LOWER(description) LIKE ?', ['%' . strtolower($this->search) . '%']);
-            })
+        if (Str::length($this->search) > 0) {
+            $query->whereRaw('LOWER(description) LIKE ?', ['%' . strtolower($this->search) . '%']);
+        }
+
+        if ($this->categoryFilter) {
+            $query->where('money_category_id', $this->categoryFilter);
+        }
+
+        switch ($this->dateFilter) {
+            case 'current_month':
+                $query->whereMonth('transaction_date', now()->month)
+                      ->whereYear('transaction_date', now()->year);
+                break;
+            case 'last_month':
+                $query->whereMonth('transaction_date', now()->subMonth()->month)
+                      ->whereYear('transaction_date', now()->subMonth()->year);
+                break;
+            case 'current_year':
+                $query->whereYear('transaction_date', now()->year);
+                break;
+        }
+
+        return $query;
+    }
+
+    public function getTransactionsProperty()
+    {
+        $query = $this->getTransactionQuery();
+
+        if ($query instanceof \Illuminate\Database\Eloquent\Collection) {
+            $this->transactions = collect();
+            return;
+        }
+
+        $this->transactions = $query
             ->orderBy($this->sortField, $this->sortDirection)
-            ->latest('id')
             ->take($this->perPage)
             ->get();
     }

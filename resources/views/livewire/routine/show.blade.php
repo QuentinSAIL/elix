@@ -1,7 +1,7 @@
-<div class="grid grid-cols-2 h-[71vh]">
+<div class="bg-custom-accent grid grid-cols-2 h-[71vh]">
     <!-- Colonne gauche : infos tâche + timer -->
     <div class="col-span-1 p-6" x-data="timer(@json($routine->tasks->pluck('duration')->toArray()))" x-init="init()">
-        <h2 class="text-2xl text-center mb-6 font-semibold">
+        <h2 class="title-color text-center mb-6 font-semibold">
             @if ($isFinished)
                 {{ __('Routine finished') . ' ' . $routine->name }}
             @elseif ($currentTaskIndex === null)
@@ -15,25 +15,25 @@
                 <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
                     <circle cx="50" cy="50" r="45" :stroke-dasharray="circum"
                         :stroke-dashoffset="circum - (percent() / 100) * circum" stroke-linecap="round"
-                        class="transform -rotate-90 origin-center stroke-elix stroke-4 fill-transparent" />
+                        class="transform -rotate-90 origin-center stroke-color stroke-4 fill-transparent" />
                 </svg>
                 <div class="absolute inset-0 flex flex-col items-center justify-center space-y-3">
                     <div class="text-center">
-                        <div class="text-sm uppercase tracking-widest text-zinc-400">{{ __('Elapsed Time') }}</div>
+                        <div class="text-sm uppercase tracking-widest">{{ __('Elapsed Time') }}</div>
                         <div class="font-mono text-4xl font-bold text-elix" x-text="hhmmss(elapsedAllMs())"></div>
                     </div>
                     <div class="text-center">
-                        <div class="text-xs uppercase tracking-widest text-zinc-500">
+                        <div class="text-xs uppercase tracking-widest">
                             {{ __('Remaining (Current Task)') }}</div>
-                        <div class="font-mono text-2xl font-semibold text-white" x-text="hhmmss(remainingMs)"></div>
+                        <div class="font-mono text-2xl font-semibold title-color" x-text="hhmmss(remainingMs)"></div>
                     </div>
                     <div class="text-center">
-                        <div class="text-xs uppercase tracking-widest text-zinc-500">{{ __('Total Remaining') }}</div>
-                        <div class="font-mono text-2xl font-semibold text-white" x-text="hhmmss(totalRemainingMs())">
+                        <div class="text-xs uppercase tracking-widest">{{ __('Total Remaining') }}</div>
+                        <div class="font-mono text-2xl font-semibold title-color" x-text="hhmmss(totalRemainingMs())">
                         </div>
                     </div>
                     <div class="text-center">
-                        <div class="text-xs uppercase tracking-widest text-zinc-400">{{ __('Progress') }}</div>
+                        <div class="text-xs uppercase tracking-widest">{{ __('Progress') }}</div>
                         <div class="text-lg font-semibold text-elix"
                             x-text="Math.min(Math.floor(percent()), 100) + '%'"></div>
                     </div>
@@ -49,13 +49,13 @@
             @foreach ($routine->tasks as $task)
                 <span
                     class="w-5 h-5 rounded-full border-3
-                    @if ($loop->index < $currentTaskIndex) bg-elix border-elix
-                    @else border-zinc-100 @endif">
+                    @if ($loop->index < $currentTaskIndex) border-color
+                    @else border-grey @endif">
                 </span>
 
                 @unless ($loop->last)
                     <span
-                        class="flex-1 {{ $loop->index < $currentTaskIndex ? 'border-elix' : 'border-zinc-300' }} border-dashed border-2">
+                        class="flex-1 {{ $loop->index < $currentTaskIndex ? 'border-color' : 'border-grey' }} border-dashed border-2">
                     </span>
                 @else
                     <span class="flex-1 mb-8"></span>
@@ -114,7 +114,7 @@
             <div x-ref="list" class="flex-1 overflow-y-scroll p-4 space-y-4">
                 @foreach ($routine->tasks as $task)
                     <div id="{{ $task->id }}" wire:key="task-{{ $task->id }}"
-                        class="bg-custom-accent p-4 h-48 flex flex-col justify-between {{ $loop->index === $currentTaskIndex ? 'border-elix' : '' }}">
+                        class="bg-custom p-4 h-48 flex flex-col justify-between {{ $loop->index === $currentTaskIndex ? 'border-color' : '' }}">
                         <div class="flex items-center space-x-4">
 
                             <div class="w-full">
@@ -141,7 +141,7 @@
                                     @if ($task->description)
                                         <div class="flex items-center">
                                             <flux:icon.flag class="text-elix" />
-                                            <span class="mx-2 text-white">
+                                            <span class="mx-2">
                                                 @limit($task->description, 120)
                                             </span>
                                         </div>
@@ -149,16 +149,16 @@
                                     <div class="ml-auto my-auto flex items-center">
                                         @if ($currentTaskIndex === null)
                                             <button type="button" class="drag-handle cursor-move">
-                                                <flux:icon.bars-4 class="text-zinc-300 hover:text-zinc-500" />
+                                                <flux:icon.bars-4 class="" />
                                             </button>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center text-custom-inverse">
+                        <div class="flex items-center">
                             <div class="flex items-center">
-                                <flux:icon.clock class="text-white" />
+                                <flux:icon.clock class="" />
                                 <span class="ml-2">{{ $task->duration }}s</span>
                             </div>
 
@@ -173,7 +173,7 @@
                 @endforeach
 
                 <div
-                    class="bg-custom hover-custom p-4 h-24 border-3 border-dashed flex items-center justify-center text-center cursor-pointer">
+                    class="bg-custom-accent hover p-4 h-24 border-3 border-dashed flex items-center justify-center text-center cursor-pointer">
                     <livewire:routine-task.form :routine="$routine" wire:key="task-form-create" />
                 </div>
             </div>

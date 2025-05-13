@@ -22,6 +22,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('notes', NoteIndex::class)->name('notes.index');
         Route::middleware([UserHasValidGoCardlessKeys::class])->group(function () {
             Route::group(['prefix' => 'money'], function () {
+                Route::get('/', function () {
+                    return redirect()->route('money.dashboard');
+                })->name('money.index');
                 Route::get('dashboard', TransactionIndex::class)->name('money.dashboard');
                 Route::get('accounts', AccountIndex::class)->name('money.accounts');
                 Route::get('transactions', TransactionIndex::class)->name('money.transactions');

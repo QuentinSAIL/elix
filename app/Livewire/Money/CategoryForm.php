@@ -68,6 +68,7 @@ class CategoryForm extends Component
             ];
 
             if ($this->category->categoryMatches->count() > 0) {
+                $this->categoryMatchForm = [];
                 foreach ($this->category->categoryMatches as $match) {
                     $this->categoryMatchForm[] = [
                         'id' => $match->id,
@@ -78,9 +79,9 @@ class CategoryForm extends Component
             }
             $this->originalCategoryMatchForm = $this->categoryMatchForm;
         } else {
+            $this->resetForm();
             $this->categoryId = 'create-' . uniqid();
             $this->edition = false;
-            $this->resetForm();
         }
     }
 

@@ -23,6 +23,42 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
+    --color-primarydark-50: #fef8e7;
+    --color-primarydark-100: #fcf2d4;
+    --color-primarydark-200: #fae4a8;
+    --color-primarydark-300: #f7d578;
+    --color-primarydark-400: #f5c84d;
+    --color-primarydark-500: #f2bb22;
+    --color-primarydark-600: #cf9b0c;
+    --color-primarydark-700: #9a7309;
+    --color-primarydark-800: #6a4f06;
+    --color-primarydark-900: #352803;
+    --color-primarydark-950: #181201;
+
+    --color-primary-50: #f3f4fb;
+    --color-primary-100: #e4e6f7;
+    --color-primary-200: #c9ceee;
+    --color-primary-300: #a6aee3;
+    --color-primary-400: #6f7cd2;
+    --color-primary-500: #27327d;
+    --color-primary-600: #212a69;
+    --color-primary-700: #212a69;
+    --color-primary-800: #1b2355;
+    --color-primary-900: #111636;
+    --color-primary-950: #000000;
+
+    --color-danger-50: #fef2f2;
+    --color-danger-100: #fee2e2;
+    --color-danger-200: #fecaca;
+    --color-danger-300: #fca5a1;
+    --color-danger-400: #f87171;
+    --color-danger-500: #ef4444;
+    --color-danger-600: #dc2626;
+    --color-danger-700: #b91c1c;
+    --color-danger-800: #991b1b;
+    --color-danger-900: #7f1d1d;
+    --color-danger-950: #450a0a;
+
     --color-accent: var(--color-neutral-800);
     --color-accent-content: var(--color-neutral-800);
     --color-accent-foreground: var(--color-white);
@@ -49,39 +85,83 @@
 
 @layer components {
     .text-custom {
-        @apply text-white dark:text-black;
+        @apply text-zinc-900 dark:text-zinc-50;
+    }
+
+    .text-color {
+        @apply text-primary-500 dark:text-primarydark-500;
+    }
+
+    .title-color {
+        @apply text-2xl text-primary-500 dark:text-primarydark-500;
     }
 
     .text-custom-inverse {
         @apply text-zinc-900 dark:text-zinc-50;
     }
 
+    .border-grey {
+        @apply border-zinc-400 dark:border-zinc-500;
+    }
+
+    .border-grey-accent {
+        @apply border-zinc-300 dark:border-zinc-600;
+    }
+
+    .text-grey {
+        @apply text-zinc-400 dark:text-zinc-500;
+    }
+
+    .text-grey-accent {
+        @apply text-zinc-300 dark:text-zinc-600;
+    }
+
+    .text-grey-inverse {
+        @apply text-zinc-500 dark:text-zinc-400;
+    }
+
     .bg-custom {
-        @apply bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl;
+        @apply bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl;
     }
 
     .bg-custom-accent {
-        @apply bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-600 rounded-2xl;
+        @apply bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl;
     }
 
-    .hover-custom {
-        @apply hover:bg-zinc-100 dark:hover:bg-zinc-700 p-1;
+    .bg-custom-ultra {
+        @apply bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl;
     }
 
-    .hover-custom-accent {
-        @apply hover:bg-zinc-200 dark:hover:bg-zinc-500 p-1;
+    .bg-color {
+        @apply bg-primary-500 dark:bg-primarydark-500;
     }
 
-    .stroke-elix {
-        @apply dark:stroke-[#F2BB22] stroke-[#14083F];
+    .border-color {
+        @apply border-2 border-primary-500 dark:border-primarydark-500;
     }
 
-    .text-elix {
-        @apply dark:text-[#F2BB22] text-[#14083F];
+    .hover {
+        @apply hover:bg-zinc-200 dark:hover:bg-zinc-700;
     }
 
-    .border-elix {
-        @apply  border-2 dark:border-[#F2BB22] border-[#14083F] rounded-2xl
+    .hover-accent {
+        @apply hover:bg-zinc-100 dark:hover:bg-zinc-900;
+    }
+
+    .stroke-color {
+        @apply stroke-primary-500 dark:stroke-primarydark-500;
+    }
+
+    .selected {
+        @apply bg-primary-50 dark:bg-zinc-600 text-primary-500 dark:text-primarydark-500;
+    }
+
+    .icon-danger {
+        @apply p-2 text-zinc-400 hover:text-danger-500 rounded-full hover:bg-danger-100 transition-colors duration-150 cursor-pointer;
+    }
+
+    .input-none {
+        @apply bg-transparent focus:ring-0 focus:border-0 border-none focus:outline-none stroke-0;
     }
 }
 

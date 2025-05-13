@@ -1,9 +1,9 @@
 <div>
     <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-52">
         @foreach ($accounts as $account)
-            <div class="bg-custom shadow-md rounded-lg p-4 w-1/3">
+            <div class="bg-custom-accent shadow-md rounded-lg p-4 w-1/3">
                 <div class="flex items-center justify-between">
-                    <input type="text" class="text-lg font-bold border-none focus:ring-0 focus:outline-none stroke-0"
+                    <input type="text" class="text-lg font-bold input-none"
                         value="{{ $account->name }}"
                         wire:change="updateAccountName('{{ $account->id }}', $event.target.value)" />
                     <img src="{{ $account->logo }}" alt="Logo" class="h-12 w-12 rounded">
@@ -15,10 +15,10 @@
                     @endif
                 </flux:text>
                 <flux:text>
-                    <span class="block text-sm text-gray-500">
+                    <span class="block text-sm text-grey">
                         {{ chunk_split($account->iban, 4, ' ') }}
                     </span>
-                    <span class="block text-sm text-gray-500">
+                    <span class="block text-sm text-grey">
                         {{ $account->owner_name }}
                     </span>
                 </flux:text>
