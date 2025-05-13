@@ -15,33 +15,36 @@
         </div>
     </div>
 
-    <div class="rounded-lg overflow-hidden border border-grey-accent shadow-sm hover:shadow-md transition-shadow">
+    <div
+        class="rounded-lg overflow-hidden border border-grey-accent shadow-sm hover:shadow-md transition-shadow h-[60vh] overflow-y-auto">
         <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
-            <thead class="bg-custom text-left">
-                <tr class="bg-custom">
-                    <th class="px-4 py-4 sticky top-0 z-10 w-16">Couleur</th>
-                    <th wire:click="sortBy('name')" class="px-4 py-3 cursor-pointer sticky top-0 z-10 group">
+            <thead class="text-left sticky top-0 z-10 bg-custom">
+                <tr>
+                    <th wire:click="sortBy('color')" class="px-4 w-30 cursor-pointer group">
+                        <div class="flex items-center space-x-1">
+                            <span>Couleur</span>
+                            @if ($sortField === 'color')
+                                <x-atoms.sort-direction :sortDirection="$sortDirection" />
+                            @endif
+                        </div>
+                    </th>
+                    <th wire:click="sortBy('name')" class="px-4 py-3 cursor-pointer group">
                         <div class="flex items-center space-x-1">
                             <span>Nom</span>
                             @if ($sortField === 'name')
-                                <span class="ml-2">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
-                            @else
-                                <span class="ml-2 opacity-0 group-hover:opacity-30">↕</span>
+                                <x-atoms.sort-direction :sortDirection="$sortDirection" />
                             @endif
                         </div>
                     </th>
-                    <th wire:click="sortBy('budget')"
-                        class="px-4 py-4 cursor-pointer sticky top-0 z-10 text-right group">
+                    <th wire:click="sortBy('budget')" class="px-4 py-4 cursor-pointer text-right group">
                         <div class="flex items-center justify-end space-x-1">
                             <span>Budget</span>
                             @if ($sortField === 'budget')
-                                <span class="ml-2">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
-                            @else
-                                <span class="ml-2 opacity-0 group-hover:opacity-30">↕</span>
+                                <x-atoms.sort-direction :sortDirection="$sortDirection" />
                             @endif
                         </div>
                     </th>
-                    <th class="px-4 py-4 sticky top-0 z-10 w-28 text-center">
+                    <th class="px-4 py-4 w-28 text-center">
                         Actions
                     </th>
                 </tr>

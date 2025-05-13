@@ -16,8 +16,8 @@ class CategoryIndex extends Component
     public $newColor = '#cccccc';
     public $totalBudget = '#cccccc';
 
-    public $sortField = 'name';
-    public $sortDirection = 'asc';
+    public $sortField = 'budget';
+    public $sortDirection = 'desc';
 
     public function mount()
     {

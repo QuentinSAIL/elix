@@ -33,8 +33,8 @@ class MoneyCategory extends Model
     {
         parent::boot();
 
-        static::addGlobalScope('user_id', function (Builder $builder) {
-            $builder->where('user_id', auth()->id());
+        static::addGlobalScope('created_at', function (Builder $builder) {
+            $builder->orderBy('created_at', 'desc');
         });
     }
 

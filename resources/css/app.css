@@ -89,7 +89,7 @@
     .title-elix {
         @apply text-5xl font-parkinsans text-primary-900 dark:text-primarydark-500;
     }
-    
+
     .text-custom {
         @apply text-zinc-900 dark:text-zinc-50;
     }

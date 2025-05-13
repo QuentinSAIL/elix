@@ -1,16 +1,102 @@
 <div class="bg-custom-accent grid grid-cols-2 h-[71vh]">
     <!-- Colonne gauche : infos tâche + timer -->
-    <div class="col-span-1 p-6" x-data="timer(@json($routine->tasks->pluck('duration')->toArray()))" x-init="init()">
+    <div class="col-span-1 p-6 flex flex-col justify-center"
+    x-data="timer(@json($routine->tasks->pluck('duration')->toArray()))" x-init="init()">
         <h2 class="title-color text-center mb-6 font-semibold">
             @if ($isFinished)
-                {{ __('Routine finished') . ' ' . $routine->name }}
+                {{ __('Routine completed') . ': ' . $routine->name }}
             @elseif ($currentTaskIndex === null)
-                {{ __('Routine details') . ' ' . $routine->name }}
             @else
-                {{ __('Current Task') . ' ' . $currentTask->name }}
+                {{ __('Current Task') . ': ' . $currentTask->name }}
             @endif
         </h2>
-        @if ($currentTaskIndex !== null && $currentTask)
+
+        <!-- Not started state - Routine information -->
+        @if ($currentTaskIndex === null && !$isFinished)
+            <div class="bg-custom p-6 rounded-lg shadow-md mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold title-color">{{ $routine->name }}</h3>
+                    <span class="bg-elix/20 text-elix py-1 px-3 rounded-full text-sm">
+                        {{ $routine->tasks->count() }} {{ __('tasks') }}
+                    </span>
+                </div>
+
+                <div class="space-y-4">
+                    @if ($routine->description)
+                        <div class="rounded-lg border-color p-3 italic">
+                            {{ $routine->description }}
+                        </div>
+                    @endif
+
+                    <div class="flex items-center gap-2">
+                        <flux:icon.clock class="text-elix" />
+                        <span>{{ __('Total duration') }}: {{ gmdate('H:i:s', $routine->tasks->sum('duration')) }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <flux:icon.calendar class="text-elix" />
+                        <span>{{ __('Created') }}: {{ $routine->created_at->format('d M Y') }}</span>
+                    </div>
+
+                    @if ($routine->completed_count > 0)
+                        <div class="flex items-center gap-2">
+                            <flux:icon.check-circle class="text-elix" />
+                            <span>{{ __('Completed') }}: {{ $routine->completed_count }} {{ __('times') }}</span>
+                        </div>
+
+                        @if ($routine->last_completed_at)
+                            <div class="flex items-center gap-2">
+                                <flux:icon.arrow-path class="text-elix" />
+                                <span>{{ __('Last completed') }}:
+                                    {{ $routine->last_completed_at->diffForHumans() }}</span>
+                            </div>
+                        @endif
+                    @endif
+                </div>
+
+                <div class="mt-6">
+                    <flux:button wire:click="start" variant="primary" class="w-full">
+                        <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" />
+                        {{ __('Start Routine') }}
+                    </flux:button>
+                </div>
+            </div>
+        @endif
+
+        <!-- Finished state - Completion celebration -->
+        @if ($isFinished)
+            <div class="bg-custom p-6 rounded-lg shadow-md mb-6 text-center">
+                <div class="flex flex-col items-center justify-center space-y-4">
+                    <!-- Celebration animation -->
+                    <div class="celebration-icon text-elix mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                            class="w-24 h-24 animate-bounce">
+                            <path fill-rule="evenodd"
+                                d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+
+                    <h3 class="text-2xl font-bold title-color">{{ __('Congratulations!') }}</h3>
+                    <p class="text-lg">{{ __('You have successfully completed your routine') }}</p>
+
+                    <div class="stats grid grid-cols-2 gap-4 w-full mt-4">
+                        <div class="stat bg-elix/10 p-4 rounded-lg">
+                            <div class="text-sm uppercase tracking-widest">{{ __('Total Time') }}</div>
+                            <div class="font-mono text-2xl font-bold text-elix">
+                                {{ gmdate('H:i:s', $routine->tasks->sum('duration')) }}</div>
+                        </div>
+                        <div class="stat bg-elix/10 p-4 rounded-lg">
+                            <div class="text-sm uppercase tracking-widest">{{ __('Tasks Completed') }}</div>
+                            <div class="font-mono text-2xl font-bold text-elix">{{ $routine->tasks->count() }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Timer view for active task -->
+        @if ($currentTaskIndex !== null && !$isFinished)
             <div class="relative w-96 h-96 mx-auto mb-6">
                 <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
                     <circle cx="50" cy="50" r="45" :stroke-dasharray="circum"
@@ -39,6 +125,22 @@
                     </div>
                 </div>
             </div>
+
+            <div class="flex justify-center gap-2">
+                <flux:button wire:click="playPause" variant="primary">
+                    @if ($isPaused)
+                        <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" />
+                        {{ __('Resume') }}
+                    @else
+                        <flux:icon.pause variant="micro" class="w-5 h-5 inline-block mr-1" />
+                        {{ __('Pause') }}
+                    @endif
+                </flux:button>
+                <flux:button wire:click="stop" variant="danger">
+                    <flux:icon.stop variant="micro" class="w-5 h-5 inline-block mr-1" />
+                    {{ __('Stop') }}
+                </flux:button>
+            </div>
         @endif
     </div>
 
@@ -50,6 +152,7 @@
                 <span
                     class="w-5 h-5 rounded-full border-3
                     @if ($loop->index < $currentTaskIndex) border-color
+                    @elseif ($loop->index === $currentTaskIndex) bg-color border-color
                     @else border-grey @endif">
                 </span>
 
@@ -85,28 +188,10 @@
             },
         }">
             <div class="flex items-end justify-end m-4 gap-1">
-                @if ($currentTaskIndex === null)
-                    <flux:button wire:click="start" variant="primary">
-                        <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" />
-                        {{ __('Start') }}
-                    </flux:button>
-                @else
-                    <flux:button wire:click="start" variant="primary">
-                        <flux:icon.arrow-path variant="micro" class="w-5 h-5 inline-block mr-1" />
-                        {{ __('Restart') }}
-                    </flux:button>
-                    <flux:button wire:click="playPause" variant="primary">
-                        @if ($isPaused)
-                            <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" />
-                            {{ __('Resume') }}
-                        @else
-                            <flux:icon.pause variant="micro" class="w-5 h-5 inline-block mr-1" />
-                            {{ __('Pause') }}
-                        @endif
-                    </flux:button>
-                    <flux:button wire:click="stop" variant="danger">
-                        <flux:icon.stop variant="micro" class="w-5 h-5 inline-block mr-1" />
-                        {{ __('Stop') }}
+                @if ($currentTaskIndex !== null && !$isFinished)
+                    <flux:button wire:click="next" variant="primary" class="w-full">
+                        <flux:icon.check variant="micro" class="w-5 h-5 inline-block mr-1" />
+                        {{ __('Complete Current Task') }}
                     </flux:button>
                 @endif
             </div>
@@ -114,16 +199,17 @@
             <div x-ref="list" class="flex-1 overflow-y-scroll p-4 space-y-4">
                 @foreach ($routine->tasks as $task)
                     <div id="{{ $task->id }}" wire:key="task-{{ $task->id }}"
-                        class="bg-custom p-4 h-48 flex flex-col justify-between {{ $loop->index === $currentTaskIndex ? 'border-color' : '' }}">
+                        class="bg-custom p-4 rounded-md shadow-sm flex flex-col justify-between
+                            {{ $loop->index === $currentTaskIndex ? 'border-l-4 border-color' : '' }}
+                            {{ $loop->index < $currentTaskIndex ? 'opacity-70' : '' }}">
                         <div class="flex items-center space-x-4">
-
                             <div class="w-full">
                                 <div class="flex justify-between items-center">
                                     <h3 class="text-lg font-bold">
-                                        {{ $task->name }} – {{ $task->order }}
+                                        {{ $task->name }}
                                     </h3>
 
-                                    @if ($currentTaskIndex === null)
+                                    @if ($currentTaskIndex === null && !$isFinished)
                                         <div class="flex items-center ml-auto">
                                             <livewire:routine-task.form :routine="$routine" :task="$task"
                                                 wire:key="task-form-{{ $task->id }}" />
@@ -137,7 +223,7 @@
                                     @endif
                                 </div>
 
-                                <div class="flex items-center align-middle my-2 h-full">
+                                <div class="flex items-center align-middle my-2">
                                     @if ($task->description)
                                         <div class="flex items-center">
                                             <flux:icon.flag class="text-elix" />
@@ -147,7 +233,7 @@
                                         </div>
                                     @endif
                                     <div class="ml-auto my-auto flex items-center">
-                                        @if ($currentTaskIndex === null)
+                                        @if ($currentTaskIndex === null && !$isFinished)
                                             <button type="button" class="drag-handle cursor-move">
                                                 <flux:icon.bars-4 class="" />
                                             </button>
@@ -159,23 +245,25 @@
                         <div class="flex items-center">
                             <div class="flex items-center">
                                 <flux:icon.clock class="" />
-                                <span class="ml-2">{{ $task->duration }}s</span>
+                                <span class="ml-2">{{ gmdate('H:i:s', $task->duration) }}</span>
                             </div>
 
                             @if ($loop->index === $currentTaskIndex)
                                 <flux:button wire:click="next" variant="primary" class="ml-auto">
-                                    {{ __('Done') }}
+                                    <flux:icon.arrow-right variant="micro" class="w-5 h-5 inline-block mr-1" />
+                                    {{ __('Complete') }}
                                 </flux:button>
                             @endif
                         </div>
-
                     </div>
                 @endforeach
 
-                <div
-                    class="bg-custom-accent hover p-4 h-24 border-3 border-dashed flex items-center justify-center text-center cursor-pointer">
-                    <livewire:routine-task.form :routine="$routine" wire:key="task-form-create" />
-                </div>
+                @if ($currentTaskIndex === null && !$isFinished)
+                    <div
+                        class="bg-custom-accent hover:bg-custom-accent/70 p-4 rounded-md border-2 border-dashed flex items-center justify-center text-center cursor-pointer transition-all">
+                        <livewire:routine-task.form :routine="$routine" wire:key="task-form-create" />
+                    </div>
+                @endif
             </div>
         </div>
     </div>
