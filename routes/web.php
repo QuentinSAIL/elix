@@ -1,6 +1,6 @@
 <?php
 
-use App\Livewire\Money\Statistics;
+use App\Livewire\Money\Dashboard;
 use App\Livewire\Settings\ApiKey;
 use App\Livewire\Settings\Modules;
 use App\Livewire\Settings\Profile;
@@ -26,7 +26,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/', function () {
                     return redirect()->route('money.dashboard');
                 })->name('money.index');
-                Route::get('dashboard', Statistics::class)->name('money.dashboard');
+                Route::get('dashboard', Dashboard::class)->name('money.dashboard');
                 Route::get('accounts', AccountIndex::class)->name('money.accounts');
                 Route::get('transactions', TransactionIndex::class)->name('money.transactions');
                 Route::get('categories', CategoryIndex::class)->name('money.categories');

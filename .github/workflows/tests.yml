@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: Testing
 
+    # rajouter un service pgsql ici + DB_USERNAME etc
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4

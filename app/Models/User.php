@@ -98,6 +98,11 @@ class User extends Authenticatable
         return $this->hasMany(MoneyCategoryMatch::class);
     }
 
+    public function moneyDashboards()
+    {
+        return $this->hasMany(MoneyDashboard::class);
+    }
+
     public function apiKeys()
     {
         return $this->hasMany(ApiKey::class);
