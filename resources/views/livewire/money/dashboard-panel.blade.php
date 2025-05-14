@@ -1,27 +1,36 @@
-<div>
-  <canvas id="myChart"></canvas>
+<div wire:click="edit">
+    <h2 class="text-2xl font-bold mb-8"">{{ $title }}</h2>
+    <canvas wire:ignore id="{{ $moneyDashboardPanel->id }}"></canvas>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const ctx = document.getElementById('myChart');
+    document.addEventListener('livewire:navigated', function () {
+        const panelId = @json($moneyDashboardPanel->id);
+        const labels = @json($labels);
+        const data = @json($values);
+        const colors = @json($colors);
+        const type = @json($moneyDashboardPanel->type);
 
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-      datasets: [{
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2, 3],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
+        const ctx = document.getElementById(panelId).getContext('2d');
+        new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    labels: labels,
+                    data: data,
+                    backgroundColor: [
+                        ...colors,
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+        });
+    });
 </script>

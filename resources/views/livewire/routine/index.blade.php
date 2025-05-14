@@ -11,7 +11,8 @@
         @forelse($routines as $routine)
             <div class="flex-shrink-0 w-1/4 bg-custom-accent p-6 shadow-sm hover relative cursor-pointer {{ $selectedRoutine?->id === $routine->id ? 'border-color' : '' }}"
                 wire:click="selectRoutine('{{ $routine->id }}')" wire:key="routine-{{ $routine->id }}">
-                <div class="absolute top-4 right-4" x-data="{ open: false }" x-init="$watch('open', value => { if (!value) $dispatch('close-all') })" @close-all.window="open = false">
+                <div class="absolute top-4 right-4" x-data="{ open: false }" x-init="$watch('open', value => { if (!value) $dispatch('close-all') })"
+                    @close-all.window="open = false">
                     <div class="relative">
                         <button @click="open = !open" class="cursor-pointer rounded-lg">
                             <flux:icon.ellipsis-vertical />

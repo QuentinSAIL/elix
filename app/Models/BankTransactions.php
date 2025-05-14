@@ -28,6 +28,7 @@ class BankTransactions extends Model
 
     protected $casts = [
         'transaction_date' => 'date',
+        'amount' => 'float',
     ];
 
     public function account()

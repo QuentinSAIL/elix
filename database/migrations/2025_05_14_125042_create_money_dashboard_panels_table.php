@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('money_dashboard_panels', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('money_dashboard_id')->constrained()->cascadeOnDelete();
-            $table->enum('type', ['chart', 'table', 'text'])->default('chart');
+            $table->enum('type', ['bar', 'doughnut', 'pie', 'line', 'table', 'number'])->default('bar');
             $table->enum('periode_type', ['dates', 'daily', 'weekly', 'monthly', 'yearly'])->default('daily');
             $table->datetime('period_start')->nullable();
             $table->datetime('period_end')->nullable();
