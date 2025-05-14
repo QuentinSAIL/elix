@@ -32,7 +32,7 @@ class Register extends Component
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        if (config('registration_enabled') === false) {
+        if (config('app.registration_enabled') === false) {
             $this->addError('registration', 'Registration is not open yet.');
             return;
         }
