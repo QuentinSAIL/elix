@@ -127,5 +127,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'registration_enabled' => env('REGISTRATION_ENABLED', true),
+
     'Markdom' => Sinnbeck\Markdom\Facades\Markdom::class,
 ];

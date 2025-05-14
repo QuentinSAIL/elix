@@ -32,8 +32,10 @@ class Register extends Component
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $this->addError('registration', 'Registration is not open yet.');
-        return;
+        if (config('registration_enabled') === false) {
+            $this->addError('registration', 'Registration is not open yet.');
+            return;
+        }
 
         $validated['password'] = Hash::make($validated['password']);
 
@@ -41,6 +43,6 @@ class Register extends Component
 
         Auth::login($user);
 
-        $this->redirect(route('dashboard', absolute: false), navigate: true);
+        $this->redirect(route('dashboard'), navigate: true);
     }
 }

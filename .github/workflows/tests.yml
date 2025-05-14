@@ -3,19 +3,31 @@ name: tests
 on:
   push:
     branches:
-      # - develop
-      # - main
+      - develop
+      - main
   pull_request:
     branches:
-      # - develop
-      # - main
+      - develop
+      - main
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     environment: Testing
 
-    # rajouter un service pgsql ici + DB_USERNAME etc
+    # rajouter un service pgsql ici + DB_USERNAME
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: pgsql
+          DB_PORT: 5432
+          DB_DATABASE: laravel
+          DB_USERNAME: sail
+          DB_PASSWORD: password
 
     steps:
       - name: Checkout
