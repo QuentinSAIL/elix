@@ -166,6 +166,10 @@
         @apply p-2 text-zinc-400 hover:text-danger-500 rounded-full hover:bg-danger-100 transition-colors duration-150 cursor-pointer;
     }
 
+    .icon-danger-small {
+        @apply p-0.5 text-zinc-400 hover:text-danger-500 rounded-full hover:bg-danger-100 transition-colors duration-150 cursor-pointer;
+    }
+
     .input-none {
         @apply bg-transparent focus:ring-0 focus:border-0 border-none focus:outline-none stroke-0;
     }

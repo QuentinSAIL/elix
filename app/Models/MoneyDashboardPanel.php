@@ -11,7 +11,7 @@ class MoneyDashboardPanel extends Model
 {
     use HasUuids, HasFactory;
 
-    protected $fillable = ['money_dashboard_id', 'type', 'periode_type', 'period_start', 'period_end'];
+    protected $fillable = ['money_dashboard_id', 'type', 'title', 'is_expense', 'period_type'];
 
     public function dashboard()
     {
@@ -30,30 +30,43 @@ class MoneyDashboardPanel extends Model
 
     public function determinePeriode()
     {
-        switch ($this->periode_type) {
-            case 'today':
+        switch ($this->period_type) {
+            case 'daily':
                 $startDate = Carbon::today();
                 $endDate = Carbon::today();
-                break;
-            case 'yesterday':
-                $startDate = Carbon::yesterday();
-                $endDate = Carbon::yesterday();
                 break;
             case 'weekly':
                 $startDate = Carbon::now()->startOfWeek();
                 $endDate = Carbon::now()->endOfWeek();
                 break;
+            case 'biweekly':
+                $startDate = Carbon::now()->startOfWeek();
+                $endDate = Carbon::now()->addWeek()->endOfWeek();
+                break;
             case 'monthly':
                 $startDate = Carbon::now()->startOfMonth();
                 $endDate = Carbon::now()->endOfMonth();
+                break;
+            case 'quarterly':
+                $startDate = Carbon::now()->startOfQuarter();
+                $endDate = Carbon::now()->endOfQuarter();
+                break;
+            case 'biannual':
+                $half = Carbon::now()->month <= 6 ? 1 : 2;
+                $startDate = Carbon::create(Carbon::now()->year, $half == 1 ? 1 : 7, 1)->startOfDay();
+                $endDate = Carbon::create(Carbon::now()->year, $half == 1 ? 6 : 12, $half == 1 ? 30 : 31)->endOfDay();
                 break;
             case 'yearly':
                 $startDate = Carbon::now()->startOfYear();
                 $endDate = Carbon::now()->endOfYear();
                 break;
-            case 'dates':
-                $startDate = $this->moneyDashboardPanel?->period_start ? Carbon::parse($this->moneyDashboardPanel->period_start) : null;
-                $endDate = $this->moneyDashboardPanel?->period_end ? Carbon::parse($this->moneyDashboardPanel->period_end) : null;
+            case 'all':
+                $startDate = null;
+                $endDate = null;
+                break;
+            default:
+                $startDate = null;
+                $endDate = null;
                 break;
         }
         return [
@@ -70,12 +83,12 @@ class MoneyDashboardPanel extends Model
             $query = BankTransactions::whereBetween('transaction_date', [$startDate, $endDate]);
         }
 
-        if (!empty($filters["accounts"])) {
-            $query->whereIn('bank_account_id', $filters["accounts"]);
+        if (!empty($filters['accounts'])) {
+            $query->whereIn('bank_account_id', $filters['accounts']);
         }
 
-        if (!empty($filters["categories"])) {
-            $query->whereIn('money_category_id', $filters["categories"]);
+        if (!empty($filters['categories'])) {
+            $query->whereIn('money_category_id', $filters['categories']);
         }
 
         return $query->get();

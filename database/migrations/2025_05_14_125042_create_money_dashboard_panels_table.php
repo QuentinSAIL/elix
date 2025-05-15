@@ -14,10 +14,19 @@ return new class extends Migration
         Schema::create('money_dashboard_panels', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('money_dashboard_id')->constrained()->cascadeOnDelete();
+            $table->string('title')->nullable();
+            $table->boolean('is_expense')->default(true);
             $table->enum('type', ['bar', 'doughnut', 'pie', 'line', 'table', 'number'])->default('bar');
-            $table->enum('periode_type', ['dates', 'daily', 'weekly', 'monthly', 'yearly'])->default('daily');
-            $table->datetime('period_start')->nullable();
-            $table->datetime('period_end')->nullable();
+            $table->enum('period_type', [
+                'all',
+                'daily',
+                'weekly',
+                'biweekly',
+                'monthly',
+                'quarterly',
+                'biannual',
+                'yearly',
+            ])->default('all');
             $table->timestamps();
         });
 

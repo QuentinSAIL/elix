@@ -14,10 +14,6 @@ return new class extends Migration
         Schema::create('money_dashboards', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
-            $table->integer('order')->default(0);
-            $table->string('size')->default('md');
-            $table->string('position_x')->nullable();
-            $table->string('position_y')->nullable();
             $table->timestamps();
         });
     }
