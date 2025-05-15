@@ -1,4 +1,4 @@
-@props(['sortDirection' => 'asc'])
+@props(['sortDirection' => 'desc'])
 
 <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
     @if ($sortDirection === 'asc')

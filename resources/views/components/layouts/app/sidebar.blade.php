@@ -135,6 +135,7 @@
         </flux:header>
 
         {{ $slot }}
+        <script src="http://SortableJS.github.io/Sortable/Sortable.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         @fluxScripts
         @livewireScripts

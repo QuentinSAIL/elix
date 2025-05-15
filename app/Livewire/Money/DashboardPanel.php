@@ -15,7 +15,7 @@ class DashboardPanel extends Component
     public $isExpensePanel = true;
     public $displayUncategorized = false;
 
-    public $moneyDashboardPanel;
+    public $panel;
     public $bankAccounts;
     public $categories;
 
@@ -30,10 +30,10 @@ class DashboardPanel extends Component
     public function mount()
     {
         $this->user = Auth::user();
-        $this->title = $this->moneyDashboardPanel?->title ?? 'Dashboard Panel';
+        $this->title = $this->panel?->title ?? 'Dashboard Panel';
 
-        $this->categories = $this->moneyDashboardPanel->categories()->get()->pluck('id')->toArray();
-        $this->bankAccounts = $this->moneyDashboardPanel->bankAccounts()->get()->pluck('id')->toArray();
+        $this->categories = $this->panel->categories()->get()->pluck('id')->toArray();
+        $this->bankAccounts = $this->panel->bankAccounts()->get()->pluck('id')->toArray();
         $this->assignDateRange();
         $this->transactions = $this->getTransactions();
         $this->prepareChartData();
@@ -86,14 +86,14 @@ class DashboardPanel extends Component
 
     public function assignDateRange()
     {
-        $period = $this->moneyDashboardPanel->determinePeriode();
+        $period = $this->panel->determinePeriode();
         $this->startDate = $period['startDate'] ? $period['startDate']->format('Y-m-d') : null;
         $this->endDate = $period['endDate'] ? $period['endDate']->format('Y-m-d') : null;
     }
 
     public function getTransactions()
     {
-        return $this->moneyDashboardPanel->getTransactions($this->startDate, $this->endDate, [
+        return $this->panel->getTransactions($this->startDate, $this->endDate, [
             'accounts' => $this->bankAccounts,
             'categories' => $this->categories,
         ]);
