@@ -29,6 +29,8 @@ class CategoryForm extends Component
     public $applyMatch = true;
     public $applyMatchToAlreadyCategorized = false;
 
+    public $deletedKeywords;
+
     public function mount()
     {
         $this->user = Auth::user();
@@ -116,7 +118,7 @@ class CategoryForm extends Component
     {
         $match = $this->categoryMatchForm[$index] ?? null;
         if ($this->edition && !empty($match['id'])) {
-            $this->category->categoryMatches()->where('id', $match['id'])->delete();
+            // $this->category->categoryMatches()->where('id', $match['id'])->delete();
         }
 
         unset($this->categoryMatchForm[$index]);
@@ -139,6 +141,14 @@ class CategoryForm extends Component
 
         if ($this->edition) {
             $this->category->update($this->categoryForm);
+
+            $deletedKeywords = array_diff($existingKeywords, $newKeywords);
+            foreach ($deletedKeywords as $keyword) {
+                $match = $this->category->categoryMatches()->where('keyword', $keyword)->first();
+                if ($match) {
+                    $match->delete();
+                }
+            }
 
             foreach ($this->categoryMatchForm as $index => $match) {
                 $keyword = trim($match['keyword'] ?? '');

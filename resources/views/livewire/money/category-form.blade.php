@@ -132,7 +132,7 @@
             <div class="flex gap-2 mt-6 justify-end pt-4">
                 <flux:modal.close>
                     <flux:button variant="ghost" class="px-4">
-                        {{ __('Annuler') }}
+                        {{ __('Cancel') }}
                     </flux:button>
                 </flux:modal.close>
                 <flux:button wire:click="save" variant="primary" wire:keydown.enter="save">
