@@ -340,7 +340,7 @@
             },
 
             elapsedAllMs() {
-                return this.totalDuration - (this.remainingMs + this.upcomingMs) - 1000;
+                return this.totalDuration - (this.remainingMs + this.upcomingMs);
             },
 
             totalRemainingMs() {
@@ -349,9 +349,10 @@
 
             percent() {
                 const elapsed = this.elapsedAllMs();
-                return this.totalDuration > 0 ?
-                    (elapsed / this.totalDuration) * 100 :
-                    0;
+                // Clamp entre 0 et 100
+                if (elapsed <= 0) return 0;
+                if (elapsed >= this.totalDuration) return 100;
+                return (elapsed / this.totalDuration) * 100;
             },
 
             hhmmss(ms) {
