@@ -162,6 +162,10 @@
         @apply bg-primary-50 dark:bg-zinc-600 text-primary-500 dark:text-primarydark-500;
     }
 
+    .selected-accent {
+        @apply bg-primary-100 dark:bg-zinc-700 text-primary-500 dark:text-primarydark-500;
+    }
+
     .icon-danger {
         @apply p-2 text-zinc-400 hover:text-danger-500 rounded-full hover:bg-danger-100 transition-colors duration-150 cursor-pointer;
     }

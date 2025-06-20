@@ -3,7 +3,7 @@
         <div
             class="flex-shrink-0 w-1/4 bg-custom-accent p-6 shadow-sm hover transition-shadow flex items-center justify-center cursor-pointer">
             <div>
-                <livewire:routine.form />
+                <livewire:routine.form wire:key="routine-form-create" />
             </div>
         </div>
 
@@ -19,7 +19,7 @@
                         </button>
                         <div x-show="open" @click.away="open = false" @keydown.escape.window="open = false" @click.stop
                             class="absolute right-0 mt-2 w-32 bg-custom-accent rounded-lg shadow-lg z-10" wire:ignore>
-                            <livewire:routine.form :routine="$routine" :wire:key="'routine-form-'.$routine->id" />
+                            <livewire:routine.form :routine="$routine" :wire:key="'routine-form-'.$routine->id" lazy />
                             <button wire:click="delete('{{ $routine->id }}')" @click="open = false"
                                 class="block w-full px-2 py-2 text-sm text-danger-500 hover rounded-b-lg">
                                 {{ __('Delete') }} <span class="inline-flex items-center ml-2">
