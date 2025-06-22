@@ -57,6 +57,7 @@
                     <div class="mb-4">
                         <x-atoms.select
                             name="accountsId[]"
+                            wire:model="accountsId"
                             label="Comptes bancaires"
                             :options="$bankAccounts"
                             :selected="$accountsId ?? []"
@@ -69,6 +70,7 @@
                     <div class="mb-4">
                         <x-atoms.select
                             name="categoriesId[]"
+                            wire:model="categoriesId"
                             label="Catégories"
                             :options="$categories"
                             :selected="$categoriesId ?? []"

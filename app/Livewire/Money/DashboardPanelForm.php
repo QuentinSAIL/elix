@@ -23,9 +23,9 @@ class DashboardPanelForm extends Component
     //form
     public $title;
     public $type;
-    public $accountsId;
-    public $categoriesId;
     public $periodType;
+    public array $accountsId = [];
+    public array $categoriesId = [];
 
     public function mount()
     {

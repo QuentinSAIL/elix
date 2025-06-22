@@ -7,7 +7,10 @@
     'showChips' => true,
 ])
 
-<div x-data="{
+<div
+    {{ $attributes->class('relative w-full') }}
+    x-modelable="selectedIds"
+    x-data="{
     open: false,
     search: '',
     selectedIds: @js($selected),
@@ -21,15 +24,8 @@
     isSelected(id) {
         return this.selectedIds.includes(id);
     },
-    add(id) {
-        if (!this.selectedIds.includes(id)) {
-            this.selectedIds.push(id);
-        }
-        this.search = '';
-    },
-    remove(id) {
-        this.selectedIds = this.selectedIds.filter(i => i !== id);
-    }
+    add(i)       { if(!this.isSelected(i)) this.selectedIds.push(i); this.search=''; },
+    remove(i)    { this.selectedIds = this.selectedIds.filter(id => id !== i) },
 }" class="relative w-full">
     @if ($label)
         <label class="block text-sm font-medium text-grey-inverse mb-2">{{ $label }}</label>
@@ -90,5 +86,5 @@
         </template>
     </div>
     @endif
-    <input type="hidden" :name="'{{ $name }}'" :value="selectedIds.join(',')">
+    <input type="hidden" name="{{ $name }}" x-model="selectedIds">
 </div>
