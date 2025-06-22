@@ -118,7 +118,7 @@ class CategoryForm extends Component
     {
         $match = $this->categoryMatchForm[$index] ?? null;
         if ($this->edition && !empty($match['id'])) {
-            // $this->category->categoryMatches()->where('id', $match['id'])->delete();
+            $this->category->categoryMatches()->where('id', $match['id'])->delete();
         }
 
         unset($this->categoryMatchForm[$index]);
@@ -131,6 +131,47 @@ class CategoryForm extends Component
         $rules = [
             'categoryForm.name' => 'required|string|max:255',
         ];
+
+
+        $existingKeywords = MoneyCategoryMatch::where('user_id', $this->user->id)
+            ->pluck('keyword')
+            ->toArray();
+
+        $collisions = [];
+        foreach ($this->categoryMatchForm as $index => $match) {
+            if ($match['id'] !== "") {
+                continue;
+            }
+            $keyword = trim($match['keyword'] ?? '');
+            if ($keyword !== '') {
+            foreach ($existingKeywords as $existing) {
+                if (
+                stripos($existing, $keyword) !== false ||
+                stripos($keyword, $existing) !== false
+                ) {
+                $collisions[] = [
+                    'input' => $keyword,
+                    'existing' => $existing,
+                ];
+                }
+            }
+            $rules['categoryMatchForm.' . $index . '.keyword'] = 'required|string|max:255';
+            } else {
+            unset($this->categoryMatchForm[$index]);
+            }
+        }
+
+        if (!empty($collisions)) {
+            $messages = [];
+            foreach ($collisions as $collision) {
+            $messages[] = __('Keyword ":input" collides with existing ":existing".', [
+                'input' => $collision['input'],
+                'existing' => $collision['existing'],
+            ]);
+            }
+            Toaster::error(implode(' ', $messages), ['duration' => 60]);
+            return;
+        }
 
         try {
             $this->validate($rules);
