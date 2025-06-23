@@ -183,7 +183,7 @@ class CategoryForm extends Component
         if ($this->edition) {
             $this->category->update($this->categoryForm);
 
-            $deletedKeywords = array_diff($existingKeywords, $newKeywords);
+            $deletedKeywords = array_diff($existingKeywords, $newKeywords ?? []);
             foreach ($deletedKeywords as $keyword) {
                 $match = $this->category->categoryMatches()->where('keyword', $keyword)->first();
                 if ($match) {
