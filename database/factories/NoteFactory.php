@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use DavidBadura\FakerMarkdownGenerator\FakerProvider;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Note>
@@ -20,9 +20,10 @@ class NoteFactory extends Factory
     {
         $faker = \Faker\Factory::create();
         $faker->addProvider(new FakerProvider($faker));
+
         return [
             'user_id' => User::all()->random(),
-            'content' => $faker->markdown()
+            'content' => $faker->markdown(),
         ];
     }
 }

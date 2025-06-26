@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Http\Livewire\Traits\Notifies;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -15,6 +16,7 @@ use Livewire\Component;
 #[Layout('components.layouts.auth')]
 class ResetPassword extends Component
 {
+    use Notifies;
     #[Locked]
     public string $token = '';
 
@@ -64,12 +66,12 @@ class ResetPassword extends Component
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
         if ($status != Password::PasswordReset) {
-            $this->addError('email', __($status));
+            $this->notifyError(__($status));
 
             return;
         }
 
-        Session::flash('status', __($status));
+        $this->notifySuccess(__($status));
 
         $this->redirectRoute('login', navigate: true);
     }

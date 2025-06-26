@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class MoneyDashboardPanel extends Model
 {
-    use HasUuids, HasFactory;
+    use HasFactory, HasUuids;
 
     protected $fillable = ['money_dashboard_id', 'type', 'title', 'is_expense', 'period_type'];
 
@@ -69,6 +69,7 @@ class MoneyDashboardPanel extends Model
                 $endDate = null;
                 break;
         }
+
         return [
             'startDate' => $startDate,
             'endDate' => $endDate,
@@ -83,11 +84,11 @@ class MoneyDashboardPanel extends Model
             $query = BankTransactions::whereBetween('transaction_date', [$startDate, $endDate]);
         }
 
-        if (!empty($filters['accounts'])) {
+        if (! empty($filters['accounts'])) {
             $query->whereIn('bank_account_id', $filters['accounts']);
         }
 
-        if (!empty($filters['categories'])) {
+        if (! empty($filters['categories'])) {
             $query->whereIn('money_category_id', $filters['categories']);
         }
 

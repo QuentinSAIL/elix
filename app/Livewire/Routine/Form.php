@@ -2,19 +2,20 @@
 
 namespace App\Livewire\Routine;
 
-use Flux\Flux;
-use Carbon\Carbon;
-use App\Models\Routine;
-use Livewire\Component;
+use App\Services\RoutineService;
+use App\Http\Livewire\Traits\Notifies;
 use App\Models\Frequency;
+use Carbon\Carbon;
+use Flux\Flux;
 use Illuminate\Support\Arr;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class Form extends Component
 {
+    use Notifies;
     public $user;
 
     public $edition;
@@ -22,6 +23,7 @@ class Form extends Component
     public $routineId;
 
     public $routine; // c'est rempli quand on est en edition
+
     public $frequency; // c'est rempli quand on est en edition
 
     public $routineForm = [
@@ -70,6 +72,7 @@ class Form extends Component
         'daysNum' => 'Jours fixes',
         'ordinal' => 'ordinales',
     ];
+
     public $freqMonthType = 'daysNum';
 
     public $freqMonthTypesOrdinalList = [
@@ -153,7 +156,7 @@ class Form extends Component
         }
     }
 
-    public function save()
+    public function save(RoutineService $routineService)
     {
         // règles de validation
         $rules = [
@@ -186,7 +189,8 @@ class Form extends Component
         try {
             $this->validate($rules);
         } catch (ValidationException $e) {
-            Toaster::error('Le contenu de la routine est invalide.');
+            $this->notifyError('Le contenu de la routine est invalide.');
+
             // dd($this->frequencyForm, $this->freqMonthType, $e->validator->errors()->all());
             return;
         }
@@ -202,19 +206,20 @@ class Form extends Component
         if ($freqData['unit'] !== 'month' || $this->freqMonthType === 'daysNum') {
             $freqData['month_occurrences'] = [];
         }
-        $frequency = Frequency::create($freqData);
 
-        if ($this->routine) {
-            $this->routine->update($this->routineForm);
-            $this->routine->frequency()->update($freqData);
-            Toaster::success(__('Routine updated successfully.'));
+        $routine = $routineService->saveRoutine(
+            $this->routineForm,
+            $freqData,
+            $this->routine
+        );
+
+        if ($this->edition) {
+            $this->notifySuccess(__('Routine updated successfully.'));
         } else {
-            $this->routineForm['frequency_id'] = $frequency->id;
-            $this->routine = $this->user->routines()->create($this->routineForm);
-            Toaster::success(__('Routine created successfully.'));
+            $this->notifySuccess(__('Routine created successfully.'));
         }
-        Flux::modals()->close('routine-form-' . $this->routineId);
-        $this->dispatch('routine-saved', routine: $this->routine);
+        Flux::modals()->close('routine-form-'.$this->routineId);
+        $this->dispatch('routine-saved', routine: $routine);
     }
 
     protected function resetForm()
@@ -250,15 +255,16 @@ class Form extends Component
         }
         $attrs = Arr::only($this->frequencyForm, ['start_date', 'end_date', 'end_type', 'occurrence_count', 'interval', 'unit', 'weekdays', 'month_days', 'month_occurrences']);
 
-        if (!empty($this->frequencyForm['start_date'])) {
+        if (! empty($this->frequencyForm['start_date'])) {
             $attrs['start_date'] = Carbon::parse($this->frequencyForm['start_date']);
         }
 
-        if (!empty($this->frequencyForm['end_at'])) {
+        if (! empty($this->frequencyForm['end_at'])) {
             $attrs['end_date'] = Carbon::parse($this->frequencyForm['end_at']);
         }
 
         $freq = new Frequency($attrs);
+
         return $freq->summary();
     }
 

@@ -1,14 +1,16 @@
 <?php
+
 namespace App\Livewire\Settings;
 
-use Livewire\Component;
-use Masmerise\Toaster\Toast;
-use Masmerise\Toaster\Toaster;
+use App\Http\Livewire\Traits\Notifies;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class LanguageSwitcher extends Component
 {
+    use Notifies;
     public string $locale;
 
     public array $supportedLocales;
@@ -31,9 +33,9 @@ class LanguageSwitcher extends Component
             App::setLocale($lang);
             Session::put('locale', $lang);
             $this->locale = $lang;
-            Toaster::info(__('Language switched successfully to ' . $lang));
+            $this->notifyInfo(__('Language switched successfully to '.$lang));
         } else {
-            Toaster::danger(__('Language not supported.'));
+            $this->notifyError(__('Language not supported.'));
         }
     }
 }

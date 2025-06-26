@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Http\Livewire\Traits\Notifies;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
@@ -10,6 +11,7 @@ use Livewire\Component;
 #[Layout('components.layouts.auth')]
 class ConfirmPassword extends Component
 {
+    use Notifies;
     public string $password = '';
 
     /**
@@ -25,9 +27,9 @@ class ConfirmPassword extends Component
             'email' => Auth::user()->email,
             'password' => $this->password,
         ])) {
-            throw ValidationException::withMessages([
-                'password' => __('auth.password'),
-            ]);
+            $this->notifyError(__('auth.password'));
+
+            return;
         }
 
         session(['auth.password_confirmed_at' => time()]);

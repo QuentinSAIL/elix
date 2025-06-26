@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Http\Livewire\Traits\Notifies;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,7 @@ use Livewire\Component;
 #[Layout('components.layouts.auth')]
 class Register extends Component
 {
+    use Notifies;
     public string $name = '';
 
     public string $email = '';
@@ -33,7 +35,8 @@ class Register extends Component
         ]);
 
         if (config('app.registration_enabled') === false) {
-            $this->addError('registration', 'Registration is not open yet.');
+            $this->notifyError('Registration is not open yet.');
+
             return;
         }
 

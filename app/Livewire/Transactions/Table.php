@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Transactions;
 
+use App\Services\TransactionService;
 use App\Models\BankAccount;
 use Livewire\Component;
 
@@ -14,9 +15,9 @@ class Table extends Component
         $this->account = $account;
     }
 
-    public function getTransactionsProperty()
+    public function getTransactionsProperty(TransactionService $transactionService)
     {
-        return $this->account->transactionsGroupedByDate();
+        return $transactionService->getGroupedTransactions($this->account);
     }
 
     public function render()

@@ -2,29 +2,37 @@
 
 namespace App\Livewire\Money;
 
+use App\Services\DashboardService;
+use App\Http\Livewire\Traits\Notifies;
 use Flux\Flux;
-use Carbon\Carbon;
-use Livewire\Component;
-use App\Models\MoneyCategory;
-use Masmerise\Toaster\Toaster;
-use App\Models\MoneyDashboardPanel;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class DashboardPanelForm extends Component
 {
+    use Notifies;
+
     public $user;
+
     public $moneyDashboard;
+
     public $panel;
 
     public $edition;
+
     public $bankAccounts;
+
     public $categories;
 
-    //form
+    // form
     public $title;
+
     public $type;
+
     public $periodType;
+
     public array $accountsId = [];
+
     public array $categoriesId = [];
 
     public function mount()
@@ -58,7 +66,7 @@ class DashboardPanelForm extends Component
         }
     }
 
-    public function save()
+    public function save(DashboardService $dashboardService)
     {
         $rules = [
             'title' => 'required|string|max:255',
@@ -73,30 +81,29 @@ class DashboardPanelForm extends Component
         try {
             $this->validate($rules);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            Toaster::error($e->getMessage());
+            $this->notifyError($e->getMessage());
+
             return;
         }
 
-        $panel = MoneyDashboardPanel::updateOrCreate(
+        $dashboardService->savePanel(
             [
-                'id' => $this->panel ? $this->panel->id : null,
-            ],
-            [
-                'money_dashboard_id' => $this->moneyDashboard->id,
                 'title' => $this->title,
                 'type' => $this->type,
-                'period_type' => $this->periodType,
+                'periodType' => $this->periodType,
+                'accountsId' => $this->accountsId,
+                'categoriesId' => $this->categoriesId,
             ],
+            $this->moneyDashboard,
+            $this->panel
         );
-        $panel->bankAccounts()->sync($this->accountsId);
-        $panel->categories()->sync($this->categoriesId);
 
         $this->populateForm();
         if ($this->edition) {
-            Toaster::success(__('Panel edited successfully.'));
-            Flux::modals()->close('panel-form-' . $this->panel->id);
+            $this->notifySuccess(__('Panel edited successfully.'));
+            Flux::modals()->close('panel-form-'.$this->panel->id);
         } else {
-            Toaster::success(__('Panel created successfully.'));
+            $this->notifySuccess(__('Panel created successfully.'));
             Flux::modals()->close('panel-form-create');
         }
 

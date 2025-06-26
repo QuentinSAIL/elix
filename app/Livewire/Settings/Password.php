@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Settings;
 
+use App\Http\Livewire\Traits\Notifies;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password as PasswordRule;
@@ -10,6 +11,7 @@ use Livewire\Component;
 
 class Password extends Component
 {
+    use Notifies;
     public string $current_password = '';
 
     public string $password = '';
@@ -28,8 +30,9 @@ class Password extends Component
             ]);
         } catch (ValidationException $e) {
             $this->reset('current_password', 'password', 'password_confirmation');
+            $this->notifyError($e->getMessage());
 
-            throw $e;
+            return;
         }
 
         Auth::user()->update([

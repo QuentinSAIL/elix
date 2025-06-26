@@ -2,35 +2,35 @@
 
 namespace App\Livewire\Money;
 
-use Livewire\Component;
-use Masmerise\Toaster\Toaster;
+use App\Services\DashboardService;
+use App\Http\Livewire\Traits\Notifies;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class Dashboard extends Component
 {
+    use Notifies;
+
     public $user;
+
     public $moneyDashboard;
+
     public $moneyDashboardPanels;
 
-    public function mount()
+    public function mount(DashboardService $dashboardService)
     {
         $this->user = Auth::user();
-        $this->moneyDashboard = $this->user->moneyDashboards()->first();
-        if (!$this->moneyDashboard) {
-            $this->moneyDashboard = $this->user->moneyDashboards()->create();
-        }
+        $this->moneyDashboard = $dashboardService->createOrGetDashboard();
         $this->moneyDashboardPanels = $this->moneyDashboard?->panels()->get();
     }
 
-    public function deletePanel($panelId)
+    public function deletePanel($panelId, DashboardService $dashboardService)
     {
-        $panel = $this->moneyDashboardPanels->find($panelId);
-        if ($panel) {
-            $panel->delete();
+        if ($dashboardService->deletePanel($panelId)) {
             $this->moneyDashboardPanels = $this->moneyDashboard?->panels()->get();
-            Toaster::success('Panel deleted successfully.');
+            $this->notifySuccess('Panel deleted successfully.');
         } else {
-            Toaster::error('Panel not found.');
+            $this->notifyError('Panel not found.');
         }
     }
 

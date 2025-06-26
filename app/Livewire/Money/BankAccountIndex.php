@@ -2,29 +2,31 @@
 
 namespace App\Livewire\Money;
 
-use Flux\Flux;
-use Livewire\Component;
-use Masmerise\Toaster\Toaster;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Livewire\Traits\Notifies;
 use App\Services\GoCardlessDataService;
+use Flux\Flux;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class BankAccountIndex extends Component
 {
+    use Notifies;
+
     public $user;
+
     public $accounts;
 
-    public $goCardlessDataService;
-
     public $ref = null;
+
     public $error = null;
 
     protected $queryString = ['ref', 'error'];
 
-    public function mount()
+    public function mount(GoCardlessDataService $goCardlessDataService)
     {
         $this->user = Auth::user();
         $this->accounts = $this->user->bankAccounts;
-        $this->updateGoCardlessAccount();
+        $this->updateGoCardlessAccount($goCardlessDataService);
     }
 
     public function updateAccountName($accountId, $name)
@@ -32,34 +34,32 @@ class BankAccountIndex extends Component
         $account = $this->accounts->find($accountId);
         if ($account) {
             $account->update(['name' => $name]);
-            Toaster::success(__('Bank account updated successfully.'));
+            $this->notifySuccess(__('Bank account updated successfully.'));
         } else {
-            Toaster::error(__('Bank account not found.'));
+            $this->notifyError(__('Bank account not found.'));
         }
     }
 
-    public function delete($accountId)
+    public function delete($accountId, GoCardlessDataService $goCardlessDataService)
     {
         $account = $this->user->bankAccounts()->find($accountId);
 
         if ($account) {
             if ($account->gocardless_account_id) {
-                $goCardlessDataService = new GoCardlessDataService();
                 $goCardlessDataService->deleteRequisitionFromRef($account->reference);
             }
             $account->delete();
             $this->accounts = $this->user->bankAccounts;
-            Flux::modals()->close('delete-account-' . $account->id);
-            Toaster::success(__('Bank account deleted successfully.'));
+            Flux::modals()->close('delete-account-'.$account->id);
+            $this->notifySuccess(__('Bank account deleted successfully.'));
         } else {
-            Toaster::error(__('Bank account not found.'));
+            $this->notifyError(__('Bank account not found.'));
         }
     }
 
-    public function updateGoCardlessAccount()
+    public function updateGoCardlessAccount(GoCardlessDataService $goCardlessDataService)
     {
-        if ($this->ref && !$this->error) {
-            $goCardlessDataService = new GoCardlessDataService();
+        if ($this->ref && ! $this->error) {
 
             $accountId = $goCardlessDataService->getAccountsFromRef($this->ref);
 
@@ -71,7 +71,8 @@ class BankAccountIndex extends Component
 
             $accountDetails = $goCardlessDataService->getAccountDetails($accountId);
             if (isset($accountDetails['status_code']) && $accountDetails['status_code'] !== 200) {
-                Toaster::error(__('Error fetching account details from GoCardless.'));
+                $this->notifyError(__('Error fetching account details from GoCardless.'));
+
                 return;
             }
             $bankAccount = $this->user

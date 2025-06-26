@@ -2,20 +2,26 @@
 
 namespace App\Livewire\Routine;
 
-use App\Models\Routine;
-use Livewire\Component;
+use App\Http\Livewire\Traits\Notifies;
 use App\Models\RoutineTask;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
-use Illuminate\Support\Facades\DB;
+use App\Services\RoutineService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class Show extends Component
 {
+    use Notifies;
     public $user;
+
     public $routine;
+
     public $currentTask = null; // null = pas encore démarré
+
     public $currentTaskIndex = null; // null = pas encore démarré
+
     public $isFinished = false;
 
     public $isPaused = false;
@@ -33,7 +39,7 @@ class Show extends Component
     {
         $this->currentTaskIndex = -1;
         $this->next();
-        Toaster::info(__('Routine started.'));
+        $this->notifyInfo(__('Routine started.'));
     }
 
     public function stop()
@@ -41,23 +47,23 @@ class Show extends Component
         $this->currentTaskIndex = null;
         $this->currentTask = null;
         $this->dispatch('stop-timer');
-        Toaster::info(__('Routine stopped.'));
+        $this->notifyInfo(__('Routine stopped.'));
     }
 
     public function playPause()
     {
-        $this->isPaused = !$this->isPaused;
+        $this->isPaused = ! $this->isPaused;
         $this->dispatch('play-pause', ['isPaused' => $this->isPaused]);
-        Toaster::info(($this->isPaused ? __('Pause') : __('Resume')) . ' !');
+        $this->notifyInfo(($this->isPaused ? __('Pause') : __('Resume')).' !');
     }
 
     public function updateCurrentTask($index)
     {
         $this->currentTask = $this->routine->tasks[$index] ?? null;
-        if (!$this->currentTask) {
+        if (! $this->currentTask) {
             $this->isFinished = true;
             $this->stop();
-            Toaster::success(__('Routine finished.'));
+            $this->notifySuccess(__('Routine finished.'));
         }
     }
 
@@ -79,7 +85,7 @@ class Show extends Component
 
     private function startTimerForCurrentTask()
     {
-        if (!$this->currentTask) {
+        if (! $this->currentTask) {
             return;
         }
 
@@ -91,17 +97,17 @@ class Show extends Component
         return $this->routine->tasks[$this->currentTaskIndex] ?? null;
     }
 
-    public function updateTaskOrder(array $orderedIds)
+    public function updateTaskOrder(array $orderedIds, RoutineService $routineService)
     {
         foreach ($orderedIds as $i => $id) {
             RoutineTask::where('id', $id)->update(['order' => $i + 1]);
         }
         $this->routine->refresh();
         $this->dispatch('task-updated');
-        Toaster::success(__('Task order updated.'));
+        $this->notifySuccess(__('Task order updated.'));
     }
 
-    public function deleteTask(RoutineTask $task)
+    public function deleteTask(RoutineTask $task, RoutineService $routineService)
     {
         DB::transaction(function () use ($task) {
             $order = $task->order;
@@ -112,10 +118,10 @@ class Show extends Component
 
             $this->routine->refresh();
         });
-        Toaster::success(__('Task deleted successfully.'));
+        $this->notifySuccess(__('Task deleted successfully.'));
     }
 
-    public function duplicateTask(RoutineTask $task)
+    public function duplicateTask(RoutineTask $task, RoutineService $routineService)
     {
         DB::transaction(function () use ($task) {
             // Increment the order of subsequent tasks
@@ -129,7 +135,7 @@ class Show extends Component
 
             $this->routine->refresh();
         });
-        Toaster::success(__('Task duplicated successfully.'));
+        $this->notifySuccess(__('Task duplicated successfully.'));
     }
 
     #[On('task-saved')]

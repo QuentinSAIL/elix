@@ -2,106 +2,59 @@
 
 namespace App\Livewire\Money;
 
-use Carbon\Carbon;
-use Livewire\Component;
+use App\Services\DashboardService;
+use App\Http\Livewire\Traits\Notifies;
 use App\Models\MoneyCategory;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class DashboardPanel extends Component
 {
+    use Notifies;
+
     public $user;
+
     public $title;
+
     public $isExpensePanel = true;
+
     public $displayUncategorized = false;
 
     public $panel;
+
     public $bankAccounts;
+
     public $categories;
 
     public $transactions;
+
     public $startDate;
+
     public $endDate;
 
     public $labels = [];
+
     public $values = [];
+
     public $colors = [];
 
-    public function mount()
+    public function mount(DashboardService $dashboardService)
     {
         $this->user = Auth::user();
         $this->title = $this->panel?->title ?? 'Dashboard Panel';
 
-        $this->categories = $this->panel->categories()->get()->pluck('id')->toArray();
-        $this->bankAccounts = $this->panel->bankAccounts()->get()->pluck('id')->toArray();
-        $this->assignDateRange();
-        $this->transactions = $this->getTransactions();
-        $this->prepareChartData();
+        $data = $dashboardService->getPanelData($this->panel, $this->isExpensePanel, $this->displayUncategorized);
+
+        $this->labels = $data['labels'];
+        $this->values = $data['values'];
+        $this->colors = $data['colors'];
     }
 
-    public function prepareChartData()
-    {
-        // Filter transactions based on panel type (expenses or income)
-        $filteredTransactions = $this->transactions->filter(function ($transaction) {
-            // First filter by expense/income type
-            $amountCondition = $this->isExpensePanel
-            ? (float) $transaction->amount < 0 // Only negative values for expenses
-            : (float) $transaction->amount > 0; // Only positive values for income
-
-            // Then exclude uncategorized transactions if displayUncategorized is false
-            if (!$this->displayUncategorized && !$transaction->category) {
-            return false;
-            }
-
-            return $amountCondition;
-        });
-
-        // Use safe fallback for category names
-        $this->labels = $filteredTransactions
-            ->map(function ($transaction) {
-            return $transaction->category ? $transaction->category->name : 'Uncategorized';
-            })
-            ->unique()
-            ->values()
-            ->toArray();
-
-        // Group by category name with fallback using filtered transactions
-        $this->values = $filteredTransactions
-            ->groupBy(function ($transaction) {
-            return $transaction->category ? $transaction->category->name : 'Uncategorized';
-            })
-            ->map(function ($group) {
-            return $group->sum('amount');
-            })
-            ->values()
-            ->toArray();
-
-        // Get colors for categories
-        foreach ($this->labels as $label) {
-            $category = MoneyCategory::where('name', $label)->first();
-            $this->colors[] = $category ? $category->color : '#CCCCCC'; // Default color for uncategorized
-        }
-
-    }
-
-    public function assignDateRange()
-    {
-        $period = $this->panel->determinePeriode();
-        $this->startDate = $period['startDate'] ? $period['startDate']->format('Y-m-d') : null;
-        $this->endDate = $period['endDate'] ? $period['endDate']->format('Y-m-d') : null;
-    }
-
-    public function getTransactions()
-    {
-        return $this->panel->getTransactions($this->startDate, $this->endDate, [
-            'accounts' => $this->bankAccounts,
-            'categories' => $this->categories,
-        ]);
-    }
+    
 
     public function edit()
     {
-        Toaster::info('Editer');
+        $this->notifyInfo('Editer');
     }
 
     public function render()

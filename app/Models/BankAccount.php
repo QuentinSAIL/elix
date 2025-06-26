@@ -2,16 +2,11 @@
 
 namespace App\Models;
 
-use App\Models\User;
-use App\Models\BankTransactions;
-use Illuminate\Support\Collection;
 use App\Services\GoCardlessDataService;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class BankAccount extends Model
 {
@@ -34,10 +29,11 @@ class BankAccount extends Model
         'cash_account_type',
         'logo',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $casts = [
@@ -63,29 +59,16 @@ class BankAccount extends Model
         return $this->hasMany(BankTransactions::class);
     }
 
-    public function transactionsGroupedByDate()
-    {
-        return $this->transactions()
-            ->get()
-            ->groupBy(function ($transaction) {
-                return $transaction->transaction_date->format('Y-m-d');
-            })
-            ->map(function ($transactions, $date) {
-                return [
-                    'date' => $date,
-                    'total' => $transactions->sum('amount'),
-                    'transactions' => $transactions,
-                ];
-            });
-    }
+    
 
     public function updateFromGocardless(GoCardlessDataService $gocardless)
     {
-        if (!$this->gocardless_account_id) {
+        if (! $this->gocardless_account_id) {
             return;
         }
         $balanceResponse = $gocardless->updateAccountBalance($this->gocardless_account_id);
         $transactionResponse = $gocardless->updateAccountTransactions($this->gocardless_account_id);
+
         return [
             'balance' => $balanceResponse,
             'transactions' => $transactionResponse,

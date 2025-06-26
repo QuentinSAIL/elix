@@ -2,17 +2,18 @@
 
 namespace App\Livewire\Money;
 
+use App\Services\CategoryService;
+use App\Http\Livewire\Traits\Notifies;
 use Flux\Flux;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
-use App\Models\MoneyCategoryMatch;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Livewire\Component;
 
 class CategorySelect extends Component
 {
+    use Notifies;
+
     public $user;
 
     public $categories;
@@ -41,22 +42,22 @@ class CategorySelect extends Component
         $this->categories = $this->user->moneyCategories;
         $this->selectedCategory = $this->transaction ? $this->transaction->category?->name : null;
         $this->keyword = $this->transaction ? $this->transaction->description : null;
-        $this->modalId = $this->transaction ? $this->transaction->id : ($this->selectedCategory ? $this->selectedCategory : 'create-' . Str::random(32));
+        $this->modalId = $this->transaction ? $this->transaction->id : ($this->selectedCategory ? $this->selectedCategory : 'create-'.Str::random(32));
     }
 
-    public function updatedSelectedCategory($value)
+    public function updatedSelectedCategory($value, CategoryService $categoryService)
     {
         $category = $this->user->moneyCategories()->where('name', $value)->first();
-        if (!$category) {
+        if (! $category) {
             $this->alreadyExists = false;
-            Toaster::error('Category not found');
+            $this->notifyError('Category not found');
         } else {
             $this->alreadyExists = true;
-            Toaster::success('Category found');
+            $this->notifySuccess('Category found');
         }
     }
 
-    public function save()
+    public function save(CategoryService $categoryService)
     {
         $rules = [
             'selectedCategory' => 'required|string|max:255',
@@ -65,32 +66,19 @@ class CategorySelect extends Component
         try {
             $this->validate($rules);
         } catch (ValidationException $e) {
-            Toaster::error('Le contenu de la categorie est invalide.');
+            $this->notifyError('Le contenu de la categorie est invalide.');
+
             return;
         }
 
-        if ($this->alreadyExists) {
-            $category = $this->user->moneyCategories()->where('name', $this->selectedCategory)->first();
-        } else {
-            $category = $this->user->moneyCategories()->create([
-                'name' => $this->selectedCategory,
-                'description' => $this->description,
-            ]);
-        }
+        $category = $categoryService->findOrCreateCategory($this->selectedCategory, $this->description);
 
         if ($category) {
-            $this->transaction->category()->associate($category)->save();
+            $categoryService->associateCategoryWithTransaction($this->transaction, $category);
         }
 
         if ($this->addOtherTransactions) {
-            $this->user->moneyCategoryMatches()->updateOrCreate(
-                [
-                    'keyword' => $this->keyword,
-                ],
-                [
-                    'money_category_id' => $category->id,
-                ],
-            );
+            $categoryService->updateOrCreateCategoryMatch($this->keyword, $category);
 
             $this->dispatch('update-category-match', $this->keyword);
         }
@@ -98,9 +86,9 @@ class CategorySelect extends Component
         $this->dispatch('transactions-edited');
 
         if ($this->transaction) {
-            Flux::modals()->close('transaction-form-' . $this->transaction->id);
+            Flux::modals()->close('transaction-form-'.$this->transaction->id);
         }
-        Toaster::success('Category saved successfully');
+        $this->notifySuccess('Category saved successfully');
     }
 
     public function render()

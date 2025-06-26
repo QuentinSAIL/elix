@@ -2,21 +2,29 @@
 
 namespace App\Livewire\Money;
 
-use Livewire\Component;
-use Masmerise\Toaster\Toaster;
+use App\Http\Livewire\Traits\Notifies;
+use App\Services\CategoryService;
 use Illuminate\Support\Facades\Auth;
-use App\Models\MoneyCategory;
+use Livewire\Component;
 
 class CategoryIndex extends Component
 {
+    use Notifies;
+
     public $user;
+
     public $categories;
+
     public $newName = '';
+
     public $newBudget = '';
+
     public $newColor = '#cccccc';
+
     public $totalBudget = '#cccccc';
 
     public $sortField = 'budget';
+
     public $sortDirection = 'desc';
 
     public function mount()
@@ -43,69 +51,69 @@ class CategoryIndex extends Component
         $this->refreshList();
     }
 
-    public function updateCategoryName($newName, $categoryId)
+    public function updateCategoryName($newName, $categoryId, CategoryService $categoryService)
     {
         $cat = $this->user->moneyCategories()->find($categoryId);
         if ($cat) {
-            $cat->update(['name' => $newName]);
-            Toaster::success('Nom mis à jour.');
+            $categoryService->updateCategory($cat, ['name' => $newName]);
+            $this->notifySuccess('Nom mis à jour.');
             $this->refreshList();
         } else {
-            Toaster::error('Catégorie introuvable.');
+            $this->notifyError('Catégorie introuvable.');
         }
     }
 
-    public function updateCategoryBudget($newBudget, $categoryId)
+    public function updateCategoryBudget($newBudget, $categoryId, CategoryService $categoryService)
     {
         $cat = $this->user->moneyCategories()->find($categoryId);
         if ($cat) {
-            $cat->update(['budget' => $newBudget]);
-            Toaster::success('Budget mis à jour.');
+            $categoryService->updateCategory($cat, ['budget' => $newBudget]);
+            $this->notifySuccess('Budget mis à jour.');
             $this->refreshList();
         } else {
-            Toaster::error('Catégorie introuvable.');
+            $this->notifyError('Catégorie introuvable.');
         }
     }
 
-    public function updateCategoryColor($newColor, $categoryId)
+    public function updateCategoryColor($newColor, $categoryId, CategoryService $categoryService)
     {
         $cat = $this->user->moneyCategories()->find($categoryId);
         if ($cat) {
-            $cat->update(['color' => $newColor]);
-            Toaster::success('Couleur mise à jour.');
+            $categoryService->updateCategory($cat, ['color' => $newColor]);
+            $this->notifySuccess('Couleur mise à jour.');
             $this->refreshList();
         } else {
-            Toaster::error('Catégorie introuvable.');
+            $this->notifyError('Catégorie introuvable.');
         }
     }
 
-    public function deleteCategory($categoryId)
+    public function deleteCategory($categoryId, CategoryService $categoryService)
     {
         $cat = $this->user->moneyCategories()->find($categoryId);
         if ($cat) {
-            $cat->delete();
-            Toaster::success('Catégorie supprimée.');
+            $categoryService->deleteCategory($cat);
+            $this->notifySuccess('Catégorie supprimée.');
             $this->refreshList();
         } else {
-            Toaster::error('Catégorie introuvable.');
+            $this->notifyError('Catégorie introuvable.');
         }
     }
 
-    public function addCategory()
+    public function addCategory(CategoryService $categoryService)
     {
         $this->validate([
-            'newName'   => 'required|string|max:255',
+            'newName' => 'required|string|max:255',
             'newBudget' => 'required|numeric|min:0',
-            'newColor'  => 'required|string',
+            'newColor' => 'required|string',
         ]);
 
-        $this->user->moneyCategories()->create([
-            'name'   => $this->newName,
+        $categoryService->addCategory([
+            'name' => $this->newName,
             'budget' => $this->newBudget,
-            'color'  => $this->newColor,
+            'color' => $this->newColor,
         ]);
 
-        Toaster::success('Catégorie ajoutée.');
+        $this->notifySuccess('Catégorie ajoutée.');
         $this->newName = '';
         $this->newBudget = '';
         $this->newColor = '#cccccc';

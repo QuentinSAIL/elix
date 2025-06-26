@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Settings;
 
+use App\Http\Livewire\Traits\Notifies;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -10,6 +11,7 @@ use Livewire\Component;
 
 class Profile extends Component
 {
+    use Notifies;
     public string $name = '';
 
     public string $email = '';
@@ -69,6 +71,6 @@ class Profile extends Component
 
         $user->sendEmailVerificationNotification();
 
-        Session::flash('status', 'verification-link-sent');
+        $this->notifySuccess('verification-link-sent');
     }
 }

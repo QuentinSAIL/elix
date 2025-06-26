@@ -2,15 +2,18 @@
 
 namespace App\Livewire\RoutineTask;
 
+use App\Http\Livewire\Traits\Notifies;
+use App\Services\RoutineService;
 use Flux\Flux;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class Form extends Component
 {
+    use Notifies;
     public $user;
 
     public $routine;
@@ -66,7 +69,7 @@ class Form extends Component
         }
     }
 
-    public function save()
+    public function save(RoutineService $routineService)
     {
         $rules = [
             'taskForm.name' => 'required|string|max:255',
@@ -80,17 +83,18 @@ class Form extends Component
         try {
             $this->validate($rules);
         } catch (ValidationException $e) {
-            Toaster::error(__('Task content is invalid.'));
+            $this->notifyError(__('Task content is invalid.'));
+
             return;
         }
 
-        if ($this->edition) {
-            $this->task->update($this->taskForm);
-        } else {
-            $this->routine->tasks()->create($this->taskForm);
-        }
+        $routineService->saveTask(
+            $this->taskForm,
+            $this->routine,
+            $this->task
+        );
 
-        Flux::modals()->close('task-form-' . $this->taskId);
+        Flux::modals()->close('task-form-'.$this->taskId);
         $this->dispatch('task-saved');
     }
 

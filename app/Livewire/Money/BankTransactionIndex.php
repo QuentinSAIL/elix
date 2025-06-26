@@ -2,40 +2,50 @@
 
 namespace App\Livewire\Money;
 
-use Livewire\Component;
-use App\Models\BankAccount;
-use Illuminate\Support\Str;
-use Livewire\Attributes\On;
-use Livewire\WithPagination;
+use App\Http\Livewire\Traits\Notifies;
 use App\Models\MoneyCategory;
-use Masmerise\Toaster\Toaster;
 use App\Models\MoneyCategoryMatch;
-use Illuminate\Support\Facades\Auth;
 use App\Services\GoCardlessDataService;
+use App\Services\TransactionService;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class BankTransactionIndex extends Component
 {
+    use Notifies;
+
     public $user;
+
     public $accounts;
+
     public $selectedAccount = null;
+
     public $allAccounts = false;
 
     public $perPage = 100;
+
     public $onInitialLoad = 100;
+
     public $increasedLoad = 50;
+
     public $noMoreToLoad = false;
 
     public $search = '';
+
     public $sortField = 'transaction_date';
+
     public $sortDirection = 'desc';
+
     public $categoryFilter = '';
+
     public $dateFilter = 'all';
 
     public $transactions = [];
 
     public $categories = [];
 
-    public function mount()
+    public function mount(TransactionService $transactionService)
     {
         $this->user = Auth::user();
         $this->accounts = $this->user->bankAccounts;
@@ -44,25 +54,23 @@ class BankTransactionIndex extends Component
         $this->allAccounts = true;
         $this->perPage = $this->onInitialLoad;
 
-        $this->getTransactionsProperty();
+        $this->getTransactionsProperty($transactionService);
     }
 
     /**
      * Récupère et met à jour les transactions depuis GoCardless
      */
-    public function getTransactions()
+    public function getTransactions(GoCardlessDataService $gocardless)
     {
-        $gocardless = new GoCardlessDataService();
-
         foreach ($this->accounts as $account) {
             $responses = $account->updateFromGocardless($gocardless);
 
             if ($responses) {
                 foreach ($responses as $response) {
                     if (isset($response['status']) && $response['status'] === 'error') {
-                        Toaster::error($response['message'])->duration(30000);
+                        $this->notifyError($response['message'])->duration(30000);
                     } else {
-                        Toaster::success($response['message'])->duration(30000);
+                        $this->notifySuccess($response['message'])->duration(30000);
                     }
                 }
             }
@@ -72,12 +80,12 @@ class BankTransactionIndex extends Component
     }
 
     #[On('update-category-match')]
-    public function searchAndApplyCategory($keyword)
+    public function searchAndApplyCategory($keyword, TransactionService $transactionService)
     {
         $transactionEdited = MoneyCategoryMatch::searchAndApplyMatchCategory($keyword);
-        Toaster::success("Catégorie appliquée à toutes les transactions correspondantes ($transactionEdited)");
+        $this->notifySuccess("Catégorie appliquée à toutes les transactions correspondantes ($transactionEdited)");
 
-        $this->getTransactionsProperty();
+        $this->getTransactionsProperty($transactionService);
     }
 
     public function updateSelectedAccount($accountId)
@@ -88,11 +96,13 @@ class BankTransactionIndex extends Component
         $this->noMoreToLoad = false;
     }
 
-    public function loadMore()
+    public function loadMore(TransactionService $transactionService)
     {
         $this->perPage += $this->increasedLoad;
 
-        if ($this->perPage > $this->getTransactionQuery()->count()) {
+        $this->getTransactionsProperty($transactionService);
+
+        if ($this->perPage > $this->transactions->count()) {
             $this->noMoreToLoad = true;
         }
     }
@@ -100,34 +110,37 @@ class BankTransactionIndex extends Component
     /**
      * Réinitialise la pagination lors de l'actualisation de la recherche
      */
-    public function updatingSearch()
+    public function updatingSearch(TransactionService $transactionService)
     {
         $this->perPage = $this->onInitialLoad;
         $this->noMoreToLoad = false;
+        $this->getTransactionsProperty($transactionService);
     }
 
     /**
      * Réinitialise la pagination lors du changement de filtre de catégorie
      */
-    public function updatingCategoryFilter()
+    public function updatingCategoryFilter(TransactionService $transactionService)
     {
         $this->perPage = $this->onInitialLoad;
         $this->noMoreToLoad = false;
+        $this->getTransactionsProperty($transactionService);
     }
 
     /**
      * Réinitialise la pagination lors du changement de filtre de date
      */
-    public function updatingDateFilter()
+    public function updatingDateFilter(TransactionService $transactionService)
     {
         $this->perPage = $this->onInitialLoad;
         $this->noMoreToLoad = false;
+        $this->getTransactionsProperty($transactionService);
     }
 
     /**
      * Gère le tri des colonnes
      */
-    public function sortBy($field)
+    public function sortBy($field, TransactionService $transactionService)
     {
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -137,76 +150,39 @@ class BankTransactionIndex extends Component
         }
 
         // Actualiser les transactions après le changement de tri
-        $this->getTransactionsProperty();
+        $this->getTransactionsProperty($transactionService);
     }
 
     /**
      * Rafraîchit les transactions après une édition externe
      */
     #[On('transactions-edited')]
-    public function refreshTransactions()
+    public function refreshTransactions(TransactionService $transactionService)
     {
-        $this->getTransactionsProperty();
+        $this->getTransactionsProperty($transactionService);
     }
 
     /**
      * Retourne la requête de base pour les transactions
      */
-    protected function getTransactionQuery()
+    public function getTransactionsProperty(TransactionService $transactionService)
     {
-        if (!$this->selectedAccount && !$this->allAccounts) {
-            return collect();
-        }
-
-        if ($this->allAccounts) {
-            $query = $this->user->bankTransactions();
-        } else {
-            $query = $this->selectedAccount->transactions();
-        }
-
-        if (Str::length($this->search) > 0) {
-            $query->whereRaw('LOWER(description) LIKE ?', ['%' . strtolower($this->search) . '%']);
-        }
-
-        if ($this->categoryFilter) {
-            $query->where('money_category_id', $this->categoryFilter);
-        }
-
-        switch ($this->dateFilter) {
-            case 'current_month':
-                $query->whereMonth('transaction_date', now()->month)
-                      ->whereYear('transaction_date', now()->year);
-                break;
-            case 'last_month':
-                $query->whereMonth('transaction_date', now()->subMonth()->month)
-                      ->whereYear('transaction_date', now()->subMonth()->year);
-                break;
-            case 'current_year':
-                $query->whereYear('transaction_date', now()->year);
-                break;
-        }
-
-        return $query;
+        $this->transactions = $transactionService->getTransactions(
+            $this->selectedAccount,
+            $this->allAccounts,
+            $this->search,
+            $this->categoryFilter,
+            $this->dateFilter,
+            $this->sortField,
+            $this->sortDirection,
+            $this->perPage
+        );
     }
 
-    public function getTransactionsProperty()
+    public function render(TransactionService $transactionService)
     {
-        $query = $this->getTransactionQuery();
+        $this->getTransactionsProperty($transactionService);
 
-        if ($query instanceof \Illuminate\Database\Eloquent\Collection) {
-            $this->transactions = collect();
-            return;
-        }
-
-        $this->transactions = $query
-            ->orderBy($this->sortField, $this->sortDirection)
-            ->take($this->perPage)
-            ->get();
-    }
-
-    public function render()
-    {
-        $this->getTransactionsProperty();
         return view('livewire.money.bank-transaction-index');
     }
 }

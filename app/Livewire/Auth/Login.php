@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Http\Livewire\Traits\Notifies;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -15,6 +16,7 @@ use Livewire\Component;
 #[Layout('components.layouts.auth')]
 class Login extends Component
 {
+    use Notifies;
     #[Validate('required|string|email')]
     public string $email = '';
 
@@ -35,9 +37,9 @@ class Login extends Component
         if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             RateLimiter::hit($this->throttleKey());
 
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
+            $this->notifyError(__('auth.failed'));
+
+            return;
         }
 
         RateLimiter::clear($this->throttleKey());
@@ -59,7 +61,7 @@ class Login extends Component
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
-        throw ValidationException::withMessages([
+        throw new ValidationException([
             'email' => __('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
