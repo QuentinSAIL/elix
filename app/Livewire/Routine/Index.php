@@ -46,7 +46,7 @@ class Index extends Component
     #[On('routine-saved')]
     public function reRenderRoutines($routine)
     {
-        $routine = Routine::find($routine['id']) ?? Routine::make($routine);
+        $routine = Routine::find($routine['id']) ?? new Routine($routine);
         if (! $this->routines->contains('id', $routine['id'])) {
             $this->routines->prepend($routine);
         } else {

@@ -50,11 +50,6 @@ class Index extends Component
     public function delete($id)
     {
         if ($r = Note::where('user_id', $this->user->id)->find($id)) {
-            if (! $r) {
-                Toaster::error(__('You cannot delete this note.'));
-
-                return;
-            }
             $r->delete();
             Toaster::success(__('Note deleted successfully.'));
             $this->notes = $this->notes->filter(fn ($n) => $n->id !== $id);

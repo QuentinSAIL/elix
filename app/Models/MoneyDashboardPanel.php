@@ -92,6 +92,9 @@ class MoneyDashboardPanel extends Model
             $query->whereIn('money_category_id', $filters['categories']);
         }
 
-        return $query->with('category')->get();
+        /** @var \Illuminate\Database\Eloquent\Collection<\App\Models\BankTransactions> $transactions */
+        /** @phpstan-ignore-next-line */
+        $transactions = $query->with('category')->get();
+        return $transactions;
     }
 }

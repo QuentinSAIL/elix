@@ -19,7 +19,7 @@ class UserModule
             return redirect()->route('settings')->with('error', 'You do not have access to any modules.');
         } else {
             $path = trim($request->path(), '/');
-            $endpoint = explode('/', $path)[0] ?? '';
+            $endpoint = explode('/', $path)[0];
             $userModules = $request->user()->modules->pluck('endpoint')->toArray();
             if (! in_array($endpoint, $userModules)) {
                 return redirect()->route('settings')->with('error', 'You do not have access to this module.');

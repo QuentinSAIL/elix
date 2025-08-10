@@ -38,8 +38,8 @@ class DashboardPanel extends Component
     public function mount()
     {
         $this->user = Auth::user();
-        $this->title = $this->panel?->title ?? 'Dashboard Panel';
-        $this->isExpensePanel = $this->panel?->is_expense ?? true; // Set isExpensePanel based on panel property
+        $this->title = $this->panel->title ?? 'Dashboard Panel';
+        $this->isExpensePanel = $this->panel->is_expense ?? true; // Set isExpensePanel based on panel property
 
         $this->categories = $this->panel->categories()->get()->pluck('id')->toArray();
         $this->bankAccounts = $this->panel->bankAccounts()->get()->pluck('id')->toArray();

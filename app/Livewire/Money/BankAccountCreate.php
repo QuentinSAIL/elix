@@ -7,27 +7,28 @@ use Livewire\Component;
 
 class BankAccountCreate extends Component
 {
-    public $banks;
+    /** @var array<array<string, mixed>> */
+    public array $banks;
 
-    public $selectedBank;
+    public string $selectedBank;
 
-    public $searchTerm = '';
+    public ?string $searchTerm = '';
 
-    public $maxAccessValidForDays;
+    public int $maxAccessValidForDays;
 
-    public $transactionTotalDays;
+    public int $transactionTotalDays;
 
-    public $logo;
+    public ?string $logo;
 
-    protected $goCardlessDataService;
+    protected GoCardlessDataService $goCardlessDataService;
 
-    public function mount()
+    public function mount(): void
     {
         $this->goCardlessDataService = app(GoCardlessDataService::class);
         $this->banks = $this->goCardlessDataService->getBanks();
     }
 
-    public function updateSelectedBank($value)
+    public function updateSelectedBank(string $value): void
     {
         $this->selectedBank = $value;
         $bank = collect($this->banks)->firstWhere('id', $this->selectedBank);
@@ -41,16 +42,19 @@ class BankAccountCreate extends Component
         }
     }
 
-    public function getFilteredBanksProperty()
+    /**
+     * @return array<array<string, mixed>>
+     */
+    public function getFilteredBanksProperty(): array
     {
-        if (! $this->banks || ! is_array($this->banks)) {
+        if (! $this->banks) {
             return [];
         }
 
-        return collect($this->banks)->filter(fn ($b) => is_array($b) && isset($b['name']) && stripos($b['name'], $this->searchTerm) !== false)->values()->toArray();
+        return collect($this->banks)->filter(fn ($b) => isset($b['name']) && stripos($b['name'], $this->searchTerm) !== false)->values()->toArray();
     }
 
-    public function addNewBankAccount()
+    public function addNewBankAccount(): void
     {
         if (! $this->selectedBank) {
             return;
@@ -60,9 +64,12 @@ class BankAccountCreate extends Component
         $service->addNewBankAccount($this->selectedBank, $this->transactionTotalDays, $this->maxAccessValidForDays, $this->logo);
     }
 
-    public function addNewAccount() {}
+    public function addNewAccount(): void
+    {
 
-    public function render()
+    }
+
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.money.bank-account-create');
     }

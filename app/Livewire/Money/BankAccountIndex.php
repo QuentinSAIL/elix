@@ -10,27 +10,30 @@ use Masmerise\Toaster\Toaster;
 
 class BankAccountIndex extends Component
 {
-    public $user;
+    public \App\Models\User $user;
 
-    public $accounts;
+    /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankAccount> */
+    public \Illuminate\Database\Eloquent\Collection $accounts;
 
-    public $goCardlessDataService;
+    protected \App\Services\GoCardlessDataService $goCardlessDataService;
 
-    public $ref = null;
+    public ?string $ref = null;
 
-    public $error = null;
+    public ?string $error = null;
 
-    protected $queryString = ['ref', 'error'];
+    /** @var array<string> */
+    protected array $queryString = ['ref', 'error'];
 
-    public function mount()
+    public function mount(): void
     {
         $this->user = Auth::user();
-        $this->accounts = $this->user->bankAccounts;
+        $this->accounts = (new \Illuminate\Database\Eloquent\Collection($this->user->bankAccounts->all()));
         $this->updateGoCardlessAccount();
     }
 
-    public function updateAccountName($accountId, $name)
+    public function updateAccountName(string|int $accountId, string $name): void
     {
+        /** @var \App\Models\BankAccount|null $account */
         $account = $this->accounts->find($accountId);
         if ($account) {
             $account->update(['name' => $name]);
@@ -40,8 +43,9 @@ class BankAccountIndex extends Component
         }
     }
 
-    public function delete($accountId)
+    public function delete(string|int $accountId): void
     {
+        /** @var \App\Models\BankAccount|null $account */
         $account = $this->user->bankAccounts()->find($accountId);
 
         if ($account) {
@@ -50,7 +54,7 @@ class BankAccountIndex extends Component
                 $goCardlessDataService->deleteRequisitionFromRef($account->reference);
             }
             $account->delete();
-            $this->accounts = $this->user->bankAccounts;
+            $this->accounts = (new \Illuminate\Database\Eloquent\Collection($this->user->bankAccounts->all()));
             Flux::modals()->close('delete-account-'.$account->id);
             Toaster::success(__('Bank account deleted successfully.'));
         } else {
@@ -58,7 +62,7 @@ class BankAccountIndex extends Component
         }
     }
 
-    public function updateGoCardlessAccount()
+    public function updateGoCardlessAccount(): void
     {
         if ($this->ref && ! $this->error) {
             $goCardlessDataService = new GoCardlessDataService;
@@ -69,6 +73,7 @@ class BankAccountIndex extends Component
                 $accountId = $accountId[0];
             }
 
+            /** @var \App\Models\BankAccount|null $bankAccount */
             $bankAccount = $this->user->bankAccounts()->firstWhere('gocardless_account_id', $accountId);
 
             $accountDetails = $goCardlessDataService->getAccountDetails($accountId);
@@ -77,6 +82,7 @@ class BankAccountIndex extends Component
 
                 return;
             }
+            /** @var \App\Models\BankAccount $bankAccount */
             $bankAccount = $this->user
                 ->bankAccounts()
                 ->whereNull('gocardless_account_id')
@@ -91,11 +97,11 @@ class BankAccountIndex extends Component
             // 'logo' =>
             $bankAccount->save();
 
-            return $bankAccount;
+            // return $bankAccount;
         }
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.money.bank-account-index');
     }

@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property string $description
+ * @property string $money_category_id
+ * @property-read \App\Models\MoneyCategory $category
+ */
 class BankTransactions extends Model
 {
     use HasFactory, HasUuids;
