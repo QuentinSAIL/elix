@@ -117,7 +117,7 @@ class User extends Authenticatable
         return $this->hasMany(ApiKey::class);
     }
 
-    public function hasApiKey(string $service): bool
+    public function hasApiKey(string | int $service): bool
     {
         return $this->apiKeys()->where('api_service_id', $service)->exists();
     }

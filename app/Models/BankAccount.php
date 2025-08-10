@@ -67,7 +67,10 @@ class BankAccount extends Model
         parent::boot();
 
         static::addGlobalScope('user_id', function (Builder $builder) {
-            $builder->where('user_id', auth()->id());
+            $user = auth()->user();
+            if ($user) {
+                $builder->where('user_id', $user->id);
+            }
         });
     }
 
@@ -82,24 +85,19 @@ class BankAccount extends Model
     }
 
     /**
-     * @return \Illuminate\Support\Collection<string, array{date: string, total: float, transactions: \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankTransactions>}>
+     * @return \Illuminate\Support\Collection<string, array{date: string, total: float, transactions: \Illuminate\Support\Collection<int, \App\Models\BankTransactions>}>
      */
     public function transactionsGroupedByDate(): Collection
     {
-        return $this->transactions()
-            ->get()
-            ->mapInto(\App\Models\BankTransactions::class) // Add mapInto here
-            ->groupBy(
-                /**
-                 * @param \App\Models\BankTransactions $transaction
-                 * @return string
-                 */
-                function (\App\Models\BankTransactions $transaction) {
-                    return $transaction->transaction_date->format('Y-m-d');
-                }
-            )
-            ->map(function ($transactions, $date) {
-                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankTransactions> $transactions */
+        /** @var \Illuminate\Support\Collection<int, \App\Models\BankTransactions> $transactions */
+        $transactions = $this->transactions()->get();
+
+        return $transactions
+            ->groupBy(function (BankTransactions $transaction): string {
+                return $transaction->transaction_date->format('Y-m-d');
+            })
+            ->map(function (Collection $transactions, string $date) {
+                /** @var \Illuminate\Support\Collection<int, \App\Models\BankTransactions> $transactions */
                 return [
                     'date' => $date,
                     'total' => (float) $transactions->sum('amount'),

@@ -54,5 +54,8 @@ test('update from gocardless returns null when no gocardless account id', functi
     $gocardlessService = app(GoCardlessDataService::class);
     $result = $bankAccount->updateFromGocardless($gocardlessService);
 
-    $this->assertNull($result);
+    $this->assertEquals([
+        'balance' => ['status' => 'error', 'message' => 'No GoCardless account ID.'],
+        'transactions' => ['status' => 'error', 'message' => 'No GoCardless account ID.'],
+    ], $result);
 });

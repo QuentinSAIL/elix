@@ -54,6 +54,8 @@ test('can generate summary for monthly frequency', function () {
         'interval' => 1,
         'unit' => 'month',
         'month_days' => [1, 15],
+        'month_occurrences' => null,
+        'weekdays' => null,
     ]);
     $routine->update(['frequency_id' => $frequency->id]);
 

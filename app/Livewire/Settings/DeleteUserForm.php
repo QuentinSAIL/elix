@@ -25,6 +25,6 @@ class DeleteUserForm extends Component
 
         $logout();
 
-        // $this->redirect('/', navigate: true);
+        $this->redirect('/', navigate: true);
     }
 }
