@@ -183,13 +183,7 @@ class Form extends Component
             }
         }
 
-        try {
-            $this->validate($rules);
-        } catch (ValidationException $e) {
-            Toaster::error('Le contenu de la routine est invalide.');
-            // dd($this->frequencyForm, $this->freqMonthType, $e->validator->errors()->all());
-            return;
-        }
+        $this->validate($rules);
 
         // créer la fréquence
         $freqData = $this->frequencyForm;
@@ -217,7 +211,7 @@ class Form extends Component
         $this->dispatch('routine-saved', routine: $this->routine);
     }
 
-    protected function resetForm()
+    public function resetForm()
     {
         $this->routineForm = [
             'name' => '',

@@ -78,14 +78,15 @@ class BankAccountIndex extends Component
                 ->bankAccounts()
                 ->whereNull('gocardless_account_id')
                 ->orWhere('gocardless_account_id', $accountId)
-                ->firstOrFail()->update([
-                    'gocardless_account_id' => $accountId,
-                    'iban' => $accountDetails['account']['iban'],
-                    'currency' => $accountDetails['account']['currency'],
-                    'owner_name' => $accountDetails['account']['name'] ?? $accountDetails['account']['ownerName'],
-                    'cash_account_type' => $accountDetails['account']['cashAccountType'],
-                    // 'logo' =>
-                ]);
+                ->firstOrFail();
+
+            $bankAccount->gocardless_account_id = $accountId;
+            $bankAccount->iban = $accountDetails['account']['iban'];
+            $bankAccount->currency = $accountDetails['account']['currency'];
+            $bankAccount->owner_name = $accountDetails['account']['name'] ?? $accountDetails['account']['ownerName'];
+            $bankAccount->cash_account_type = $accountDetails['account']['cashAccountType'];
+            // 'logo' =>
+            $bankAccount->save();
 
             return $bankAccount;
         }

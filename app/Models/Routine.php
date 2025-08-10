@@ -46,6 +46,6 @@ class Routine extends Model
 
     public function tasks()
     {
-        return $this->hasMany(RoutineTask::class);
+        return $this->hasMany(RoutineTask::class)->orderBy('order');
     }
 }

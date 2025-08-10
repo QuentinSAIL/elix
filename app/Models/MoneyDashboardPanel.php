@@ -80,7 +80,7 @@ class MoneyDashboardPanel extends Model
         $query = BankTransactions::query();
 
         if ($startDate && $endDate) {
-            $query = BankTransactions::whereBetween('transaction_date', [$startDate, $endDate]);
+            $query->whereBetween('transaction_date', [$startDate, $endDate]);
         }
 
         if (!empty($filters['accounts'])) {
@@ -91,6 +91,6 @@ class MoneyDashboardPanel extends Model
             $query->whereIn('money_category_id', $filters['categories']);
         }
 
-        return $query->get();
+        return $query->with('category')->get();
     }
 }

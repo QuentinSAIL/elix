@@ -46,3 +46,4 @@ class Register extends Component
         $this->redirect(route('dashboard'), navigate: true);
     }
 }
+

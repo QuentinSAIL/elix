@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Note;
 use App\Models\Routine;
+use App\Models\ApiKey;
 use Illuminate\Support\Str;
 use App\Models\BankTransactions;
 use Illuminate\Notifications\Notifiable;

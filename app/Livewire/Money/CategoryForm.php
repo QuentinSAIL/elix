@@ -20,9 +20,9 @@ class CategoryForm extends Component
 
     public $category; // c'est rempli quand on est en edition
 
-    public $categoryForm;
+    public $categoryForm = [];
 
-    public $categoryMatchForm;
+    public $categoryMatchForm = [];
 
     public $originalCategoryMatchForm = [];
 
@@ -48,9 +48,11 @@ class CategoryForm extends Component
         ];
 
         $this->categoryMatchForm = [
-            'id' => '',
-            'category_id' => '',
-            'keyword' => '',
+            [
+                'id' => '',
+                'category_id' => '',
+                'keyword' => '',
+            ]
         ];
 
         $this->originalCategoryMatchForm = $this->categoryMatchForm;
@@ -64,8 +66,8 @@ class CategoryForm extends Component
             $this->categoryForm = [
                 'name' => $this->category->name,
                 'description' => $this->category->description,
-                'color' => $this->category->duration,
-                'budget' => $this->category->order,
+                'color' => $this->category->color,
+                'budget' => $this->category->budget,
                 'include_in_dashboard' => $this->category->include_in_dashboard,
             ];
 
@@ -78,6 +80,14 @@ class CategoryForm extends Component
                         'keyword' => $match->keyword,
                     ];
                 }
+            } else {
+                $this->categoryMatchForm = [
+                    [
+                        'id' => '',
+                        'category_id' => '',
+                        'keyword' => '',
+                    ]
+                ];
             }
             $this->originalCategoryMatchForm = $this->categoryMatchForm;
         } else {
@@ -116,6 +126,11 @@ class CategoryForm extends Component
 
     public function removeCategoryMatch($index)
     {
+        if (!is_array($this->categoryMatchForm)) {
+            $this->categoryMatchForm = [];
+            return;
+        }
+
         $match = $this->categoryMatchForm[$index] ?? null;
         if ($this->edition && !empty($match['id'])) {
             $this->category->categoryMatches()->where('id', $match['id'])->delete();
@@ -138,26 +153,28 @@ class CategoryForm extends Component
             ->toArray();
 
         $collisions = [];
-        foreach ($this->categoryMatchForm as $index => $match) {
-            if ($match['id'] !== "") {
-                continue;
-            }
-            $keyword = trim($match['keyword'] ?? '');
-            if ($keyword !== '') {
-            foreach ($existingKeywords as $existing) {
-                if (
-                stripos($existing, $keyword) !== false ||
-                stripos($keyword, $existing) !== false
-                ) {
-                $collisions[] = [
-                    'input' => $keyword,
-                    'existing' => $existing,
-                ];
+        if (is_array($this->categoryMatchForm)) {
+            foreach ($this->categoryMatchForm as $index => $match) {
+                if (!is_array($match) || ($match['id'] ?? '') !== "") {
+                    continue;
                 }
-            }
-            $rules['categoryMatchForm.' . $index . '.keyword'] = 'required|string|max:255';
-            } else {
-            unset($this->categoryMatchForm[$index]);
+                $keyword = trim($match['keyword'] ?? '');
+                if ($keyword !== '') {
+                    foreach ($existingKeywords as $existing) {
+                        if (
+                            stripos($existing, $keyword) !== false ||
+                            stripos($keyword, $existing) !== false
+                        ) {
+                            $collisions[] = [
+                                'input' => $keyword,
+                                'existing' => $existing,
+                            ];
+                        }
+                    }
+                    $rules['categoryMatchForm.' . $index . '.keyword'] = 'required|string|max:255';
+                } else {
+                    unset($this->categoryMatchForm[$index]);
+                }
             }
         }
 
@@ -173,12 +190,7 @@ class CategoryForm extends Component
             return;
         }
 
-        try {
-            $this->validate($rules);
-        } catch (ValidationException $e) {
-            Toaster::error(__('Category content is invalid.'));
-            return;
-        }
+        $this->validate($rules);
 
         if ($this->edition) {
             $this->category->update($this->categoryForm);
@@ -232,10 +244,12 @@ class CategoryForm extends Component
 
     public function applyMatch()
     {
-        if ($this->applyMatch) {
+        if ($this->applyMatch && is_array($this->categoryMatchForm)) {
             $transactionEdited = 0;
             foreach ($this->categoryMatchForm as $match) {
-                $transactionEdited += MoneyCategoryMatch::searchAndApplyMatchCategory($match['keyword'], $this->applyMatchToAlreadyCategorized);
+                if (is_array($match) && isset($match['keyword'])) {
+                    $transactionEdited += MoneyCategoryMatch::searchAndApplyMatchCategory($match['keyword'], $this->applyMatchToAlreadyCategorized);
+                }
             }
             Toaster::success('Category applied to all matching transactions (' . $transactionEdited . ')');
         }

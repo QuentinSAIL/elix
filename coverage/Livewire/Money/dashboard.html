@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/html/app/Livewire/Money</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../_css/bootstrap.min.css?v=11.0.9" rel="stylesheet" type="text/css">
+  <link href="../../_css/nv.d3.min.css?v=11.0.9" rel="stylesheet" type="text/css">
+  <link href="../../_css/style.css?v=11.0.9" rel="stylesheet" type="text/css">
+  <link href="../../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../../index.html">/var/www/html/app</a></li>
+         <li class="breadcrumb-item"><a href="../index.html">Livewire</a></li>
+         <li class="breadcrumb-item"><a href="index.html">Money</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="CategoryForm.php.html#13">App\Livewire\Money\CategoryForm</a></td><td class="text-right">68%</td></tr>
+       <tr><td><a href="BankTransactionIndex.php.html#16">App\Livewire\Money\BankTransactionIndex</a></td><td class="text-right">78%</td></tr>
+       <tr><td><a href="BankAccountCreate.php.html#8">App\Livewire\Money\BankAccountCreate</a></td><td class="text-right">89%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="CategoryForm.php.html#13">App\Livewire\Money\CategoryForm</a></td><td class="text-right">91</td></tr>
+       <tr><td><a href="BankTransactionIndex.php.html#16">App\Livewire\Money\BankTransactionIndex</a></td><td class="text-right">39</td></tr>
+       <tr><td><a href="BankAccountCreate.php.html#8">App\Livewire\Money\BankAccountCreate</a></td><td class="text-right">12</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="BankAccountCreate.php.html#56"><abbr title="App\Livewire\Money\BankAccountCreate::addNewAccount">addNewAccount</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BankTransactionIndex.php.html#121"><abbr title="App\Livewire\Money\BankTransactionIndex::updatingDateFilter">updatingDateFilter</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DashboardPanel.php.html#103"><abbr title="App\Livewire\Money\DashboardPanel::edit">edit</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CategoryForm.php.html#144"><abbr title="App\Livewire\Money\CategoryForm::save">save</abbr></a></td><td class="text-right">39%</td></tr>
+       <tr><td><a href="BankTransactionIndex.php.html#155"><abbr title="App\Livewire\Money\BankTransactionIndex::getTransactionQuery">getTransactionQuery</abbr></a></td><td class="text-right">59%</td></tr>
+       <tr><td><a href="CategoryIndex.php.html#35"><abbr title="App\Livewire\Money\CategoryIndex::sortBy">sortBy</abbr></a></td><td class="text-right">60%</td></tr>
+       <tr><td><a href="CategoryForm.php.html#127"><abbr title="App\Livewire\Money\CategoryForm::removeCategoryMatch">removeCategoryMatch</abbr></a></td><td class="text-right">62%</td></tr>
+       <tr><td><a href="BankTransactionIndex.php.html#91"><abbr title="App\Livewire\Money\BankTransactionIndex::loadMore">loadMore</abbr></a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="CategoryForm.php.html#245"><abbr title="App\Livewire\Money\CategoryForm::applyMatch">applyMatch</abbr></a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="BankAccountCreate.php.html#46"><abbr title="App\Livewire\Money\BankAccountCreate::addNewBankAccount">addNewBankAccount</abbr></a></td><td class="text-right">75%</td></tr>
+       <tr><td><a href="BankTransactionIndex.php.html#192"><abbr title="App\Livewire\Money\BankTransactionIndex::getTransactionsProperty">getTransactionsProperty</abbr></a></td><td class="text-right">75%</td></tr>
+       <tr><td><a href="BankTransactionIndex.php.html#130"><abbr title="App\Livewire\Money\BankTransactionIndex::sortBy">sortBy</abbr></a></td><td class="text-right">80%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="CategoryForm.php.html#144"><abbr title="App\Livewire\Money\CategoryForm::save">save</abbr></a></td><td class="text-right">91</td></tr>
+       <tr><td><a href="BankTransactionIndex.php.html#155"><abbr title="App\Livewire\Money\BankTransactionIndex::getTransactionQuery">getTransactionQuery</abbr></a></td><td class="text-right">14</td></tr>
+       <tr><td><a href="CategoryForm.php.html#245"><abbr title="App\Livewire\Money\CategoryForm::applyMatch">applyMatch</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="CategoryForm.php.html#127"><abbr title="App\Livewire\Money\CategoryForm::removeCategoryMatch">removeCategoryMatch</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="CategoryIndex.php.html#35"><abbr title="App\Livewire\Money\CategoryIndex::sortBy">sortBy</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="BankTransactionIndex.php.html#130"><abbr title="App\Livewire\Money\BankTransactionIndex::sortBy">sortBy</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="BankTransactionIndex.php.html#91"><abbr title="App\Livewire\Money\BankTransactionIndex::loadMore">loadMore</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="BankAccountCreate.php.html#46"><abbr title="App\Livewire\Money\BankAccountCreate::addNewBankAccount">addNewBankAccount</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="BankTransactionIndex.php.html#192"><abbr title="App\Livewire\Money\BankTransactionIndex::getTransactionsProperty">getTransactionsProperty</abbr></a></td><td class="text-right">2</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 11.0.9</a> using <a href="https://www.php.net/" target="_top">PHP 8.4.3</a> and <a href="https://phpunit.de/">PHPUnit 11.5.15</a> at Sun Aug 10 9:05:40 CEST 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../_js/jquery.min.js?v=11.0.9" type="text/javascript"></script>
+  <script src="../../_js/d3.min.js?v=11.0.9" type="text/javascript"></script>
+  <script src="../../_js/nv.d3.min.js?v=11.0.9" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([0,0,0,0,0,0,0,1,1,1,2,4], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([3,0,0,0,1,0,1,4,2,1,1,48], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[89.47368421052632,12,"<a href=\"BankAccountCreate.php.html#8\">App\\Livewire\\Money\\BankAccountCreate<\/a>"],[100,13,"<a href=\"BankAccountIndex.php.html#11\">App\\Livewire\\Money\\BankAccountIndex<\/a>"],[78.26086956521739,30,"<a href=\"BankTransactionIndex.php.html#16\">App\\Livewire\\Money\\BankTransactionIndex<\/a>"],[68.11594202898551,40,"<a href=\"CategoryForm.php.html#13\">App\\Livewire\\Money\\CategoryForm<\/a>"],[96.07843137254902,16,"<a href=\"CategoryIndex.php.html#10\">App\\Livewire\\Money\\CategoryIndex<\/a>"],[100,14,"<a href=\"CategorySelect.php.html#14\">App\\Livewire\\Money\\CategorySelect<\/a>"],[100,5,"<a href=\"Dashboard.php.html#9\">App\\Livewire\\Money\\Dashboard<\/a>"],[95.45454545454545,15,"<a href=\"DashboardPanel.php.html#11\">App\\Livewire\\Money\\DashboardPanel<\/a>"],[100,10,"<a href=\"DashboardPanelForm.php.html#13\">App\\Livewire\\Money\\DashboardPanelForm<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[100,1,"<a href=\"BankAccountCreate.php.html#18\">App\\Livewire\\Money\\BankAccountCreate::mount<\/a>"],[100,2,"<a href=\"BankAccountCreate.php.html#24\">App\\Livewire\\Money\\BankAccountCreate::updateSelectedBank<\/a>"],[100,5,"<a href=\"BankAccountCreate.php.html#38\">App\\Livewire\\Money\\BankAccountCreate::getFilteredBanksProperty<\/a>"],[75,2,"<a href=\"BankAccountCreate.php.html#46\">App\\Livewire\\Money\\BankAccountCreate::addNewBankAccount<\/a>"],[0,1,"<a href=\"BankAccountCreate.php.html#56\">App\\Livewire\\Money\\BankAccountCreate::addNewAccount<\/a>"],[100,1,"<a href=\"BankAccountCreate.php.html#58\">App\\Livewire\\Money\\BankAccountCreate::render<\/a>"],[100,1,"<a href=\"BankAccountIndex.php.html#23\">App\\Livewire\\Money\\BankAccountIndex::mount<\/a>"],[100,2,"<a href=\"BankAccountIndex.php.html#30\">App\\Livewire\\Money\\BankAccountIndex::updateAccountName<\/a>"],[100,3,"<a href=\"BankAccountIndex.php.html#41\">App\\Livewire\\Money\\BankAccountIndex::delete<\/a>"],[100,6,"<a href=\"BankAccountIndex.php.html#59\">App\\Livewire\\Money\\BankAccountIndex::updateGoCardlessAccount<\/a>"],[100,1,"<a href=\"BankAccountIndex.php.html#95\">App\\Livewire\\Money\\BankAccountIndex::render<\/a>"],[100,1,"<a href=\"BankTransactionIndex.php.html#38\">App\\Livewire\\Money\\BankTransactionIndex::mount<\/a>"],[100,6,"<a href=\"BankTransactionIndex.php.html#53\">App\\Livewire\\Money\\BankTransactionIndex::getTransactions<\/a>"],[100,1,"<a href=\"BankTransactionIndex.php.html#74\">App\\Livewire\\Money\\BankTransactionIndex::searchAndApplyCategory<\/a>"],[100,1,"<a href=\"BankTransactionIndex.php.html#83\">App\\Livewire\\Money\\BankTransactionIndex::updateSelectedAccount<\/a>"],[66.66666666666666,2,"<a href=\"BankTransactionIndex.php.html#91\">App\\Livewire\\Money\\BankTransactionIndex::loadMore<\/a>"],[100,1,"<a href=\"BankTransactionIndex.php.html#103\">App\\Livewire\\Money\\BankTransactionIndex::updatingSearch<\/a>"],[100,1,"<a href=\"BankTransactionIndex.php.html#112\">App\\Livewire\\Money\\BankTransactionIndex::updatingCategoryFilter<\/a>"],[0,1,"<a href=\"BankTransactionIndex.php.html#121\">App\\Livewire\\Money\\BankTransactionIndex::updatingDateFilter<\/a>"],[80,3,"<a href=\"BankTransactionIndex.php.html#130\">App\\Livewire\\Money\\BankTransactionIndex::sortBy<\/a>"],[100,1,"<a href=\"BankTransactionIndex.php.html#146\">App\\Livewire\\Money\\BankTransactionIndex::refreshTransactions<\/a>"],[59.09090909090909,9,"<a href=\"BankTransactionIndex.php.html#155\">App\\Livewire\\Money\\BankTransactionIndex::getTransactionQuery<\/a>"],[75,2,"<a href=\"BankTransactionIndex.php.html#192\">App\\Livewire\\Money\\BankTransactionIndex::getTransactionsProperty<\/a>"],[100,1,"<a href=\"BankTransactionIndex.php.html#207\">App\\Livewire\\Money\\BankTransactionIndex::render<\/a>"],[100,1,"<a href=\"CategoryForm.php.html#34\">App\\Livewire\\Money\\CategoryForm::mount<\/a>"],[100,1,"<a href=\"CategoryForm.php.html#40\">App\\Livewire\\Money\\CategoryForm::resetForm<\/a>"],[100,4,"<a href=\"CategoryForm.php.html#61\">App\\Livewire\\Money\\CategoryForm::populateForm<\/a>"],[100,4,"<a href=\"CategoryForm.php.html#100\">App\\Livewire\\Money\\CategoryForm::getHasMatchChangesProperty<\/a>"],[100,1,"<a href=\"CategoryForm.php.html#118\">App\\Livewire\\Money\\CategoryForm::addCategoryMatch<\/a>"],[62.5,4,"<a href=\"CategoryForm.php.html#127\">App\\Livewire\\Money\\CategoryForm::removeCategoryMatch<\/a>"],[39.0625,18,"<a href=\"CategoryForm.php.html#144\">App\\Livewire\\Money\\CategoryForm::save<\/a>"],[66.66666666666666,6,"<a href=\"CategoryForm.php.html#245\">App\\Livewire\\Money\\CategoryForm::applyMatch<\/a>"],[100,1,"<a href=\"CategoryForm.php.html#258\">App\\Livewire\\Money\\CategoryForm::render<\/a>"],[100,1,"<a href=\"CategoryIndex.php.html#22\">App\\Livewire\\Money\\CategoryIndex::mount<\/a>"],[100,1,"<a href=\"CategoryIndex.php.html#28\">App\\Livewire\\Money\\CategoryIndex::refreshList<\/a>"],[60,3,"<a href=\"CategoryIndex.php.html#35\">App\\Livewire\\Money\\CategoryIndex::sortBy<\/a>"],[100,2,"<a href=\"CategoryIndex.php.html#46\">App\\Livewire\\Money\\CategoryIndex::updateCategoryName<\/a>"],[100,2,"<a href=\"CategoryIndex.php.html#58\">App\\Livewire\\Money\\CategoryIndex::updateCategoryBudget<\/a>"],[100,2,"<a href=\"CategoryIndex.php.html#70\">App\\Livewire\\Money\\CategoryIndex::updateCategoryColor<\/a>"],[100,2,"<a href=\"CategoryIndex.php.html#82\">App\\Livewire\\Money\\CategoryIndex::deleteCategory<\/a>"],[100,1,"<a href=\"CategoryIndex.php.html#94\">App\\Livewire\\Money\\CategoryIndex::addCategory<\/a>"],[100,1,"<a href=\"CategoryIndex.php.html#115\">App\\Livewire\\Money\\CategoryIndex::getTotalBudgetProperty<\/a>"],[100,1,"<a href=\"CategoryIndex.php.html#120\">App\\Livewire\\Money\\CategoryIndex::render<\/a>"],[100,5,"<a href=\"CategorySelect.php.html#38\">App\\Livewire\\Money\\CategorySelect::mount<\/a>"],[100,2,"<a href=\"CategorySelect.php.html#47\">App\\Livewire\\Money\\CategorySelect::updatedSelectedCategory<\/a>"],[100,6,"<a href=\"CategorySelect.php.html#59\">App\\Livewire\\Money\\CategorySelect::save<\/a>"],[100,1,"<a href=\"CategorySelect.php.html#106\">App\\Livewire\\Money\\CategorySelect::render<\/a>"],[100,2,"<a href=\"Dashboard.php.html#15\">App\\Livewire\\Money\\Dashboard::mount<\/a>"],[100,2,"<a href=\"Dashboard.php.html#25\">App\\Livewire\\Money\\Dashboard::deletePanel<\/a>"],[100,1,"<a href=\"Dashboard.php.html#37\">App\\Livewire\\Money\\Dashboard::render<\/a>"],[100,1,"<a href=\"DashboardPanel.php.html#30\">App\\Livewire\\Money\\DashboardPanel::mount<\/a>"],[96.29629629629629,8,"<a href=\"DashboardPanel.php.html#43\">App\\Livewire\\Money\\DashboardPanel::prepareChartData<\/a>"],[100,3,"<a href=\"DashboardPanel.php.html#88\">App\\Livewire\\Money\\DashboardPanel::assignDateRange<\/a>"],[100,1,"<a href=\"DashboardPanel.php.html#95\">App\\Livewire\\Money\\DashboardPanel::getTransactions<\/a>"],[0,1,"<a href=\"DashboardPanel.php.html#103\">App\\Livewire\\Money\\DashboardPanel::edit<\/a>"],[100,1,"<a href=\"DashboardPanel.php.html#108\">App\\Livewire\\Money\\DashboardPanel::render<\/a>"],[100,2,"<a href=\"DashboardPanelForm.php.html#30\">App\\Livewire\\Money\\DashboardPanelForm::mount<\/a>"],[100,1,"<a href=\"DashboardPanelForm.php.html#39\">App\\Livewire\\Money\\DashboardPanelForm::resetForm<\/a>"],[100,2,"<a href=\"DashboardPanelForm.php.html#48\">App\\Livewire\\Money\\DashboardPanelForm::populateForm<\/a>"],[100,4,"<a href=\"DashboardPanelForm.php.html#61\">App\\Livewire\\Money\\DashboardPanelForm::save<\/a>"],[100,1,"<a href=\"DashboardPanelForm.php.html#106\">App\\Livewire\\Money\\DashboardPanelForm::render<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>
