@@ -1,9 +1,9 @@
 <?php
 
-use Livewire\Livewire;
 use App\Livewire\Money\CategoryIndex;
-use App\Models\User;
 use App\Models\MoneyCategory;
+use App\Models\User;
+use Livewire\Livewire;
 use Masmerise\Toaster\Toaster;
 
 beforeEach(function () {

@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\ApiService;
 use App\Models\ApiKey;
+use App\Models\ApiService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

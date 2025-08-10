@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\User;
-use Livewire\Livewire;
 use App\Livewire\Settings\Appearance;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 

@@ -1,13 +1,12 @@
 <?php
 
-use App\Models\User;
-use Livewire\Livewire;
 use App\Livewire\Auth\ResetPassword;
+use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Livewire\Livewire;
 
 test('reset password component can be rendered and mount properties', function () {
     $token = Str::random(60);

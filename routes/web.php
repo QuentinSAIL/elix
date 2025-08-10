@@ -1,20 +1,20 @@
 <?php
 
-use App\Livewire\Money\Dashboard;
-use App\Livewire\Settings\ApiKey;
-use App\Livewire\Settings\Modules;
-use App\Livewire\Settings\Profile;
-use App\Http\Middleware\UserModule;
-use App\Livewire\Settings\Password;
-use App\Livewire\Money\CategoryIndex;
-use App\Livewire\Note\Index as NoteIndex;
-use App\Livewire\Settings\Appearance;
-use Illuminate\Support\Facades\Route;
-use App\Services\GoCardlessDataService;
-use App\Livewire\Routine\Index as RoutineIndex;
 use App\Http\Middleware\UserHasValidGoCardlessKeys;
+use App\Http\Middleware\UserModule;
 use App\Livewire\Money\BankAccountIndex as AccountIndex;
 use App\Livewire\Money\BankTransactionIndex as TransactionIndex;
+use App\Livewire\Money\CategoryIndex;
+use App\Livewire\Money\Dashboard;
+use App\Livewire\Note\Index as NoteIndex;
+use App\Livewire\Routine\Index as RoutineIndex;
+use App\Livewire\Settings\ApiKey;
+use App\Livewire\Settings\Appearance;
+use App\Livewire\Settings\Modules;
+use App\Livewire\Settings\Password;
+use App\Livewire\Settings\Profile;
+use App\Services\GoCardlessDataService;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
     Route::view('/', 'dashboard')->name('dashboard');
@@ -44,4 +44,4 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

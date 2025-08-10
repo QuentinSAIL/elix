@@ -1,12 +1,12 @@
 <?php
 
-use App\Models\User;
-use App\Models\ApiService;
-use App\Models\ApiKey;
-use Livewire\Livewire;
 use App\Livewire\Settings\ApiKey as ApiKeyComponent;
+use App\Models\ApiKey;
+use App\Models\ApiService;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -31,24 +31,24 @@ test('can mount with existing api keys', function () {
     ]);
 
     Livewire::test(ApiKeyComponent::class)
-        ->assertSet('secret_ids.' . $service->id, 'test-secret-id')
-        ->assertSet('secret_keys.' . $service->id, 'test-secret-key');
+        ->assertSet('secret_ids.'.$service->id, 'test-secret-id')
+        ->assertSet('secret_keys.'.$service->id, 'test-secret-key');
 });
 
 test('can mount without existing api keys', function () {
     $service = ApiService::factory()->create();
 
     Livewire::test(ApiKeyComponent::class)
-        ->assertSet('secret_ids.' . $service->id, '')
-        ->assertSet('secret_keys.' . $service->id, '');
+        ->assertSet('secret_ids.'.$service->id, '')
+        ->assertSet('secret_keys.'.$service->id, '');
 });
 
 test('can update api keys', function () {
     $service = ApiService::factory()->create();
 
     Livewire::test(ApiKeyComponent::class)
-        ->set('secret_ids.' . $service->id, 'new-secret-id')
-        ->set('secret_keys.' . $service->id, 'new-secret-key')
+        ->set('secret_ids.'.$service->id, 'new-secret-id')
+        ->set('secret_keys.'.$service->id, 'new-secret-key')
         ->call('updateApiKeys');
 
     $this->assertDatabaseHas('api_keys', [
@@ -67,8 +67,8 @@ test('can update existing api keys', function () {
     ]);
 
     Livewire::test(ApiKeyComponent::class)
-        ->set('secret_ids.' . $service->id, 'updated-secret-id')
-        ->set('secret_keys.' . $service->id, 'updated-secret-key')
+        ->set('secret_ids.'.$service->id, 'updated-secret-id')
+        ->set('secret_keys.'.$service->id, 'updated-secret-key')
         ->call('updateApiKeys');
 
     $apiKey->refresh();
@@ -91,8 +91,8 @@ test('can delete api keys', function () {
 test('handles gocardless validation failure', function () {
     Http::fake([
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
-            'error' => 'Invalid credentials'
-        ], 401)
+            'error' => 'Invalid credentials',
+        ], 401),
     ]);
 
     $service = ApiService::factory()->create(['name' => 'GoCardless']);
@@ -102,8 +102,8 @@ test('handles gocardless validation failure', function () {
     ]);
 
     Livewire::test(ApiKeyComponent::class)
-        ->set('secret_ids.' . $service->id, 'new-secret-id')
-        ->set('secret_keys.' . $service->id, 'new-secret-key')
+        ->set('secret_ids.'.$service->id, 'new-secret-id')
+        ->set('secret_keys.'.$service->id, 'new-secret-key')
         ->call('updateApiKeys');
 
     // Should not update the credentials
@@ -115,14 +115,14 @@ test('handles gocardless validation failure', function () {
 test('can test gocardless credentials', function () {
     Http::fake([
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
-            'access' => 'test-access-token'
-        ], 200)
+            'access' => 'test-access-token',
+        ], 200),
     ]);
 
     $service = ApiService::factory()->create(['name' => 'GoCardless']);
 
     Livewire::test(ApiKeyComponent::class)
-        ->set('secret_ids.' . $service->id, 'test-secret-id')
-        ->set('secret_keys.' . $service->id, 'test-secret-key')
+        ->set('secret_ids.'.$service->id, 'test-secret-id')
+        ->set('secret_keys.'.$service->id, 'test-secret-key')
         ->call('updateApiKeys');
 });

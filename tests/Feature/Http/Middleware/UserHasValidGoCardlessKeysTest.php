@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\User;
-use App\Models\ApiService;
 use App\Models\ApiKey;
+use App\Models\ApiService;
 use App\Models\Module;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 
@@ -12,7 +12,7 @@ uses(RefreshDatabase::class);
 beforeAll(function () {
     Http::fake([
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
-            'access' => 'test-access-token'
+            'access' => 'test-access-token',
         ], 200),
         'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([
             'results' => [
@@ -21,27 +21,27 @@ beforeAll(function () {
                     'name' => 'Test Bank',
                     'max_access_valid_for_days' => 90,
                     'transaction_total_days' => 30,
-                    'logo' => 'test-logo.png'
+                    'logo' => 'test-logo.png',
                 ],
                 [
                     'id' => 'other-bank',
                     'name' => 'Other Bank',
                     'max_access_valid_for_days' => 90,
                     'transaction_total_days' => 30,
-                    'logo' => 'other-logo.png'
-                ]
-            ]
+                    'logo' => 'other-logo.png',
+                ],
+            ],
         ], 200),
         'bankaccountdata.gocardless.com/api/v2/agreements/enduser/' => Http::response([
             'created' => true,
             'id' => 'test-agreement',
             'access_valid_for_days' => 90,
-            'max_historical_days' => 30
+            'max_historical_days' => 30,
         ], 200),
         'bankaccountdata.gocardless.com/api/v2/requisitions/' => Http::response([
             'created' => true,
-            'link' => 'https://test-link.com'
-        ], 200)
+            'link' => 'https://test-link.com',
+        ], 200),
     ]);
 });
 

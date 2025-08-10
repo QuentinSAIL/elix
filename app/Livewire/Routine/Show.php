@@ -2,20 +2,23 @@
 
 namespace App\Livewire\Routine;
 
-use App\Models\Routine;
-use Livewire\Component;
 use App\Models\RoutineTask;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class Show extends Component
 {
     public $user;
+
     public $routine;
+
     public $currentTask = null; // null = pas encore démarré
+
     public $currentTaskIndex = null; // null = pas encore démarré
+
     public $isFinished = false;
 
     public $isPaused = false;
@@ -46,15 +49,15 @@ class Show extends Component
 
     public function playPause()
     {
-        $this->isPaused = !$this->isPaused;
+        $this->isPaused = ! $this->isPaused;
         $this->dispatch('play-pause', ['isPaused' => $this->isPaused]);
-        Toaster::info(($this->isPaused ? __('Pause') : __('Resume')) . ' !');
+        Toaster::info(($this->isPaused ? __('Pause') : __('Resume')).' !');
     }
 
     public function updateCurrentTask($index)
     {
         $this->currentTask = $this->routine->tasks[$index] ?? null;
-        if (!$this->currentTask) {
+        if (! $this->currentTask) {
             $this->isFinished = true;
             $this->stop();
             Toaster::success(__('Routine finished.'));
@@ -79,7 +82,7 @@ class Show extends Component
 
     private function startTimerForCurrentTask()
     {
-        if (!$this->currentTask) {
+        if (! $this->currentTask) {
             return;
         }
 
@@ -125,7 +128,7 @@ class Show extends Component
             $newTask = $task->replicate();
             $newTask->order = $task->order + 1;
             $newTask->routine_id = $this->routine->id;
-            $newTask->name = $task->name . ' (copy)';
+            $newTask->name = $task->name.' (copy)';
             $newTask->save();
 
             $this->routine->refresh();

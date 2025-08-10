@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\User;
-use Livewire\Livewire;
 use App\Livewire\Auth\VerifyEmail;
-use Illuminate\Support\Facades\Notification;
+use App\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail as VerifyEmailNotification;
+use Illuminate\Support\Facades\Notification;
+use Livewire\Livewire;
 
 test('verify email component can be rendered', function () {
     $user = User::factory()->unverified()->create();

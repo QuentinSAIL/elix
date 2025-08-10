@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class MoneyCategoryMatch extends Model
 {
@@ -57,6 +56,7 @@ class MoneyCategoryMatch extends Model
                 $i++;
             }
         }
+
         return $i;
     }
 
@@ -65,15 +65,16 @@ class MoneyCategoryMatch extends Model
         $match = MoneyCategoryMatch::whereRaw('? LIKE \'%\' || LOWER(keyword) || \'%\'', [strtolower($keyword)])->first();
         $i = 0;
         if ($match) {
-            $transactions = Auth::user()->bankTransactions()->where('description', 'LIKE', '%' . $keyword . '%')->get();
+            $transactions = Auth::user()->bankTransactions()->where('description', 'LIKE', '%'.$keyword.'%')->get();
             foreach ($transactions as $transaction) {
-                if ($applyMatchToAlreadyCategorized || !$transaction->money_category_id) {
+                if ($applyMatchToAlreadyCategorized || ! $transaction->money_category_id) {
                     $transaction->money_category_id = $match->category->id;
                     $transaction->save();
                     $i++;
                 }
             }
         }
+
         return $i;
     }
 }

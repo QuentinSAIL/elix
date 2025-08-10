@@ -2,17 +2,23 @@
 
 namespace App\Livewire\Money;
 
-use Livewire\Component;
 use App\Services\GoCardlessDataService;
+use Livewire\Component;
 
 class BankAccountCreate extends Component
 {
     public $banks;
+
     public $selectedBank;
+
     public $searchTerm = '';
+
     public $maxAccessValidForDays;
+
     public $transactionTotalDays;
+
     public $logo;
+
     protected $goCardlessDataService;
 
     public function mount()
@@ -37,15 +43,16 @@ class BankAccountCreate extends Component
 
     public function getFilteredBanksProperty()
     {
-        if (!$this->banks || !is_array($this->banks)) {
+        if (! $this->banks || ! is_array($this->banks)) {
             return [];
         }
-        return collect($this->banks)->filter(fn($b) => is_array($b) && isset($b['name']) && stripos($b['name'], $this->searchTerm) !== false)->values()->toArray();
+
+        return collect($this->banks)->filter(fn ($b) => is_array($b) && isset($b['name']) && stripos($b['name'], $this->searchTerm) !== false)->values()->toArray();
     }
 
     public function addNewBankAccount()
     {
-        if (!$this->selectedBank) {
+        if (! $this->selectedBank) {
             return;
         }
 

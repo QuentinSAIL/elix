@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\User;
-use Livewire\Livewire;
 use App\Livewire\Settings\LanguageSwitcher;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 

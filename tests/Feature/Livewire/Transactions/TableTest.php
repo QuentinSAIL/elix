@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\User;
+use App\Livewire\Transactions\Table;
 use App\Models\BankAccount;
 use App\Models\BankTransactions;
+use App\Models\User;
 use Livewire\Livewire;
-use App\Livewire\Transactions\Table;
 
 beforeEach(function () {
     $this->user = User::factory()->create();

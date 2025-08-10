@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\User;
+use App\Livewire\Routine\Show;
 use App\Models\Routine;
 use App\Models\RoutineTask;
-use Livewire\Livewire;
-use App\Livewire\Routine\Show;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 

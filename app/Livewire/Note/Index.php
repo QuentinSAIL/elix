@@ -2,20 +2,18 @@
 
 namespace App\Livewire\Note;
 
-use Flux\Flux;
-use Carbon\Carbon;
 use App\Models\Note;
-use Livewire\Component;
-use App\Models\Frequency;
-use Illuminate\Support\Arr;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class Index extends Component
 {
     public $notes;
+
     public $selectedNote;
+
     public $user;
 
     public function mount()
@@ -28,10 +26,10 @@ class Index extends Component
     public function refresh($note)
     {
         $note = Note::where('user_id', $this->user->id)->find($note['id']);
-        if (!$note) {
+        if (! $note) {
             return;
         }
-        $index = $this->notes->search(fn($n) => $n->id === $note->id);
+        $index = $this->notes->search(fn ($n) => $n->id === $note->id);
         if ($index === false) {
             $this->notes->prepend($note);
         } else {
@@ -41,10 +39,9 @@ class Index extends Component
 
     public function selectNote($noteId)
     {
-        if (!$noteId) {
+        if (! $noteId) {
             $this->selectedNote = null;
-        }
-        else {
+        } else {
             $note = Note::where('user_id', $this->user->id)->findOrFail($noteId);
             $this->selectedNote = $note;
         }
@@ -53,13 +50,14 @@ class Index extends Component
     public function delete($id)
     {
         if ($r = Note::where('user_id', $this->user->id)->find($id)) {
-            if (!$r) {
+            if (! $r) {
                 Toaster::error(__('You cannot delete this note.'));
+
                 return;
             }
             $r->delete();
             Toaster::success(__('Note deleted successfully.'));
-            $this->notes = $this->notes->filter(fn($n) => $n->id !== $id);
+            $this->notes = $this->notes->filter(fn ($n) => $n->id !== $id);
             if ($this->selectedNote && $this->selectedNote->id === $id) {
                 $this->selectedNote = null;
             }

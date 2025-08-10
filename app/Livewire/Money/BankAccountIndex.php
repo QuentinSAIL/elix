@@ -2,20 +2,22 @@
 
 namespace App\Livewire\Money;
 
+use App\Services\GoCardlessDataService;
 use Flux\Flux;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
-use Illuminate\Support\Facades\Auth;
-use App\Services\GoCardlessDataService;
 
 class BankAccountIndex extends Component
 {
     public $user;
+
     public $accounts;
 
     public $goCardlessDataService;
 
     public $ref = null;
+
     public $error = null;
 
     protected $queryString = ['ref', 'error'];
@@ -44,12 +46,12 @@ class BankAccountIndex extends Component
 
         if ($account) {
             if ($account->gocardless_account_id) {
-                $goCardlessDataService = new GoCardlessDataService();
+                $goCardlessDataService = new GoCardlessDataService;
                 $goCardlessDataService->deleteRequisitionFromRef($account->reference);
             }
             $account->delete();
             $this->accounts = $this->user->bankAccounts;
-            Flux::modals()->close('delete-account-' . $account->id);
+            Flux::modals()->close('delete-account-'.$account->id);
             Toaster::success(__('Bank account deleted successfully.'));
         } else {
             Toaster::error(__('Bank account not found.'));
@@ -58,8 +60,8 @@ class BankAccountIndex extends Component
 
     public function updateGoCardlessAccount()
     {
-        if ($this->ref && !$this->error) {
-            $goCardlessDataService = new GoCardlessDataService();
+        if ($this->ref && ! $this->error) {
+            $goCardlessDataService = new GoCardlessDataService;
 
             $accountId = $goCardlessDataService->getAccountsFromRef($this->ref);
 
@@ -72,6 +74,7 @@ class BankAccountIndex extends Component
             $accountDetails = $goCardlessDataService->getAccountDetails($accountId);
             if (isset($accountDetails['status_code']) && $accountDetails['status_code'] !== 200) {
                 Toaster::error(__('Error fetching account details from GoCardless.'));
+
                 return;
             }
             $bankAccount = $this->user

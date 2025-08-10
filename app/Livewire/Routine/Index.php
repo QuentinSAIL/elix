@@ -2,20 +2,16 @@
 
 namespace App\Livewire\Routine;
 
-use Flux\Flux;
-use Carbon\Carbon;
-use App\Models\Module;
 use App\Models\Routine;
-use Livewire\Component;
-use App\Models\Frequency;
-use Illuminate\Support\Arr;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class Index extends Component
 {
     public $user;
+
     public $routines;
 
     public $selectedRoutine = null;
@@ -29,7 +25,7 @@ class Index extends Component
 
     public function selectRoutine($routineId)
     {
-        if (!$routineId) {
+        if (! $routineId) {
             $this->selectedRoutine = null;
         } else {
             $routine = Routine::findOrFail($routineId);
@@ -42,7 +38,7 @@ class Index extends Component
         if ($r = Routine::find($id)) {
             $r->delete();
             Toaster::success(__('Routine deleted successfully.'));
-            $this->routines = $this->routines->filter(fn($n) => $n->id !== $id);
+            $this->routines = $this->routines->filter(fn ($n) => $n->id !== $id);
         }
         $this->selectedRoutine = null;
     }
@@ -51,7 +47,7 @@ class Index extends Component
     public function reRenderRoutines($routine)
     {
         $routine = Routine::find($routine['id']) ?? Routine::make($routine);
-        if (!$this->routines->contains('id', $routine['id'])) {
+        if (! $this->routines->contains('id', $routine['id'])) {
             $this->routines->prepend($routine);
         } else {
             $this->routines = $this->routines->map(function ($existingRoutine) use ($routine) {

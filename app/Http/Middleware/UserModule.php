@@ -15,15 +15,16 @@ class UserModule
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || $request->user()->modules()->count() === 0) {
+        if (! $request->user() || $request->user()->modules()->count() === 0) {
             return redirect()->route('settings')->with('error', 'You do not have access to any modules.');
         } else {
             $path = trim($request->path(), '/');
             $endpoint = explode('/', $path)[0] ?? '';
             $userModules = $request->user()->modules->pluck('endpoint')->toArray();
-            if (!in_array($endpoint, $userModules)) {
+            if (! in_array($endpoint, $userModules)) {
                 return redirect()->route('settings')->with('error', 'You do not have access to this module.');
             }
+
             return $next($request);
         }
     }

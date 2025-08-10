@@ -2,29 +2,37 @@
 
 namespace App\Livewire\Money;
 
-use Carbon\Carbon;
-use Livewire\Component;
 use App\Models\MoneyCategory;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class DashboardPanel extends Component
 {
     public $user;
+
     public $title;
+
     public $isExpensePanel = true;
+
     public $displayUncategorized = false;
 
     public $panel;
+
     public $bankAccounts;
+
     public $categories;
 
     public $transactions;
+
     public $startDate;
+
     public $endDate;
 
     public $labels = [];
+
     public $values = [];
+
     public $colors = [];
 
     public function mount()
@@ -50,8 +58,8 @@ class DashboardPanel extends Component
             : (float) $transaction->amount > 0; // Only positive values for income
 
             // Then exclude uncategorized transactions if displayUncategorized is false
-            if (!$this->displayUncategorized && !$transaction->category) {
-            return false;
+            if (! $this->displayUncategorized && ! $transaction->category) {
+                return false;
             }
 
             return $amountCondition;
@@ -60,7 +68,7 @@ class DashboardPanel extends Component
         // Use safe fallback for category names
         $this->labels = $filteredTransactions
             ->map(function ($transaction) {
-            return $transaction->category ? $transaction->category->name : 'Uncategorized';
+                return $transaction->category ? $transaction->category->name : 'Uncategorized';
             })
             ->unique()
             ->values()
@@ -69,10 +77,10 @@ class DashboardPanel extends Component
         // Group by category name with fallback using filtered transactions
         $this->values = $filteredTransactions
             ->groupBy(function ($transaction) {
-            return $transaction->category ? $transaction->category->name : 'Uncategorized';
+                return $transaction->category ? $transaction->category->name : 'Uncategorized';
             })
             ->map(function ($group) {
-            return $group->sum('amount');
+                return $group->sum('amount');
             })
             ->values()
             ->toArray();

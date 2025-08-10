@@ -2,16 +2,14 @@
 
 namespace App\Livewire\Routine;
 
-use Flux\Flux;
-use Carbon\Carbon;
-use App\Models\Routine;
-use Livewire\Component;
 use App\Models\Frequency;
+use Carbon\Carbon;
+use Flux\Flux;
 use Illuminate\Support\Arr;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class Form extends Component
 {
@@ -22,6 +20,7 @@ class Form extends Component
     public $routineId;
 
     public $routine; // c'est rempli quand on est en edition
+
     public $frequency; // c'est rempli quand on est en edition
 
     public $routineForm = [
@@ -70,6 +69,7 @@ class Form extends Component
         'daysNum' => 'Jours fixes',
         'ordinal' => 'ordinales',
     ];
+
     public $freqMonthType = 'daysNum';
 
     public $freqMonthTypesOrdinalList = [
@@ -207,7 +207,7 @@ class Form extends Component
             $this->routine = $this->user->routines()->create($this->routineForm);
             Toaster::success(__('Routine created successfully.'));
         }
-        Flux::modals()->close('routine-form-' . $this->routineId);
+        Flux::modals()->close('routine-form-'.$this->routineId);
         $this->dispatch('routine-saved', routine: $this->routine);
     }
 
@@ -244,15 +244,16 @@ class Form extends Component
         }
         $attrs = Arr::only($this->frequencyForm, ['start_date', 'end_date', 'end_type', 'occurrence_count', 'interval', 'unit', 'weekdays', 'month_days', 'month_occurrences']);
 
-        if (!empty($this->frequencyForm['start_date'])) {
+        if (! empty($this->frequencyForm['start_date'])) {
             $attrs['start_date'] = Carbon::parse($this->frequencyForm['start_date']);
         }
 
-        if (!empty($this->frequencyForm['end_at'])) {
+        if (! empty($this->frequencyForm['end_at'])) {
             $attrs['end_date'] = Carbon::parse($this->frequencyForm['end_at']);
         }
 
         $freq = new Frequency($attrs);
+
         return $freq->summary();
     }
 

@@ -2,17 +2,20 @@
 
 namespace App\Livewire\Settings;
 
-use Livewire\Component;
 use App\Models\ApiService;
-use Masmerise\Toaster\Toaster;
-use Illuminate\Support\Facades\Auth;
 use App\Services\GoCardlessDataService;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class ApiKey extends Component
 {
     public $user;
+
     public $services;
+
     public $secret_ids = [];
+
     public $secret_keys = [];
 
     public function mount()
@@ -23,7 +26,7 @@ class ApiKey extends Component
 
         foreach ($this->services as $service) {
             $key = $existing->get($service->id);
-            $this->secret_ids[$service->id]  = $key ? $key->secret_id  : '';
+            $this->secret_ids[$service->id] = $key ? $key->secret_id : '';
             $this->secret_keys[$service->id] = $key ? $key->secret_key : '';
         }
     }
@@ -31,7 +34,7 @@ class ApiKey extends Component
     public function updateApiKeys()
     {
         foreach ($this->services as $service) {
-            $secretId  = trim($this->secret_ids[$service->id]);
+            $secretId = trim($this->secret_ids[$service->id]);
             $secretKey = trim($this->secret_keys[$service->id]);
 
             $oldCredentials = $this->user->apiKeys()->where('api_service_id', $service->id)->first();
@@ -42,7 +45,7 @@ class ApiKey extends Component
                     ['secret_id' => $secretId, 'secret_key' => $secretKey]
                 );
             }
-            if ($service->name === 'GoCardless' && !$this->testGoCardless()) {
+            if ($service->name === 'GoCardless' && ! $this->testGoCardless()) {
                 if ($oldCredentials) {
                     $this->user->apiKeys()->updateOrCreate(
                         ['api_service_id' => $service->id],
@@ -50,11 +53,12 @@ class ApiKey extends Component
                     );
                 }
                 Toaster::error(__('Failed to validate GoCardless credentials. Changes have not been saved.'));
+
                 return;
             }
         }
         $this->secret_keys[$service->id] = '';
-        $this->secret_ids[$service->id]  = '';
+        $this->secret_ids[$service->id] = '';
 
         Toaster::success(__('API Keys updated successfully!'));
     }
@@ -62,6 +66,7 @@ class ApiKey extends Component
     public function testGoCardless()
     {
         $goCardlessDataService = app(GoCardlessDataService::class);
+
         return $goCardlessDataService->accessToken(false) ? true : false;
     }
 

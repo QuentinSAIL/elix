@@ -1,12 +1,12 @@
 <?php
 
-use Livewire\Livewire;
 use App\Livewire\Money\DashboardPanelForm;
-use App\Models\User;
+use App\Models\BankAccount;
+use App\Models\MoneyCategory;
 use App\Models\MoneyDashboard;
 use App\Models\MoneyDashboardPanel;
-use App\Models\MoneyCategory;
-use App\Models\BankAccount;
+use App\Models\User;
+use Livewire\Livewire;
 use Masmerise\Toaster\Toaster;
 
 beforeEach(function () {

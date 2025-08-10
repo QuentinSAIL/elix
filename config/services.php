@@ -38,5 +38,5 @@ return [
     'url' => [
         'api' => env('APP_URL'),
         'web' => env('APP_URL'),
-    ]
+    ],
 ];

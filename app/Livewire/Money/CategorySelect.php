@@ -3,13 +3,11 @@
 namespace App\Livewire\Money;
 
 use Flux\Flux;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
-use App\Models\MoneyCategoryMatch;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class CategorySelect extends Component
 {
@@ -41,13 +39,13 @@ class CategorySelect extends Component
         $this->categories = $this->user->moneyCategories;
         $this->selectedCategory = $this->transaction ? $this->transaction->category?->name : null;
         $this->keyword = $this->transaction ? $this->transaction->description : null;
-        $this->modalId = $this->transaction ? $this->transaction->id : ($this->selectedCategory ? $this->selectedCategory : 'create-' . Str::random(32));
+        $this->modalId = $this->transaction ? $this->transaction->id : ($this->selectedCategory ? $this->selectedCategory : 'create-'.Str::random(32));
     }
 
     public function updatedSelectedCategory($value)
     {
         $category = $this->user->moneyCategories()->where('name', $value)->first();
-        if (!$category) {
+        if (! $category) {
             $this->alreadyExists = false;
             Toaster::error('Category not found');
         } else {
@@ -66,6 +64,7 @@ class CategorySelect extends Component
             $this->validate($rules);
         } catch (ValidationException $e) {
             Toaster::error('Le contenu de la categorie est invalide.');
+
             return;
         }
 
@@ -98,7 +97,7 @@ class CategorySelect extends Component
         $this->dispatch('transactions-edited');
 
         if ($this->transaction) {
-            Flux::modals()->close('transaction-form-' . $this->transaction->id);
+            Flux::modals()->close('transaction-form-'.$this->transaction->id);
         }
         Toaster::success('Category saved successfully');
     }

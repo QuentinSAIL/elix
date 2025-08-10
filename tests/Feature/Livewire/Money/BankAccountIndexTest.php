@@ -1,12 +1,11 @@
 <?php
 
-use App\Models\User;
-use App\Models\BankAccount;
-use App\Services\GoCardlessDataService;
-use Livewire\Livewire;
 use App\Livewire\Money\BankAccountIndex;
+use App\Models\BankAccount;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Livewire\Livewire;
 use Masmerise\Toaster\Toaster;
 
 uses(RefreshDatabase::class);
@@ -86,11 +85,11 @@ test('shows error when deleting non-existent account', function () {
 test('can delete account with gocardless account id', function () {
     Http::fake([
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
-            'access' => 'test-access-token'
+            'access' => 'test-access-token',
         ], 200),
         'bankaccountdata.gocardless.com/api/v2/requisitions/*' => Http::response([
-            'status' => 'success'
-        ], 200)
+            'status' => 'success',
+        ], 200),
     ]);
 
     $bankAccount = BankAccount::factory()->for($this->user)->create([
@@ -111,15 +110,15 @@ test('can delete account with gocardless account id', function () {
 test('can update gocardless account', function () {
     Http::fake([
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
-            'access' => 'test-access-token'
+            'access' => 'test-access-token',
         ], 200),
         'bankaccountdata.gocardless.com/api/v2/requisitions/?limit=100&offset=0' => Http::response([
             'results' => [
                 [
                     'reference' => 'test-ref',
-                    'accounts' => ['test-account-id']
-                ]
-            ]
+                    'accounts' => ['test-account-id'],
+                ],
+            ],
         ], 200),
         'bankaccountdata.gocardless.com/api/v2/accounts/test-account-id/details/' => Http::response([
             'status_code' => 200,
@@ -128,8 +127,8 @@ test('can update gocardless account', function () {
                 'currency' => 'EUR',
                 'name' => 'Test Account',
                 'cashAccountType' => 'CURRENT',
-            ]
-        ], 200)
+            ],
+        ], 200),
     ]);
 
     $bankAccount = BankAccount::factory()->for($this->user)->create([
@@ -148,20 +147,20 @@ test('can update gocardless account', function () {
 test('handles error when updating gocardless account', function () {
     Http::fake([
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
-            'access' => 'test-access-token'
+            'access' => 'test-access-token',
         ], 200),
         'bankaccountdata.gocardless.com/api/v2/requisitions/?limit=100&offset=0' => Http::response([
             'results' => [
                 [
                     'reference' => 'test-ref',
-                    'accounts' => ['test-account-id']
-                ]
-            ]
+                    'accounts' => ['test-account-id'],
+                ],
+            ],
         ], 200),
         'bankaccountdata.gocardless.com/api/v2/accounts/test-account-id/details/' => Http::response([
             'status_code' => 500,
-            'detail' => 'Error'
-        ], 500)
+            'detail' => 'Error',
+        ], 500),
     ]);
 
     $bankAccount = BankAccount::factory()->for($this->user)->create([

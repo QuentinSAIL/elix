@@ -3,15 +3,13 @@
 namespace App\Services;
 
 use App\Models\BankAccount;
-use Illuminate\Support\Str;
-use Masmerise\Toaster\Toaster;
 use App\Models\BankTransactions;
 use App\Models\MoneyCategoryMatch;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class GoCardlessDataService
 {
@@ -38,7 +36,7 @@ class GoCardlessDataService
             })
             ->first();
 
-        if (!$apiKey) {
+        if (! $apiKey) {
             throw new \Exception('GoCardless API keys not found');
         }
 
@@ -97,15 +95,15 @@ class GoCardlessDataService
 
                     $readable = $this->formatDuration($seconds);
 
-                    return ['status' => 'error', 'message' => __('Rate limit exceeded while fetching balances for account "' . $account->name . '". ' . "Please wait {$readable}.")];
+                    return ['status' => 'error', 'message' => __('Rate limit exceeded while fetching balances for account "'.$account->name.'". '."Please wait {$readable}.")];
                 } else {
-                    return ['status' => 'error', 'message' => __('Error fetching balances for account "' . $account->name . '": ' . json_encode($balances))];
+                    return ['status' => 'error', 'message' => __('Error fetching balances for account "'.$account->name.'": '.json_encode($balances))];
                 }
             }
 
             $balance = $balances['balances'][0]['balanceAmount']['amount'] ?? 0;
         } catch (\Exception $e) {
-            Log::error('Error fetching account balances: ' . $e->getMessage() . ' for account ID: ' . $accountId);
+            Log::error('Error fetching account balances: '.$e->getMessage().' for account ID: '.$accountId);
             throw $e;
         }
 
@@ -116,7 +114,7 @@ class GoCardlessDataService
             $account->save();
         }
 
-        return ['status' => 'success', 'message' => __('Account balance for "' . $account->name . '" updated successfully.')];
+        return ['status' => 'success', 'message' => __('Account balance for "'.$account->name.'" updated successfully.')];
     }
 
     public function updateAccountTransactions(string $accountId)
@@ -134,20 +132,20 @@ class GoCardlessDataService
 
                     $readable = $this->formatDuration($seconds);
 
-                    return ['status' => 'error', 'message' => __('Rate limit exceeded while fetching transactions for account "' . $account->name . '". ' . "Please wait {$readable}.")];
+                    return ['status' => 'error', 'message' => __('Rate limit exceeded while fetching transactions for account "'.$account->name.'". '."Please wait {$readable}.")];
                 } else {
-                    return ['status' => 'error', 'message' => __('Error fetching transactions for account "' . $account->name . '": ' . json_encode($transactions))];
+                    return ['status' => 'error', 'message' => __('Error fetching transactions for account "'.$account->name.'": '.json_encode($transactions))];
                 }
             }
         } catch (\Exception $e) {
-            Log::error('Error fetching account transactions: ' . $e->getMessage() . ' for account ID: ' . $accountId);
+            Log::error('Error fetching account transactions: '.$e->getMessage().' for account ID: '.$accountId);
             throw $e;
         }
 
         if (isset($transactions['transactions']['booked']) && count($transactions['transactions']['booked']) > 0) {
             $transactions = $transactions['transactions']['booked'];
         } else {
-            return ['status' => 'success', 'message' => __('No new transactions for "' . $account->name . '".')];
+            return ['status' => 'success', 'message' => __('No new transactions for "'.$account->name.'".')];
         }
 
         foreach ($transactions as $transaction) {
@@ -161,10 +159,11 @@ class GoCardlessDataService
                 ]);
                 MoneyCategoryMatch::checkAndApplyCategory($transaction);
             } catch (\Exception $e) {
-                Log::error('Error creating transaction: ' . $e->getMessage() . ' for account: ' . $account . ' on transaction: ' . json_encode($transaction));
+                Log::error('Error creating transaction: '.$e->getMessage().' for account: '.$account.' on transaction: '.json_encode($transaction));
             }
         }
-        return ['status' => 'success', 'message' => __('Account transactions for "' . $account->name . '" updated successfully.')];
+
+        return ['status' => 'success', 'message' => __('Account transactions for "'.$account->name.'" updated successfully.')];
     }
 
     public function getBanks($country = 'fr')
@@ -173,6 +172,7 @@ class GoCardlessDataService
             $res = Http::withToken($this->accessToken())
                 ->get("{$this->baseUrl}/institutions/?country={$country}")
                 ->json();
+
             return $res['results'] ?? [];
         });
     }
@@ -190,7 +190,7 @@ class GoCardlessDataService
                 return $result['accounts'];
             }
         }
-        return;
+
     }
 
     public function deleteRequisitionFromRef($ref)
@@ -198,6 +198,7 @@ class GoCardlessDataService
         $response = Http::withToken($this->accessToken())
             ->delete("{$this->baseUrl}/requisitions/{$ref}/")
             ->json();
+
         return $response;
     }
 
@@ -215,7 +216,7 @@ class GoCardlessDataService
         if (isset($responseData['created']) && $responseData['created']) {
             $this->requisition($institutionId, $responseData['id'], now()->addDays($responseData['access_valid_for_days']), $responseData['max_historical_days'], $logo);
         } else {
-            throw new \Exception('Error creating user agreement: ' . json_encode($responseData));
+            throw new \Exception('Error creating user agreement: '.json_encode($responseData));
         }
     }
 
@@ -223,11 +224,11 @@ class GoCardlessDataService
     {
         $reference = (string) Str::uuid();
         $response = Http::withToken($this->accessToken())->post("{$this->baseUrl}/requisitions/", [
-            'redirect' => config('services.url.web') . 'money/accounts',
+            'redirect' => config('services.url.web').'money/accounts',
             'institution_id' => $institutionId,
             'reference' => $reference,
             'agreement' => $agreementId,
-            'user_language' => $country
+            'user_language' => $country,
         ]);
 
         if ($response['created']) {
@@ -244,7 +245,7 @@ class GoCardlessDataService
                         'agreement_id' => $agreementId,
                         'reference' => $reference,
                         'transaction_total_days' => $maxHistoricalDays,
-                        'logo' => $logo
+                        'logo' => $logo,
                     ]
                 );
 
@@ -265,7 +266,7 @@ class GoCardlessDataService
         foreach ($units as $name => $divisor) {
             $quotient = intdiv($totalSeconds, $divisor);
             if ($quotient > 0) {
-                $parts[] = $quotient . ' ' . $name . ($quotient > 1 ? 's' : '');
+                $parts[] = $quotient.' '.$name.($quotient > 1 ? 's' : '');
                 $totalSeconds -= $quotient * $divisor;
             }
         }
@@ -276,7 +277,8 @@ class GoCardlessDataService
 
         if (count($parts) > 1) {
             $last = array_pop($parts);
-            return implode(', ', $parts) . ' et ' . $last;
+
+            return implode(', ', $parts).' et '.$last;
         }
 
         return $parts[0];

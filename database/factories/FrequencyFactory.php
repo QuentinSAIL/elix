@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Frequency;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class FrequencyFactory extends Factory
@@ -12,29 +11,29 @@ class FrequencyFactory extends Factory
 
     public function definition()
     {
-        $units    = ['day', 'week', 'month', 'year'];
-        $unit     = $this->faker->randomElement($units);
+        $units = ['day', 'week', 'month', 'year'];
+        $unit = $this->faker->randomElement($units);
         $interval = $this->faker->numberBetween(1, 5);
 
         // Choix aléatoire du type de fin
         $endType = $this->faker->randomElement(['never', 'until_date', 'occurrences']);
 
         $data = [
-            'interval'          => $interval,
-            'unit'              => $unit,
-            'weekdays'          => null,
-            'month_days'        => null,
+            'interval' => $interval,
+            'unit' => $unit,
+            'weekdays' => null,
+            'month_days' => null,
             'month_occurrences' => null,
-            'start_date'        => $this->faker->dateTimeBetween('-1 month', 'now'),
-            'end_date'          => null,
-            'end_type'          => $endType,
-            'occurrence_count'  => null,
+            'start_date' => $this->faker->dateTimeBetween('-1 month', 'now'),
+            'end_date' => null,
+            'end_type' => $endType,
+            'occurrence_count' => null,
         ];
 
         // répétitions par semaine
         if ($unit === 'week') {
             $data['weekdays'] = $this->faker->randomElements(
-                [1,2,3,4,5,6,7],
+                [1, 2, 3, 4, 5, 6, 7],
                 $this->faker->numberBetween(1, 3)
             );
         }

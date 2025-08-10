@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Module;
 use App\Models\ApiService;
+use App\Models\Module;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class ProdSeeder extends Seeder
 {

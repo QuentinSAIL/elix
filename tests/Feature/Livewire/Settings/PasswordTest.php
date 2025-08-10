@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\User;
-use Livewire\Livewire;
 use App\Livewire\Settings\Password;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 

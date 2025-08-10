@@ -3,11 +3,9 @@
 namespace App\Livewire\RoutineTask;
 
 use Flux\Flux;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class Form extends Component
 {
@@ -88,7 +86,7 @@ class Form extends Component
             $this->routine->tasks()->create($this->taskForm);
         }
 
-        Flux::modals()->close('task-form-' . $this->taskId);
+        Flux::modals()->close('task-form-'.$this->taskId);
         $this->dispatch('task-saved');
     }
 

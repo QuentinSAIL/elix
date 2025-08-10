@@ -19,7 +19,7 @@ class ModuleFactory extends Factory
         return [
             'name' => $this->faker->unique()->word(),
             'description' => $this->faker->sentence(),
-            'endpoint' => '/' . $this->faker->unique()->slug(),
+            'endpoint' => '/'.$this->faker->unique()->slug(),
         ];
     }
 }

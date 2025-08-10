@@ -1,15 +1,14 @@
 <?php
 
-use App\Models\User;
+use App\Livewire\Money\BankTransactionIndex;
 use App\Models\BankAccount;
 use App\Models\BankTransactions;
 use App\Models\MoneyCategory;
 use App\Models\MoneyCategoryMatch;
-use Livewire\Livewire;
-use App\Livewire\Money\BankTransactionIndex;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
-use Mockery;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -139,7 +138,7 @@ test('can refresh transactions', function () {
 test('can get transactions from gocardless', function () {
     Http::fake([
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
-            'access' => 'test-access-token'
+            'access' => 'test-access-token',
         ], 200),
         'bankaccountdata.gocardless.com/api/v2/accounts/*/transactions/' => Http::response([
             'transactions' => [
@@ -164,7 +163,7 @@ test('can get transactions from gocardless', function () {
                     ],
                 ],
             ],
-        ], 200)
+        ], 200),
     ]);
 
     $bankAccount = BankAccount::factory()->for($this->user)->create([
@@ -187,11 +186,11 @@ test('can get transactions from gocardless', function () {
 test('handles error when getting transactions from gocardless', function () {
     Http::fake([
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
-            'access' => 'test-access-token'
+            'access' => 'test-access-token',
         ], 200),
         'bankaccountdata.gocardless.com/api/v2/accounts/*/transactions/' => Http::response([
-            'error' => 'Failed to fetch transactions'
-        ], 500)
+            'error' => 'Failed to fetch transactions',
+        ], 500),
     ]);
 
     $bankAccount = BankAccount::factory()->for($this->user)->create([

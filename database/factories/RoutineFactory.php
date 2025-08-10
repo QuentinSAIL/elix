@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
-use App\Models\Routine;
 use App\Models\Frequency;
+use App\Models\Routine;
 use App\Models\RoutineTask;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 
@@ -22,16 +22,16 @@ class RoutineFactory extends Factory
     public function definition(): array
     {
         $frequency = Frequency::factory()->create();
+
         return [
-            'user_id'           => User::factory(),
-            'frequency_id'      => $frequency->id,
-            'name'              => $this->faker->words(3, true),
-            'description'       => $this->faker->sentences(3, true),
+            'user_id' => User::factory(),
+            'frequency_id' => $frequency->id,
+            'name' => $this->faker->words(3, true),
+            'description' => $this->faker->sentences(3, true),
             // 'is_active'         => $this->faker->boolean(80),
-            'is_active'         => true
+            'is_active' => true,
         ];
     }
-
 
     public function configure()
     {
@@ -42,7 +42,7 @@ class RoutineFactory extends Factory
                 ->count($count)
                 ->state(new Sequence(
                     ...array_map(
-                        fn($i) => ['order' => $i + 1],
+                        fn ($i) => ['order' => $i + 1],
                         range(0, $count - 1)
                     )
                 ))

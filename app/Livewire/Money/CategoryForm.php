@@ -2,13 +2,12 @@
 
 namespace App\Livewire\Money;
 
-use Flux\Flux;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
 use App\Models\MoneyCategoryMatch;
+use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class CategoryForm extends Component
 {
@@ -27,6 +26,7 @@ class CategoryForm extends Component
     public $originalCategoryMatchForm = [];
 
     public $applyMatch = true;
+
     public $applyMatchToAlreadyCategorized = false;
 
     public $deletedKeywords;
@@ -52,7 +52,7 @@ class CategoryForm extends Component
                 'id' => '',
                 'category_id' => '',
                 'keyword' => '',
-            ]
+            ],
         ];
 
         $this->originalCategoryMatchForm = $this->categoryMatchForm;
@@ -86,20 +86,20 @@ class CategoryForm extends Component
                         'id' => '',
                         'category_id' => '',
                         'keyword' => '',
-                    ]
+                    ],
                 ];
             }
             $this->originalCategoryMatchForm = $this->categoryMatchForm;
         } else {
             $this->resetForm();
-            $this->categoryId = 'create-' . uniqid();
+            $this->categoryId = 'create-'.uniqid();
             $this->edition = false;
         }
     }
 
     public function getHasMatchChangesProperty(): bool
     {
-        if (!$this->edition) {
+        if (! $this->edition) {
             return false;
         }
 
@@ -107,7 +107,7 @@ class CategoryForm extends Component
         $newKeywords = array_filter(array_column($this->categoryMatchForm ?? [], 'keyword'));
 
         foreach ($newKeywords as $keyword) {
-            if (!in_array($keyword, $existingKeywords)) {
+            if (! in_array($keyword, $existingKeywords)) {
                 return true;
             }
         }
@@ -126,13 +126,14 @@ class CategoryForm extends Component
 
     public function removeCategoryMatch($index)
     {
-        if (!is_array($this->categoryMatchForm)) {
+        if (! is_array($this->categoryMatchForm)) {
             $this->categoryMatchForm = [];
+
             return;
         }
 
         $match = $this->categoryMatchForm[$index] ?? null;
-        if ($this->edition && !empty($match['id'])) {
+        if ($this->edition && ! empty($match['id'])) {
             $this->category->categoryMatches()->where('id', $match['id'])->delete();
         }
 
@@ -147,7 +148,6 @@ class CategoryForm extends Component
             'categoryForm.name' => 'required|string|max:255',
         ];
 
-
         $existingKeywords = MoneyCategoryMatch::where('user_id', $this->user->id)
             ->pluck('keyword')
             ->toArray();
@@ -155,7 +155,7 @@ class CategoryForm extends Component
         $collisions = [];
         if (is_array($this->categoryMatchForm)) {
             foreach ($this->categoryMatchForm as $index => $match) {
-                if (!is_array($match) || ($match['id'] ?? '') !== "") {
+                if (! is_array($match) || ($match['id'] ?? '') !== '') {
                     continue;
                 }
                 $keyword = trim($match['keyword'] ?? '');
@@ -171,22 +171,23 @@ class CategoryForm extends Component
                             ];
                         }
                     }
-                    $rules['categoryMatchForm.' . $index . '.keyword'] = 'required|string|max:255';
+                    $rules['categoryMatchForm.'.$index.'.keyword'] = 'required|string|max:255';
                 } else {
                     unset($this->categoryMatchForm[$index]);
                 }
             }
         }
 
-        if (!empty($collisions)) {
+        if (! empty($collisions)) {
             $messages = [];
             foreach ($collisions as $collision) {
-            $messages[] = __('Keyword ":input" collides with existing ":existing".', [
-                'input' => $collision['input'],
-                'existing' => $collision['existing'],
-            ]);
+                $messages[] = __('Keyword ":input" collides with existing ":existing".', [
+                    'input' => $collision['input'],
+                    'existing' => $collision['existing'],
+                ]);
             }
             Toaster::error(implode(' ', $messages), ['duration' => 60]);
+
             return;
         }
 
@@ -208,7 +209,7 @@ class CategoryForm extends Component
                 $matchId = $match['id'] ?? null;
 
                 if ($keyword !== '') {
-                    if (!empty($matchId)) {
+                    if (! empty($matchId)) {
                         $this->category->categoryMatches()->updateOrCreate(
                             ['id' => $matchId],
                             [
@@ -224,7 +225,7 @@ class CategoryForm extends Component
                         $this->categoryMatchForm[$index]['id'] = $created->id;
                     }
                 } else {
-                    if (!empty($matchId)) {
+                    if (! empty($matchId)) {
                         $this->category->categoryMatches()->where('id', $matchId)->delete();
                     }
                     unset($this->categoryMatchForm[$index]);
@@ -238,7 +239,7 @@ class CategoryForm extends Component
 
         $this->applyMatch();
 
-        Flux::modals()->close('category-form-' . $this->categoryId);
+        Flux::modals()->close('category-form-'.$this->categoryId);
         $this->dispatch('category-saved');
     }
 
@@ -251,7 +252,7 @@ class CategoryForm extends Component
                     $transactionEdited += MoneyCategoryMatch::searchAndApplyMatchCategory($match['keyword'], $this->applyMatchToAlreadyCategorized);
                 }
             }
-            Toaster::success('Category applied to all matching transactions (' . $transactionEdited . ')');
+            Toaster::success('Category applied to all matching transactions ('.$transactionEdited.')');
         }
     }
 

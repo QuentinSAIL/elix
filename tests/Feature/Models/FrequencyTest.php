@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\User;
-use App\Models\Routine;
 use App\Models\Frequency;
+use App\Models\Routine;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

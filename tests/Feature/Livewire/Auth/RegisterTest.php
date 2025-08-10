@@ -1,11 +1,10 @@
 <?php
 
-use App\Models\User;
-use Livewire\Livewire;
 use App\Livewire\Auth\Register;
+use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Hash;
+use Livewire\Livewire;
 
 test('register component can be rendered', function () {
     Livewire::test(Register::class)

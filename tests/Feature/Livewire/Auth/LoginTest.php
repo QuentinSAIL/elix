@@ -1,8 +1,8 @@
 <?php
 
+use App\Livewire\Auth\Login;
 use App\Models\User;
 use Livewire\Livewire;
-use App\Livewire\Auth\Login;
 
 test('login component can be rendered', function () {
     Livewire::test(Login::class)

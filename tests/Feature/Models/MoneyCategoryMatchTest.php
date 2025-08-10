@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\User;
-use App\Models\MoneyCategory;
-use App\Models\MoneyCategoryMatch;
 use App\Models\BankAccount;
 use App\Models\BankTransactions;
+use App\Models\MoneyCategory;
+use App\Models\MoneyCategoryMatch;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

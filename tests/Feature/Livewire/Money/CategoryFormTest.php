@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\User;
+use App\Livewire\Money\CategoryForm;
 use App\Models\MoneyCategory;
 use App\Models\MoneyCategoryMatch;
-use Livewire\Livewire;
-use App\Livewire\Money\CategoryForm;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 

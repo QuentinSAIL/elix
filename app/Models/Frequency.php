@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Frequency extends Model
 {
@@ -24,11 +24,11 @@ class Frequency extends Model
     ];
 
     protected $casts = [
-        'weekdays'         => 'array',
-        'month_days'       => 'array',
-        'month_occurrences'=> 'array',
-        'start_date'         => 'datetime',
-        'end_date'         => 'date',
+        'weekdays' => 'array',
+        'month_days' => 'array',
+        'month_occurrences' => 'array',
+        'start_date' => 'datetime',
+        'end_date' => 'date',
     ];
 
     public function routine()
@@ -44,13 +44,13 @@ class Frequency extends Model
      * - "Chaque année"
      */
     /**
- * Retourne une phrase résumé de la fréquence, par ex. :
- * - "Chaque jour"
- * - "Tous les 2 semaines les lundis et mercredis"
- * - "Chaque mois le 1er mardi jusqu’au 30/06/2025"
- * - "Tous les mois le 1er mardi (max 5 fois)"
- */
-public function summary(): string
+     * Retourne une phrase résumé de la fréquence, par ex. :
+     * - "Chaque jour"
+     * - "Tous les 2 semaines les lundis et mercredis"
+     * - "Chaque mois le 1er mardi jusqu’au 30/06/2025"
+     * - "Tous les mois le 1er mardi (max 5 fois)"
+     */
+    public function summary(): string
     {
         // Préfixe de début
         $prefix = '';
@@ -59,13 +59,13 @@ public function summary(): string
             $prefix = "À partir du {$start}, ";
         }
 
-        $int   = $this->interval;
-        $unit  = $this->unit;
-        $type  = $this->end_type;
+        $int = $this->interval;
+        $unit = $this->unit;
+        $type = $this->end_type;
 
-        $singular = ['day'=>'jour', 'week'=>'semaine', 'month'=>'mois',   'year'=>'année'];
-        $plural   = ['day'=>'jours','week'=>'semaines','month'=>'mois','year'=>'années'];
-        $gender   = ['day'=>'tous', 'week'=>'toutes','month'=>'tous', 'year'=>'toutes'];
+        $singular = ['day' => 'jour', 'week' => 'semaine', 'month' => 'mois',   'year' => 'année'];
+        $plural = ['day' => 'jours', 'week' => 'semaines', 'month' => 'mois', 'year' => 'années'];
+        $gender = ['day' => 'tous', 'week' => 'toutes', 'month' => 'tous', 'year' => 'toutes'];
 
         // Base de la phrase
         if ($int === 1) {
@@ -75,27 +75,27 @@ public function summary(): string
         }
 
         // Spécifique semaine
-        if ($unit === 'week' && !empty($this->weekdays)) {
-            $jours  = array_map([$this, 'dayName'], $this->weekdays);
+        if ($unit === 'week' && ! empty($this->weekdays)) {
+            $jours = array_map([$this, 'dayName'], $this->weekdays);
             $préfix = count($jours) > 1 ? 'les' : 'le';
-            $base  .= " {$préfix} ".implode(', ', $jours);
+            $base .= " {$préfix} ".implode(', ', $jours);
         }
 
         // Spécifique mois
         if ($unit === 'month') {
-            if (!empty($this->month_occurrences)) {
+            if (! empty($this->month_occurrences)) {
                 $parts = [];
                 foreach ($this->month_occurrences as $occ) {
                     $parts[] = $this->ordinalLabel($occ['ordinal'])
-                             . ' ' . $this->dayName($occ['weekday']);
+                             .' '.$this->dayName($occ['weekday']);
                 }
                 $préfix = count($parts) > 1 ? 'les' : 'le';
-                $base  .= " {$préfix} ".implode(', ', $parts);
+                $base .= " {$préfix} ".implode(', ', $parts);
 
-            } elseif (!empty($this->month_days)) {
-                $jours  = array_map([$this, 'ordinalSuffix'], $this->month_days);
+            } elseif (! empty($this->month_days)) {
+                $jours = array_map([$this, 'ordinalSuffix'], $this->month_days);
                 $préfix = count($jours) > 1 ? 'les' : 'le';
-                $base  .= " {$préfix} ".implode(', ', $jours);
+                $base .= " {$préfix} ".implode(', ', $jours);
             }
         }
 
@@ -116,7 +116,7 @@ public function summary(): string
         }
 
         // Assemblage final
-        return $prefix . ucfirst($base);
+        return $prefix.ucfirst($base);
     }
 
     /**
@@ -125,8 +125,8 @@ public function summary(): string
     protected function dayName(int $d): string
     {
         return [
-            1=>'lundi',2=>'mardi',3=>'mercredi',4=>'jeudi',
-            5=>'vendredi',6=>'samedi',7=>'dimanche'
+            1 => 'lundi', 2 => 'mardi', 3 => 'mercredi', 4 => 'jeudi',
+            5 => 'vendredi', 6 => 'samedi', 7 => 'dimanche',
         ][$d] ?? '';
     }
 
@@ -141,7 +141,7 @@ public function summary(): string
             : ($n === 1
                 ? '1er'
                 : "{$n}e"
-              );
+            );
     }
 
     /**

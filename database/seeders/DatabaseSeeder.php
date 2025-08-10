@@ -2,14 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Note;
-use App\Models\User;
-use App\Models\Routine;
 use App\Models\Frequency;
-use App\Models\BankAccount;
-use App\Models\RoutineTask;
-use Illuminate\Support\Str;
 use App\Models\MoneyCategory;
+use App\Models\Note;
+use App\Models\Routine;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -26,18 +23,18 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Routine::factory()
-        ->count(50)
-        ->create()
-        ->each(function ($routine) {
-            // echo "Routine : " .  $routine->id . " : " . $routine->frequency->summary() . "\n";
-        });
+            ->count(50)
+            ->create()
+            ->each(function ($routine) {
+                // echo "Routine : " .  $routine->id . " : " . $routine->frequency->summary() . "\n";
+            });
 
         Note::factory()
-        ->count(50)
-        ->create();
+            ->count(50)
+            ->create();
 
         MoneyCategory::factory()
-        ->count(50)
-        ->create();
+            ->count(50)
+            ->create();
     }
 }

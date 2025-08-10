@@ -1,8 +1,6 @@
 <?php
 
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\App;
 
 test('euro blade directive works', function () {
     $result = Blade::compileString('@euro(1234.56)');

@@ -2,21 +2,26 @@
 
 namespace App\Livewire\Money;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
-use Illuminate\Support\Facades\Auth;
-use App\Models\MoneyCategory;
 
 class CategoryIndex extends Component
 {
     public $user;
+
     public $categories;
+
     public $newName = '';
+
     public $newBudget = '';
+
     public $newColor = '#cccccc';
+
     public $totalBudget = '#cccccc';
 
     public $sortField = 'budget';
+
     public $sortDirection = 'desc';
 
     public function mount()
@@ -94,15 +99,15 @@ class CategoryIndex extends Component
     public function addCategory()
     {
         $this->validate([
-            'newName'   => 'required|string|max:255',
+            'newName' => 'required|string|max:255',
             'newBudget' => 'required|numeric|min:0',
-            'newColor'  => 'required|string',
+            'newColor' => 'required|string',
         ]);
 
         $this->user->moneyCategories()->create([
-            'name'   => $this->newName,
+            'name' => $this->newName,
             'budget' => $this->newBudget,
-            'color'  => $this->newColor,
+            'color' => $this->newColor,
         ]);
 
         Toaster::success('Catégorie ajoutée.');

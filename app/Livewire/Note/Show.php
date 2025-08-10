@@ -2,16 +2,17 @@
 
 namespace App\Livewire\Note;
 
-use App\Models\Note;
-use Livewire\Component;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class Show extends Component
 {
     public $note;
+
     public $markdownContent;
+
     public $user;
 
     public function mount($note)
@@ -32,10 +33,11 @@ class Show extends Component
     {
         try {
             $this->validate([
-                'markdownContent' => 'required|string|different:' . $this->note?->content,
+                'markdownContent' => 'required|string|different:'.$this->note?->content,
             ]);
         } catch (ValidationException $e) {
             Toaster::error(__('Note content is required.'));
+
             return;
         }
 

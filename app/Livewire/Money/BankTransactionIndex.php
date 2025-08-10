@@ -2,33 +2,41 @@
 
 namespace App\Livewire\Money;
 
-use Livewire\Component;
-use App\Models\BankAccount;
+use App\Models\MoneyCategory;
+use App\Models\MoneyCategoryMatch;
+use App\Services\GoCardlessDataService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
-use Livewire\WithPagination;
-use App\Models\MoneyCategory;
+use Livewire\Component;
 use Masmerise\Toaster\Toaster;
-use App\Models\MoneyCategoryMatch;
-use Illuminate\Support\Facades\Auth;
-use App\Services\GoCardlessDataService;
 
 class BankTransactionIndex extends Component
 {
     public $user;
+
     public $accounts;
+
     public $selectedAccount = null;
+
     public $allAccounts = false;
 
     public $perPage = 100;
+
     public $onInitialLoad = 100;
+
     public $increasedLoad = 50;
+
     public $noMoreToLoad = false;
 
     public $search = '';
+
     public $sortField = 'transaction_date';
+
     public $sortDirection = 'desc';
+
     public $categoryFilter = '';
+
     public $dateFilter = 'all';
 
     public $transactions = [];
@@ -52,7 +60,7 @@ class BankTransactionIndex extends Component
      */
     public function getTransactions()
     {
-        $gocardless = new GoCardlessDataService();
+        $gocardless = new GoCardlessDataService;
 
         foreach ($this->accounts as $account) {
             $responses = $account->updateFromGocardless($gocardless);
@@ -154,7 +162,7 @@ class BankTransactionIndex extends Component
      */
     protected function getTransactionQuery()
     {
-        if (!$this->selectedAccount && !$this->allAccounts) {
+        if (! $this->selectedAccount && ! $this->allAccounts) {
             return collect();
         }
 
@@ -165,7 +173,7 @@ class BankTransactionIndex extends Component
         }
 
         if (Str::length($this->search) > 0) {
-            $query->whereRaw('LOWER(description) LIKE ?', ['%' . strtolower($this->search) . '%']);
+            $query->whereRaw('LOWER(description) LIKE ?', ['%'.strtolower($this->search).'%']);
         }
 
         if ($this->categoryFilter) {
@@ -175,11 +183,11 @@ class BankTransactionIndex extends Component
         switch ($this->dateFilter) {
             case 'current_month':
                 $query->whereMonth('transaction_date', now()->month)
-                      ->whereYear('transaction_date', now()->year);
+                    ->whereYear('transaction_date', now()->year);
                 break;
             case 'last_month':
                 $query->whereMonth('transaction_date', now()->subMonth()->month)
-                      ->whereYear('transaction_date', now()->subMonth()->year);
+                    ->whereYear('transaction_date', now()->subMonth()->year);
                 break;
             case 'current_year':
                 $query->whereYear('transaction_date', now()->year);
@@ -195,6 +203,7 @@ class BankTransactionIndex extends Component
 
         if ($query instanceof \Illuminate\Database\Eloquent\Collection) {
             $this->transactions = collect();
+
             return;
         }
 
@@ -207,6 +216,7 @@ class BankTransactionIndex extends Component
     public function render()
     {
         $this->getTransactionsProperty();
+
         return view('livewire.money.bank-transaction-index');
     }
 }

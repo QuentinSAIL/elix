@@ -1,14 +1,14 @@
 <?php
 
-use App\Models\User;
+use App\Livewire\Money\DashboardPanel;
+use App\Models\BankAccount;
+use App\Models\BankTransactions;
+use App\Models\MoneyCategory;
 use App\Models\MoneyDashboard;
 use App\Models\MoneyDashboardPanel;
-use App\Models\BankAccount;
-use App\Models\MoneyCategory;
-use App\Models\BankTransactions;
-use Livewire\Livewire;
-use App\Livewire\Money\DashboardPanel;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 

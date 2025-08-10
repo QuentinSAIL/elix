@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\User;
-use Livewire\Livewire;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Auth\Notifications\VerifyEmail;
 use App\Livewire\Settings\Profile;
+use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 

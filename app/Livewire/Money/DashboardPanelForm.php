@@ -2,29 +2,35 @@
 
 namespace App\Livewire\Money;
 
-use Flux\Flux;
-use Carbon\Carbon;
-use Livewire\Component;
-use App\Models\MoneyCategory;
-use Masmerise\Toaster\Toaster;
 use App\Models\MoneyDashboardPanel;
+use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class DashboardPanelForm extends Component
 {
     public $user;
+
     public $moneyDashboard;
+
     public $panel;
 
     public $edition;
+
     public $bankAccounts;
+
     public $categories;
 
-    //form
+    // form
     public $title;
+
     public $type;
+
     public $periodType;
+
     public array $accountsId = [];
+
     public array $categoriesId = [];
 
     public function mount()
@@ -74,6 +80,7 @@ class DashboardPanelForm extends Component
             $this->validate($rules);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Toaster::error($e->getMessage());
+
             return;
         }
 
@@ -94,7 +101,7 @@ class DashboardPanelForm extends Component
         $this->populateForm();
         if ($this->edition) {
             Toaster::success(__('Panel edited successfully.'));
-            Flux::modals()->close('panel-form-' . $this->panel->id);
+            Flux::modals()->close('panel-form-'.$this->panel->id);
         } else {
             Toaster::success(__('Panel created successfully.'));
             Flux::modals()->close('panel-form-create');

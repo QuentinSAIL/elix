@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
 use App\Models\ApiService;
+use Closure;
 use Illuminate\Http\Request;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
+use Masmerise\Toaster\Toaster;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserHasValidGoCardlessKeys
@@ -18,8 +18,9 @@ class UserHasValidGoCardlessKeys
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || !Auth::user()->hasApiKey(ApiService::where('name', 'GoCardless')->first()->id)) {
+        if (! Auth::check() || ! Auth::user()->hasApiKey(ApiService::where('name', 'GoCardless')->first()->id)) {
             Toaster::error(__('You need to set up GoCardless API keys before using this feature.'));
+
             return redirect()->route('settings.api-keys');
         }
 

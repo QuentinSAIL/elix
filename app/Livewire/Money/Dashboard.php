@@ -2,21 +2,23 @@
 
 namespace App\Livewire\Money;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
-use Illuminate\Support\Facades\Auth;
 
 class Dashboard extends Component
 {
     public $user;
+
     public $moneyDashboard;
+
     public $moneyDashboardPanels;
 
     public function mount()
     {
         $this->user = Auth::user();
         $this->moneyDashboard = $this->user->moneyDashboards()->first();
-        if (!$this->moneyDashboard) {
+        if (! $this->moneyDashboard) {
             $this->moneyDashboard = $this->user->moneyDashboards()->create();
         }
         $this->moneyDashboardPanels = $this->moneyDashboard?->panels()->get();

@@ -34,6 +34,7 @@ class Register extends Component
 
         if (config('app.registration_enabled') === false) {
             $this->addError('registration', 'Registration is not open yet.');
+
             return;
         }
 
@@ -46,4 +47,3 @@ class Register extends Component
         $this->redirect(route('dashboard'), navigate: true);
     }
 }
-

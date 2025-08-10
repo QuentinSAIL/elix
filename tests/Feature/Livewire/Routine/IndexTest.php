@@ -1,10 +1,10 @@
 <?php
 
-use Livewire\Livewire;
 use App\Livewire\Routine\Index;
-use App\Models\User;
-use App\Models\Routine;
 use App\Models\Frequency;
+use App\Models\Routine;
+use App\Models\User;
+use Livewire\Livewire;
 use Masmerise\Toaster\Toaster;
 
 beforeEach(function () {
