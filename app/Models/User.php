@@ -5,11 +5,26 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
+/**
+ * @property Collection<int, \App\Models\Module> $modules
+ * @property Collection<int, \App\Models\Routine> $routines
+ * @property Collection<int, \App\Models\Note> $notes
+ * @property Collection<int, \App\Models\BankAccount> $bankAccounts
+ * @property Collection<int, \App\Models\BankTransactions> $bankTransactions
+ * @property Collection<int, \App\Models\MoneyCategory> $moneyCategories
+ * @property Collection<int, \App\Models\MoneyCategoryMatch> $moneyCategoryMatches
+ * @property Collection<int, \App\Models\MoneyDashboard> $moneyDashboards
+ * @property Collection<int, \App\Models\ApiKey> $apiKeys
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -47,62 +62,62 @@ class User extends Authenticatable
         return Str::of($this->name)->explode(' ')->map(fn (string $name) => Str::of($name)->substr(0, 1))->implode('');
     }
 
-    public function modules()
+    public function modules(): BelongsToMany
     {
         return $this->belongsToMany(Module::class)->withTimestamps();
     }
 
-    public function hasModule($name)
+    public function hasModule(string $name): bool
     {
         return $this->modules()->where('name', $name)->exists();
     }
 
-    public function routines()
+    public function routines(): HasMany
     {
         return $this->hasMany(Routine::class);
     }
 
-    public function notes()
+    public function notes(): HasMany
     {
         return $this->hasMany(Note::class);
     }
 
-    public function bankAccounts()
+    public function bankAccounts(): HasMany
     {
         return $this->hasMany(BankAccount::class);
     }
 
-    public function bankTransactions()
+    public function bankTransactions(): HasManyThrough
     {
         return $this->hasManyThrough(BankTransactions::class, BankAccount::class);
     }
 
-    public function sumBalances()
+    public function sumBalances(): float
     {
         return $this->bankAccounts->sum('balance');
     }
 
-    public function moneyCategories()
+    public function moneyCategories(): HasMany
     {
         return $this->hasMany(MoneyCategory::class);
     }
 
-    public function moneyCategoryMatches()
+    public function moneyCategoryMatches(): HasMany
     {
         return $this->hasMany(MoneyCategoryMatch::class);
     }
 
-    public function moneyDashboards()
+    public function moneyDashboards(): HasMany
     {
         return $this->hasMany(MoneyDashboard::class);
     }
 
-    public function apiKeys()
+    public function apiKeys(): HasMany
     {
         return $this->hasMany(ApiKey::class);
     }
 
-    public function hasApiKey($service)
+    public function hasApiKey(int $service): bool
     {
         return $this->apiKeys()->where('api_service_id', $service)->exists();
     }

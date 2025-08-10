@@ -35,6 +35,7 @@ class GoCardlessDataService
                 $query->where('name', 'GoCardless');
             })
             ->first();
+        /** @var \App\Models\ApiKey|null $apiKey */
 
         if (! $apiKey) {
             throw new \Exception('GoCardless API keys not found');

@@ -25,6 +25,7 @@ class ApiKey extends Component
         $existing = $this->user->apiKeys()->get()->keyBy('api_service_id');
 
         foreach ($this->services as $service) {
+            /** @var \App\Models\ApiKey|null $key */
             $key = $existing->get($service->id);
             $this->secret_ids[$service->id] = $key ? $key->secret_id : '';
             $this->secret_keys[$service->id] = $key ? $key->secret_key : '';
@@ -57,8 +58,10 @@ class ApiKey extends Component
                 return;
             }
         }
-        $this->secret_keys[$service->id] = '';
-        $this->secret_ids[$service->id] = '';
+        foreach ($this->services as $service) {
+            $this->secret_keys[$service->id] = '';
+            $this->secret_ids[$service->id] = '';
+        }
 
         Toaster::success(__('API Keys updated successfully!'));
     }

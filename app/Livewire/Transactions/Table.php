@@ -22,7 +22,7 @@ class Table extends Component
     public function render()
     {
         return view('livewire.transactions.table', [
-            'transactions' => $this->transactions,
+            'transactions' => $this->getTransactionsProperty(),
         ]);
     }
 }

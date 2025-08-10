@@ -11,33 +11,37 @@ use Masmerise\Toaster\Toaster;
 
 class CategoryForm extends Component
 {
-    public $user;
+    public \App\Models\User $user;
 
-    public $edition;
+    public bool $edition;
 
-    public $categoryId;
+    public string|int $categoryId;
 
-    public $category; // c'est rempli quand on est en edition
+    public ?\App\Models\MoneyCategory $category = null; // c'est rempli quand on est en edition
 
-    public $categoryForm = [];
+    /** @var array<string, string|float|bool> */
+    public array $categoryForm = [];
 
-    public $categoryMatchForm = [];
+    /** @var array<int, array{id: string|null, category_id: string|null, keyword: string}> */
+    public array $categoryMatchForm = [];
 
-    public $originalCategoryMatchForm = [];
+    /** @var array<int, array{id: string|null, category_id: string|null, keyword: string}> */
+    public array $originalCategoryMatchForm = [];
 
-    public $applyMatch = true;
+    public bool $applyMatch = true;
 
-    public $applyMatchToAlreadyCategorized = false;
+    public bool $applyMatchToAlreadyCategorized = false;
 
-    public $deletedKeywords;
+    /** @var array<string> */
+    public array $deletedKeywords;
 
-    public function mount()
+    public function mount(): void
     {
         $this->user = Auth::user();
         $this->populateForm();
     }
 
-    public function resetForm()
+    public function resetForm(): void
     {
         $this->categoryForm = [
             'name' => '',
@@ -58,7 +62,7 @@ class CategoryForm extends Component
         $this->originalCategoryMatchForm = $this->categoryMatchForm;
     }
 
-    public function populateForm()
+    public function populateForm(): void
     {
         if ($this->category) {
             $this->categoryId = $this->category->id;
@@ -73,6 +77,7 @@ class CategoryForm extends Component
 
             if ($this->category->categoryMatches->count() > 0) {
                 $this->categoryMatchForm = [];
+                /** @var \App\Models\MoneyCategoryMatch $match */
                 foreach ($this->category->categoryMatches as $match) {
                     $this->categoryMatchForm[] = [
                         'id' => $match->id,
@@ -104,7 +109,7 @@ class CategoryForm extends Component
         }
 
         $existingKeywords = $this->category->categoryMatches->pluck('keyword')->toArray();
-        $newKeywords = array_filter(array_column($this->categoryMatchForm ?? [], 'keyword'));
+        $newKeywords = array_filter(array_column($this->categoryMatchForm, 'keyword'));
 
         foreach ($newKeywords as $keyword) {
             if (! in_array($keyword, $existingKeywords)) {
@@ -115,7 +120,7 @@ class CategoryForm extends Component
         return false;
     }
 
-    public function addCategoryMatch()
+    public function addCategoryMatch(): void
     {
         $this->categoryMatchForm[] = [
             'id' => '',
@@ -124,14 +129,8 @@ class CategoryForm extends Component
         ];
     }
 
-    public function removeCategoryMatch($index)
+    public function removeCategoryMatch(int $index): void
     {
-        if (! is_array($this->categoryMatchForm)) {
-            $this->categoryMatchForm = [];
-
-            return;
-        }
-
         $match = $this->categoryMatchForm[$index] ?? null;
         if ($this->edition && ! empty($match['id'])) {
             $this->category->categoryMatches()->where('id', $match['id'])->delete();
@@ -142,7 +141,7 @@ class CategoryForm extends Component
         $this->categoryMatchForm = array_values($this->categoryMatchForm);
     }
 
-    public function save()
+    public function save(): void
     {
         $rules = [
             'categoryForm.name' => 'required|string|max:255',
@@ -153,28 +152,26 @@ class CategoryForm extends Component
             ->toArray();
 
         $collisions = [];
-        if (is_array($this->categoryMatchForm)) {
-            foreach ($this->categoryMatchForm as $index => $match) {
-                if (! is_array($match) || ($match['id'] ?? '') !== '') {
-                    continue;
-                }
-                $keyword = trim($match['keyword'] ?? '');
-                if ($keyword !== '') {
-                    foreach ($existingKeywords as $existing) {
-                        if (
-                            stripos($existing, $keyword) !== false ||
-                            stripos($keyword, $existing) !== false
-                        ) {
-                            $collisions[] = [
-                                'input' => $keyword,
-                                'existing' => $existing,
-                            ];
-                        }
+        foreach ($this->categoryMatchForm as $index => $match) {
+            if ($match['id'] !== '') {
+                continue;
+            }
+            $keyword = trim($match['keyword']);
+            if ($keyword !== '') {
+                foreach ($existingKeywords as $existing) {
+                    if (
+                        stripos($existing, $keyword) !== false ||
+                        stripos($keyword, $existing) !== false
+                    ) {
+                        $collisions[] = [
+                            'input' => $keyword,
+                            'existing' => $existing,
+                        ];
                     }
-                    $rules['categoryMatchForm.'.$index.'.keyword'] = 'required|string|max:255';
-                } else {
-                    unset($this->categoryMatchForm[$index]);
                 }
+                $rules['categoryMatchForm.'.$index.'.keyword'] = 'required|string|max:255';
+            } else {
+                unset($this->categoryMatchForm[$index]);
             }
         }
 
@@ -196,7 +193,8 @@ class CategoryForm extends Component
         if ($this->edition) {
             $this->category->update($this->categoryForm);
 
-            $deletedKeywords = array_diff($existingKeywords, $newKeywords ?? []);
+            $newKeywords = array_filter(array_column($this->categoryMatchForm, 'keyword'));
+            $deletedKeywords = array_diff($existingKeywords, $newKeywords);
             foreach ($deletedKeywords as $keyword) {
                 $match = $this->category->categoryMatches()->where('keyword', $keyword)->first();
                 if ($match) {
@@ -205,29 +203,27 @@ class CategoryForm extends Component
             }
 
             foreach ($this->categoryMatchForm as $index => $match) {
-                $keyword = trim($match['keyword'] ?? '');
-                $matchId = $match['id'] ?? null;
+                $keyword = trim($match['keyword']);
+                $matchId = (string) $match['id'];
 
                 if ($keyword !== '') {
-                    if (! empty($matchId)) {
-                        $this->category->categoryMatches()->updateOrCreate(
-                            ['id' => $matchId],
-                            [
-                                'user_id' => $this->user->id,
-                                'keyword' => $keyword,
-                            ],
-                        );
+                    if ($matchId !== '') {
+                        $matchModel = $this->category->categoryMatches()->where('id', $matchId)->first();
+                        /** @var \App\Models\MoneyCategoryMatch|null $matchModel */
+                        if ($matchModel) {
+                            $matchModel->user_id = (string) $this->user->id;
+                            $matchModel->keyword = $keyword;
+                            $matchModel->save();
+                        }
                     } else {
+                        /** @var \App\Models\MoneyCategoryMatch $created */
                         $created = $this->category->categoryMatches()->create([
-                            'user_id' => $this->user->id,
+                            'user_id' => (string) $this->user->id,
                             'keyword' => $keyword,
                         ]);
                         $this->categoryMatchForm[$index]['id'] = $created->id;
                     }
                 } else {
-                    if (! empty($matchId)) {
-                        $this->category->categoryMatches()->where('id', $matchId)->delete();
-                    }
                     unset($this->categoryMatchForm[$index]);
                 }
             }
@@ -245,10 +241,10 @@ class CategoryForm extends Component
 
     public function applyMatch()
     {
-        if ($this->applyMatch && is_array($this->categoryMatchForm)) {
+        if ($this->applyMatch) {
             $transactionEdited = 0;
             foreach ($this->categoryMatchForm as $match) {
-                if (is_array($match) && isset($match['keyword'])) {
+                if ($match['keyword'] !== '') {
                     $transactionEdited += MoneyCategoryMatch::searchAndApplyMatchCategory($match['keyword'], $this->applyMatchToAlreadyCategorized);
                 }
             }

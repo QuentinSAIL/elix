@@ -10,44 +10,54 @@ use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+
 
 class BankTransactionIndex extends Component
 {
-    public $user;
+    public \App\Models\User $user;
 
-    public $accounts;
+    /** @var EloquentCollection<int, \App\Models\BankAccount> */
+    public EloquentCollection $accounts;
 
-    public $selectedAccount = null;
+    public ?\App\Models\BankAccount $selectedAccount = null;
 
-    public $allAccounts = false;
+    public bool $allAccounts = false;
 
-    public $perPage = 100;
+    public int $perPage = 100;
 
-    public $onInitialLoad = 100;
+    public int $onInitialLoad = 100;
 
-    public $increasedLoad = 50;
+    public int $increasedLoad = 50;
 
-    public $noMoreToLoad = false;
+    public bool $noMoreToLoad = false;
 
-    public $search = '';
+    public string $search = '';
 
-    public $sortField = 'transaction_date';
+    public string $sortField = 'transaction_date';
 
-    public $sortDirection = 'desc';
+    public string $sortDirection = 'desc';
 
-    public $categoryFilter = '';
+    public string|int|null $categoryFilter = '';
 
-    public $dateFilter = 'all';
+    public string $dateFilter = 'all';
 
-    public $transactions = [];
+    /** @var EloquentCollection<array-key, \App\Models\BankTransactions> */
+    public EloquentCollection $transactions;
 
-    public $categories = [];
+    /** @var EloquentCollection<int, \App\Models\MoneyCategory> */
+    public EloquentCollection $categories;
 
-    public function mount()
+    public function mount(): void
     {
         $this->user = Auth::user();
         $this->accounts = $this->user->bankAccounts;
         $this->categories = MoneyCategory::orderBy('name')->get();
+        $this->transactions = new EloquentCollection();
 
         $this->allAccounts = true;
         $this->perPage = $this->onInitialLoad;
@@ -58,7 +68,7 @@ class BankTransactionIndex extends Component
     /**
      * Récupère et met à jour les transactions depuis GoCardless
      */
-    public function getTransactions()
+    public function getTransactions(): void
     {
         $gocardless = new GoCardlessDataService;
 
@@ -80,7 +90,7 @@ class BankTransactionIndex extends Component
     }
 
     #[On('update-category-match')]
-    public function searchAndApplyCategory($keyword)
+    public function searchAndApplyCategory(string $keyword): void
     {
         $transactionEdited = MoneyCategoryMatch::searchAndApplyMatchCategory($keyword);
         Toaster::success("Catégorie appliquée à toutes les transactions correspondantes ($transactionEdited)");
@@ -88,7 +98,7 @@ class BankTransactionIndex extends Component
         $this->getTransactionsProperty();
     }
 
-    public function updateSelectedAccount($accountId)
+    public function updateSelectedAccount(string|int $accountId): void
     {
         $this->allAccounts = $accountId === 'all';
         $this->selectedAccount = $this->accounts->find($accountId);
@@ -96,7 +106,7 @@ class BankTransactionIndex extends Component
         $this->noMoreToLoad = false;
     }
 
-    public function loadMore()
+    public function loadMore(): void
     {
         $this->perPage += $this->increasedLoad;
 
@@ -108,7 +118,7 @@ class BankTransactionIndex extends Component
     /**
      * Réinitialise la pagination lors de l'actualisation de la recherche
      */
-    public function updatingSearch()
+    public function updatingSearch(): void
     {
         $this->perPage = $this->onInitialLoad;
         $this->noMoreToLoad = false;
@@ -117,7 +127,7 @@ class BankTransactionIndex extends Component
     /**
      * Réinitialise la pagination lors du changement de filtre de catégorie
      */
-    public function updatingCategoryFilter()
+    public function updatingCategoryFilter(): void
     {
         $this->perPage = $this->onInitialLoad;
         $this->noMoreToLoad = false;
@@ -126,7 +136,7 @@ class BankTransactionIndex extends Component
     /**
      * Réinitialise la pagination lors du changement de filtre de date
      */
-    public function updatingDateFilter()
+    public function updatingDateFilter(): void
     {
         $this->perPage = $this->onInitialLoad;
         $this->noMoreToLoad = false;
@@ -135,7 +145,7 @@ class BankTransactionIndex extends Component
     /**
      * Gère le tri des colonnes
      */
-    public function sortBy($field)
+    public function sortBy(string $field): void
     {
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -152,7 +162,7 @@ class BankTransactionIndex extends Component
      * Rafraîchit les transactions après une édition externe
      */
     #[On('transactions-edited')]
-    public function refreshTransactions()
+    public function refreshTransactions(): void
     {
         $this->getTransactionsProperty();
     }
@@ -160,15 +170,20 @@ class BankTransactionIndex extends Component
     /**
      * Retourne la requête de base pour les transactions
      */
-    protected function getTransactionQuery()
+    /**
+     * @return HasMany<\App\Models\BankTransactions, \App\Models\BankAccount>|HasManyThrough<\App\Models\BankTransactions, \App\Models\BankAccount, \App\Models\User>|SupportCollection<array-key, mixed>
+     */
+    protected function getTransactionQuery(): HasMany|HasManyThrough|SupportCollection
     {
         if (! $this->selectedAccount && ! $this->allAccounts) {
-            return collect();
+            return new SupportCollection();
         }
 
         if ($this->allAccounts) {
+            /** @var HasManyThrough<\App\Models\BankTransactions, \App\Models\BankAccount, \App\Models\User> $query */
             $query = $this->user->bankTransactions();
         } else {
+            /** @var HasMany<\App\Models\BankTransactions, \App\Models\BankAccount> $query */
             $query = $this->selectedAccount->transactions();
         }
 
@@ -197,12 +212,18 @@ class BankTransactionIndex extends Component
         return $query;
     }
 
-    public function getTransactionsProperty()
+    public function getTransactionsProperty(): void
     {
         $query = $this->getTransactionQuery();
 
-        if ($query instanceof \Illuminate\Database\Eloquent\Collection) {
-            $this->transactions = collect();
+        if ($query instanceof SupportCollection) {
+            $this->transactions = new EloquentCollection(
+                collect($query->all())->map(function ($item) {
+                    return $item instanceof \App\Models\BankTransactions
+                        ? $item
+                        : new \App\Models\BankTransactions((array) $item);
+                })
+            );
 
             return;
         }
@@ -210,10 +231,12 @@ class BankTransactionIndex extends Component
         $this->transactions = $query
             ->orderBy($this->sortField, $this->sortDirection)
             ->take($this->perPage)
-            ->get();
-    }
+            ->get()
+            ->values();
 
-    public function render()
+        }
+
+    public function render(): \Illuminate\Contracts\View\View
     {
         $this->getTransactionsProperty();
 

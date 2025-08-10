@@ -54,7 +54,7 @@ class Frequency extends Model
     {
         // Préfixe de début
         $prefix = '';
-        if ($this->start_date instanceof \DateTimeInterface) {
+        if ($this->start_date !== null) {
             $start = Carbon::parse($this->start_date)->format('d/m/Y H:i');
             $prefix = "À partir du {$start}, ";
         }
