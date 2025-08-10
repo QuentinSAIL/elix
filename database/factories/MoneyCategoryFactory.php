@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\Models\MoneyCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,9 +19,12 @@ class MoneyCategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::all()->random()->id,
+            'user_id' => User::factory(),
             'name' => $this->faker->word,
             'description' => $this->faker->sentence,
+            'color' => $this->faker->hexColor(),
+            'budget' => $this->faker->randomFloat(2, 0, 1000),
+            'include_in_dashboard' => $this->faker->boolean(),
         ];
     }
 }

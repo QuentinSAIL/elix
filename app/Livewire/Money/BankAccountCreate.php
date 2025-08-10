@@ -17,28 +17,40 @@ class BankAccountCreate extends Component
 
     public function mount()
     {
-        $this->goCardlessDataService = new GoCardlessDataService();
+        $this->goCardlessDataService = app(GoCardlessDataService::class);
         $this->banks = $this->goCardlessDataService->getBanks();
     }
 
     public function updateSelectedBank($value)
     {
         $this->selectedBank = $value;
-        $this->searchTerm = collect($this->banks)->firstWhere('id', $this->selectedBank)['name'];
-        $this->maxAccessValidForDays = collect($this->banks)->firstWhere('id', $this->selectedBank)['max_access_valid_for_days'];
-        $this->transactionTotalDays = collect($this->banks)->firstWhere('id', $this->selectedBank)['transaction_total_days'];
-        $this->logo = collect($this->banks)->firstWhere('id', $this->selectedBank)['logo'];
+        $bank = collect($this->banks)->firstWhere('id', $this->selectedBank);
+        if ($bank) {
+            $this->searchTerm = $bank['name'];
+            $this->maxAccessValidForDays = $bank['max_access_valid_for_days'];
+            $this->transactionTotalDays = $bank['transaction_total_days'];
+            $this->logo = $bank['logo'];
+        } else {
+            $this->searchTerm = null;
+        }
     }
 
     public function getFilteredBanksProperty()
     {
-        return collect($this->banks)->filter(fn($b) => stripos($b['name'], $this->searchTerm) !== false)->values()->toArray();
+        if (!$this->banks || !is_array($this->banks)) {
+            return [];
+        }
+        return collect($this->banks)->filter(fn($b) => is_array($b) && isset($b['name']) && stripos($b['name'], $this->searchTerm) !== false)->values()->toArray();
     }
 
     public function addNewBankAccount()
     {
-        $goCardlessDataService = new GoCardlessDataService();
-        $goCardlessDataService->addNewBankAccount($this->selectedBank, $this->transactionTotalDays, $this->maxAccessValidForDays, $this->logo);
+        if (!$this->selectedBank) {
+            return;
+        }
+
+        $service = app(GoCardlessDataService::class);
+        $service->addNewBankAccount($this->selectedBank, $this->transactionTotalDays, $this->maxAccessValidForDays, $this->logo);
     }
 
     public function addNewAccount() {}

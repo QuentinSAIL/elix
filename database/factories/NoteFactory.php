@@ -21,7 +21,7 @@ class NoteFactory extends Factory
         $faker = \Faker\Factory::create();
         $faker->addProvider(new FakerProvider($faker));
         return [
-            'user_id' => User::all()->random(),
+            'user_id' => User::factory(),
             'content' => $faker->markdown()
         ];
     }

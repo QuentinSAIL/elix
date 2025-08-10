@@ -125,6 +125,7 @@ class Show extends Component
             $newTask = $task->replicate();
             $newTask->order = $task->order + 1;
             $newTask->routine_id = $this->routine->id;
+            $newTask->name = $task->name . ' (copy)';
             $newTask->save();
 
             $this->routine->refresh();

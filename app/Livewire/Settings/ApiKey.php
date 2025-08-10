@@ -19,7 +19,7 @@ class ApiKey extends Component
     {
         $this->user = Auth::user();
         $this->services = ApiService::all();
-        $existing = $this->user->apiKeys()->get()->keyBy('service');
+        $existing = $this->user->apiKeys()->get()->keyBy('api_service_id');
 
         foreach ($this->services as $service) {
             $key = $existing->get($service->id);
@@ -61,7 +61,7 @@ class ApiKey extends Component
 
     public function testGoCardless()
     {
-        $goCardlessDataService = new GoCardlessDataService();
+        $goCardlessDataService = app(GoCardlessDataService::class);
         return $goCardlessDataService->accessToken(false) ? true : false;
     }
 

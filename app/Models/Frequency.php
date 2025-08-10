@@ -33,7 +33,7 @@ class Frequency extends Model
 
     public function routine()
     {
-        return $this->belongsTo(Routine::class);
+        return $this->hasOne(Routine::class);
     }
 
     /**

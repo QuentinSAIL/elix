@@ -23,7 +23,7 @@ class RoutineFactory extends Factory
     {
         $frequency = Frequency::factory()->create();
         return [
-            'user_id'           => User::first()->id,
+            'user_id'           => User::factory(),
             'frequency_id'      => $frequency->id,
             'name'              => $this->faker->words(3, true),
             'description'       => $this->faker->sentences(3, true),

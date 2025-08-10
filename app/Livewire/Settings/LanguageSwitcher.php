@@ -18,7 +18,7 @@ class LanguageSwitcher extends Component
         // $this->locale = App::getLocale();
         $this->locale = Session::get('locale', App::getLocale());
         $this->supportedLocales = config('app.supported_locales');
-        if (in_array($this->locale, array_keys($this->supportedLocales))) {
+        if (!in_array($this->locale, array_keys($this->supportedLocales))) {
             $this->locale = array_key_first($this->supportedLocales);
         }
 
@@ -33,7 +33,7 @@ class LanguageSwitcher extends Component
             $this->locale = $lang;
             Toaster::info(__('Language switched successfully to ' . $lang));
         } else {
-            Toaster::danger(__('Language not supported.'));
+            Toaster::error(__('Language not supported.'));
         }
     }
 }

@@ -7,7 +7,7 @@
                 {{ __('Routine completed') . ': ' . $routine->name }}
             @elseif ($currentTaskIndex === null)
             @else
-                {{ __('Current Task') . ': ' . $currentTask->name }}
+                {{ __('Current Task') . ': ' . ($currentTask ? $currentTask->name : '') }}
             @endif
         </h2>
 

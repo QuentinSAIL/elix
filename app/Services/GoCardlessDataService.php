@@ -31,19 +31,20 @@ class GoCardlessDataService
     private function fetchAccessToken()
     {
         $user = Auth::user();
+        $apiKey = $user
+            ->apiKeys()
+            ->whereHas('apiService', function ($query) {
+                $query->where('name', 'GoCardless');
+            })
+            ->first();
+
+        if (!$apiKey) {
+            throw new \Exception('GoCardless API keys not found');
+        }
+
         $response = Http::post("{$this->baseUrl}/token/new/", [
-            'secret_id' => $user
-                ->apiKeys()
-                ->whereHas('apiService', function ($query) {
-                    $query->where('name', 'GoCardless');
-                })
-                ->first()->secret_id,
-            'secret_key' => $user
-                ->apiKeys()
-                ->whereHas('apiService', function ($query) {
-                    $query->where('name', 'GoCardless');
-                })
-                ->first()->secret_key,
+            'secret_id' => $apiKey->secret_id,
+            'secret_key' => $apiKey->secret_key,
         ]);
 
         return $response->json('access');
@@ -146,7 +147,7 @@ class GoCardlessDataService
         if (isset($transactions['transactions']['booked']) && count($transactions['transactions']['booked']) > 0) {
             $transactions = $transactions['transactions']['booked'];
         } else {
-            return;
+            return ['status' => 'success', 'message' => __('No new transactions for "' . $account->name . '".')];
         }
 
         foreach ($transactions as $transaction) {
@@ -172,7 +173,7 @@ class GoCardlessDataService
             $res = Http::withToken($this->accessToken())
                 ->get("{$this->baseUrl}/institutions/?country={$country}")
                 ->json();
-            return $res;
+            return $res['results'] ?? [];
         });
     }
 
@@ -182,7 +183,7 @@ class GoCardlessDataService
             ->get("{$this->baseUrl}/requisitions/?limit=100&offset=0")
             ->json();
 
-        $results = $response['results'];
+        $results = $response['results'] ?? [];
         foreach ($results as $result) {
             // $this->deleteRequisitionFromRef($result['id']);
             if ($result['reference'] === $ref) {
@@ -209,10 +210,12 @@ class GoCardlessDataService
             'access_scope' => ['balances', 'details', 'transactions'],
         ]);
 
-        if ($response['created']) {
-            $this->requisition($institutionId, $response['id'], now()->addDays($response['access_valid_for_days']), $response['max_historical_days'], $logo);
+        $responseData = $response->json();
+
+        if (isset($responseData['created']) && $responseData['created']) {
+            $this->requisition($institutionId, $responseData['id'], now()->addDays($responseData['access_valid_for_days']), $responseData['max_historical_days'], $logo);
         } else {
-            exit('Error creating user agreement: ' . json_encode($response));
+            throw new \Exception('Error creating user agreement: ' . json_encode($responseData));
         }
     }
 

@@ -36,14 +36,10 @@ class Form extends Component
             'name' => '',
             'description' => '',
             'duration' => 60,
-            'order' => 0,
+            'order' => 1,
             'autoskip' => true,
             'is_active' => true,
         ];
-
-        // set the default order to the last task + 1
-        $order = $this->routine->tasks()->whereNull('deleted_at')->max('order');
-        $this->taskForm['order'] = $order ? $order + 1 : 1;
     }
 
     public function populateForm()
@@ -77,15 +73,17 @@ class Form extends Component
             'taskForm.is_active' => 'boolean',
         ];
 
-        try {
-            $this->validate($rules);
-        } catch (ValidationException $e) {
-            Toaster::error(__('Task content is invalid.'));
-            return;
-        }
+        $this->validate($rules);
 
         if ($this->edition) {
-            $this->task->update($this->taskForm);
+            $this->task->name = $this->taskForm['name'];
+            $this->task->description = $this->taskForm['description'];
+            $this->task->duration = $this->taskForm['duration'];
+            $this->task->order = $this->taskForm['order'];
+            $this->task->autoskip = $this->taskForm['autoskip'];
+            $this->task->is_active = $this->taskForm['is_active'];
+            $this->task->save();
+            $this->task->refresh();
         } else {
             $this->routine->tasks()->create($this->taskForm);
         }

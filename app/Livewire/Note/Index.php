@@ -21,13 +21,16 @@ class Index extends Component
     public function mount()
     {
         $this->user = Auth::user();
-        $this->notes = Note::all();
+        $this->notes = Note::where('user_id', $this->user->id)->orderBy('created_at', 'desc')->get();
     }
 
     #[On('note-saved')]
     public function refresh($note)
     {
-        $note = Note::findOrFail($note['id']);
+        $note = Note::where('user_id', $this->user->id)->find($note['id']);
+        if (!$note) {
+            return;
+        }
         $index = $this->notes->search(fn($n) => $n->id === $note->id);
         if ($index === false) {
             $this->notes->prepend($note);
@@ -40,15 +43,16 @@ class Index extends Component
     {
         if (!$noteId) {
             $this->selectedNote = null;
-        } else {
-            $note = Note::findOrFail($noteId);
+        }
+        else {
+            $note = Note::where('user_id', $this->user->id)->findOrFail($noteId);
             $this->selectedNote = $note;
         }
     }
 
     public function delete($id)
     {
-        if ($r = Note::find($id)) {
+        if ($r = Note::where('user_id', $this->user->id)->find($id)) {
             if (!$r) {
                 Toaster::error(__('You cannot delete this note.'));
                 return;
