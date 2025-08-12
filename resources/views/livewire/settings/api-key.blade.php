@@ -24,6 +24,9 @@
                                 variant="micro"
                                 wire:click="deleteApiKeys('{{ $service->id }}')"
                                 title="{{ __('Delete API Keys') }}"
+                                role="button"
+                                tabindex="0"
+                                aria-label="{{ __('Delete API Keys for ') }} {{ $service->name }}"
                             />
                         @endif
                     </div>
@@ -34,6 +37,7 @@
                             type="text"
                             placeholder="{{ __('Secret ID') }}"
                             class="pl-10"
+                            aria-label="{{ __('Secret ID for ') }} {{ $service->name }}"
                         />
                     </div>
 
@@ -43,6 +47,7 @@
                             type="text"
                             placeholder="{{ __('Secret Key') }}"
                             class="pl-10"
+                            aria-label="{{ __('Secret Key for ') }} {{ $service->name }}"
                         />
                     </div>
                 </div>

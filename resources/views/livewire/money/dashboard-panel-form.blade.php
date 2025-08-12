@@ -1,6 +1,10 @@
 <div>
     <flux:modal.trigger name="panel-form-{{ $panel->id ?? 'create' }}" id="panel-form-{{ $panel->id ?? 'create' }}"
-        class="w-full h-full flex items-center justify-center cursor-pointer">
+        class="w-full h-full flex items-center justify-center cursor-pointer"
+        role="button"
+        tabindex="0"
+        aria-label="{{ $edition ? __('Edit panel') : __('Create panel') }}"
+    >
         @if ($edition)
             <span class="flex items-center justify-center space-x-2">
                 <flux:icon.adjustments-horizontal class="cursor-pointer ml-2" variant="micro" />

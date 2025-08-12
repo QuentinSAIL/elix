@@ -1,7 +1,11 @@
 <div>
     {{-- Modal de création --}}
     <flux:modal.trigger name="routine-form-{{ $routineId }}" id="routine-form-{{ $routineId }}"
-        class="w-full h-full flex items-center justify-center cursor-pointer">
+        class="w-full h-full flex items-center justify-center cursor-pointer"
+        role="button"
+        tabindex="0"
+        aria-label="{{ $edition ? __('Edit routine') : __('Create routine') }}"
+    >
         <div class="w-full text-center px-2 py-2 hover rounded-t-lg">
             @if ($edition)
                 <span class="flex items-center justify-center space-x-2">
@@ -81,7 +85,10 @@
                         @foreach ($days as $num => $lbl)
                             <button type="button" wire:click.prevent="toggleWeekday({{ $num }})"
                                 class="w-8 h-8 flex items-center justify-center border rounded
-                                {{ in_array($num, $frequencyForm['weekdays'] ?? []) ? 'border-color title-color' : 'bg-custom' }}">
+                                {{ in_array($num, $frequencyForm['weekdays'] ?? []) ? 'border-color title-color' : 'bg-custom' }}"
+                                aria-pressed="{{ in_array($num, $frequencyForm['weekdays'] ?? []) ? 'true' : 'false' }}"
+                                aria-label="{{ $lbl }}"
+                            >
                                 {{ strtoupper(substr($lbl, 0, 1)) }}
                             </button>
                         @endforeach
@@ -102,7 +109,10 @@
                             @foreach (range(1, 31) as $day)
                                 <button type="button" wire:click.prevent="toggleMonthDay({{ $day }})"
                                     class="w-8 h-8 flex items-center justify-center border rounded
-                    {{ in_array($day, $frequencyForm['month_days'] ?? []) ? 'border-color title-color' : 'bg-custom' }}">
+                    {{ in_array($day, $frequencyForm['month_days'] ?? []) ? 'border-color title-color' : 'bg-custom' }}"
+                                    aria-pressed="{{ in_array($day, $frequencyForm['month_days'] ?? []) ? 'true' : 'false' }}"
+                                    aria-label="{{ $day }}"
+                                >
                                     {{ $day }}
                                 </button>
                             @endforeach

@@ -11,7 +11,7 @@
                 </span>
 
                 <input wire:model.live.debounce.500ms="search" x-on:click.stop placeholder="Rechercher..."
-                    class="pl-10 pr-4 py-2 input-neutral border rounded-lg w-full md:w-64 text-sm" />
+                    class="pl-10 pr-4 py-2 input-neutral border rounded-lg w-full md:w-64 text-sm" aria-label="{{ __('Search transactions') }}" />
             </div>
 
             <flux:button wire:click="getTransactions" variant="primary" class="">
@@ -62,14 +62,14 @@
         </div>
 
         <div class="mt-3 md:mt-0 flex space-x-2">
-            <select wire:model.live="categoryFilter" class="px-3 py-2 rounded-lg text-sm bg-custom-accent">
+            <select wire:model.live="categoryFilter" class="px-3 py-2 rounded-lg text-sm bg-custom-accent" aria-label="{{ __('Filter by category') }}">
                 <option value="">Toutes catégories</option>
                 @foreach ($categories as $category)
                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                 @endforeach
             </select>
 
-            <select wire:model.live="dateFilter" class="px-3 py-2 rounded-lg text-sm bg-custom-accent">
+            <select wire:model.live="dateFilter" class="px-3 py-2 rounded-lg text-sm bg-custom-accent" aria-label="{{ __('Filter by date') }}">
                 <option value="all">Toutes dates</option>
                 <option value="current_month">Mois courant</option>
                 <option value="last_month">Mois dernier</option>
@@ -92,7 +92,9 @@
                     <tr class="sticky top-0 z-10 bg-custom shadow-sm">
                         @if ($allAccounts)
                             <th wire:click="sortBy('bank_account_id')"
-                                class="px-4 py-3 text-left text-xs font-medium sticky top-0 w-32">
+                                class="px-4 py-3 text-left text-xs font-medium sticky top-0 w-32"
+                                aria-sort="{{ $sortField === 'bank_account_id' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                            >
                                 <div class="flex items-center">
                                     <span>Compte</span>
                                     @if ($sortField === 'bank_account_id')
@@ -113,7 +115,9 @@
                         @endif
 
                         <th wire:click="sortBy('description')"
-                            class="px-4 py-3 text-left text-xs font-medium sticky top-0 w-3/5">
+                            class="px-4 py-3 text-left text-xs font-medium sticky top-0 w-3/5"
+                            aria-sort="{{ $sortField === 'description' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                        >
                             <div class="flex items-center">
                                 <span>Description</span>
                                 @if ($sortField === 'description')
@@ -133,7 +137,9 @@
                         </th>
 
                         <th wire:click="sortBy('transaction_date')"
-                            class="px-4 py-3 text-center text-xs font-medium sticky top-0 w-1/12">
+                            class="px-4 py-3 text-center text-xs font-medium sticky top-0 w-1/12"
+                            aria-sort="{{ $sortField === 'transaction_date' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                        >
                             <div class="flex items-center justify-center">
                                 <span>Date</span>
                                 @if ($sortField === 'transaction_date')
@@ -153,7 +159,9 @@
                         </th>
 
                         <th wire:click="sortBy('money_category_id')"
-                            class="px-4 py-3 text-center text-xs font-medium sticky top-0 w-1/5">
+                            class="px-4 py-3 text-center text-xs font-medium sticky top-0 w-1/5"
+                            aria-sort="{{ $sortField === 'money_category_id' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                        >
                             <div class="flex items-center justify-center">
                                 <span>Catégorie</span>
                                 @if ($sortField === 'money_category_id')
@@ -173,7 +181,9 @@
                         </th>
 
                         <th wire:click="sortBy('amount')"
-                            class="px-4 py-3 text-right text-xs font-medium sticky top-0 w-1/12">
+                            class="px-4 py-3 text-right text-xs font-medium sticky top-0 w-1/12"
+                            aria-sort="{{ $sortField === 'amount' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                        >
                             <div class="flex items-center justify-end">
                                 <span>Montant</span>
                                 @if ($sortField === 'amount')
@@ -230,7 +240,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $allAccounts ? 5 : 4 }}" class="px-4 py-8 text-center text-sm text-grey">
+                            <td colspan="{{ $allAccounts ? 5 : 4 }}" class="px-4 py-8 text-center text-sm text-grey" role="status">
                                 <div class="flex flex-col items-center justify-center">
                                     <svg class="h-12 w-12 text-grey" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
@@ -250,7 +260,7 @@
             </table>
         </div>
 
-        <div class="bg-custom-ultra rounded-none px-4 py-3 border-t text-center">
+        <div class="bg-custom-ultra rounded-none px-4 py-3 border-t text-center" role="status">
             <div class="text-sm text-grey-accent flex items-center justify-center"><svg
                     class="animate-spin -ml-1 mr-3 h-5 w-5 text-color" xmlns="http://www.w3.org/2000/svg"
                     fill="none" viewBox="0 0 24 24">

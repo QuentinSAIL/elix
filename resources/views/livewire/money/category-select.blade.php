@@ -1,5 +1,10 @@
 <div id="div-category-form-{{ $modalId }}">
-    <flux:modal.trigger name="category-form-{{ $modalId }}" id="category-form-{{ $modalId }}">
+    <flux:modal.trigger name="category-form-{{ $modalId }}" id="category-form-{{ $modalId }}"
+        class="w-full h-full flex items-center justify-center cursor-pointer"
+        role="button"
+        tabindex="0"
+        aria-label="{{ __('Edit category for transaction') }}"
+    >
         <div class="text-center">
             @if ($category)
                 <span class="cursor-pointer">@limit($category->name, 24)</span>
@@ -42,7 +47,7 @@
                     </datalist>
 
                     @if (!$alreadyExists)
-                        <flux:text class="mt-4 mb-3 text-gray-400">
+                        <flux:text class="mt-4 mb-3 text-gray-400" role="status">
                             La catégorie {{ $selectedCategory }} n'existe pas encore.
                         </flux:text>
 

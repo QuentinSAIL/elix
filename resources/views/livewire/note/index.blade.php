@@ -1,7 +1,7 @@
 <div class="">
     <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-48">
         <div class="flex-shrink-0 w-1/4 h-full bg-custom-accent p-6 shadow-sm hover:shadow-md transition-shadow flex items-center justify-center cursor-pointer {{ $selectedNote?->id === null ? 'border-color' : '' }}"
-            wire:click="selectNote('{{ null }}')">
+            wire:click="selectNote('{{ null }}')" aria-label="{{ __('Add new note') }}">
             <span class="m-1">
                 {{ __('Add new note') }}
             </span>
@@ -13,6 +13,7 @@
                 wire:click="selectNote('{{ $note->id }}')">
                 <button wire:click.stop="delete('{{ $note->id }}')"
                     class="icon-danger absolute top-2 right-2"
+                    aria-label="{{ __('Delete this note') }}"
                     title="Supprimer cette catégorie">
                     <flux:icon.trash class="w-5 h-5" variant="micro" />
                 </button>
