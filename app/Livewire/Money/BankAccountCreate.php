@@ -64,10 +64,7 @@ class BankAccountCreate extends Component
         $service->addNewBankAccount($this->selectedBank, $this->transactionTotalDays, $this->maxAccessValidForDays, $this->logo);
     }
 
-    public function addNewAccount(): void
-    {
-
-    }
+    public function addNewAccount(): void {}
 
     public function render(): \Illuminate\Contracts\View\View
     {

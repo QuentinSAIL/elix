@@ -1,0 +1,37 @@
+name: Build and Publish pre production Image
+
+on:
+  push:
+    branches: develop
+
+jobs:
+
+  deploy-preprod:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build . --file Dockerfile --tag elix:preprod
+
+    - name: Log in to Docker registry
+      run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+
+    - name: Tag Docker image for registry
+      run: docker tag elix:preprod ${{ secrets.REGISTRY_URL }}/elix:preprod
+
+    - name: Push Docker image to registry
+      run: docker push ${{ secrets.REGISTRY_URL }}/elix:preprod
+
+
+    - name: Deploy to Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PROD_HOST }}
+        username: ${{ secrets.PROD_USERNAME }}
+        port: ${{ secrets.PROD_PORT }}
+        password: "${{ secrets.PROD_PASSWORD }}"
+        script: "cd ~/services/elix-preprod && ./deploy.sh"

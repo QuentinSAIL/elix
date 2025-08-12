@@ -107,7 +107,6 @@ class BankAccount extends Model
     }
 
     /**
-     * @param GoCardlessDataService $gocardless
      * @return array<string, mixed>
      */
     public function updateFromGocardless(GoCardlessDataService $gocardless): array

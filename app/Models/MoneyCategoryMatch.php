@@ -23,7 +23,9 @@ class MoneyCategoryMatch extends Model
     use HasFactory, HasUuids;
 
     protected $primaryKey = 'id';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = ['id', 'user_id', 'money_category_id', 'keyword', 'created_at', 'updated_at'];

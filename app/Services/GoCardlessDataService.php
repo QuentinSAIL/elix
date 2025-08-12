@@ -36,7 +36,6 @@ class GoCardlessDataService
             })
             ->first();
         /** @var \App\Models\ApiKey|null $apiKey */
-
         if (! $apiKey) {
             throw new \Exception('GoCardless API keys not found');
         }

@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * @property Collection<int, \App\Models\Module> $modules
@@ -117,7 +117,7 @@ class User extends Authenticatable
         return $this->hasMany(ApiKey::class);
     }
 
-    public function hasApiKey(string | int $service): bool
+    public function hasApiKey(string|int $service): bool
     {
         return $this->apiKeys()->where('api_service_id', $service)->exists();
     }
