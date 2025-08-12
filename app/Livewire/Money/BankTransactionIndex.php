@@ -5,17 +5,15 @@ namespace App\Livewire\Money;
 use App\Models\MoneyCategory;
 use App\Models\MoneyCategoryMatch;
 use App\Services\GoCardlessDataService;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Illuminate\Support\Collection as SupportCollection;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-
 
 class BankTransactionIndex extends Component
 {
@@ -57,7 +55,7 @@ class BankTransactionIndex extends Component
         $this->user = Auth::user();
         $this->accounts = $this->user->bankAccounts;
         $this->categories = MoneyCategory::orderBy('name')->get();
-        $this->transactions = new EloquentCollection();
+        $this->transactions = new EloquentCollection;
 
         $this->allAccounts = true;
         $this->perPage = $this->onInitialLoad;
@@ -176,7 +174,7 @@ class BankTransactionIndex extends Component
     protected function getTransactionQuery(): HasMany|HasManyThrough|SupportCollection
     {
         if (! $this->selectedAccount && ! $this->allAccounts) {
-            return new SupportCollection();
+            return new SupportCollection;
         }
 
         if ($this->allAccounts) {
@@ -234,7 +232,7 @@ class BankTransactionIndex extends Component
             ->get()
             ->values();
 
-        }
+    }
 
     public function render(): \Illuminate\Contracts\View\View
     {
