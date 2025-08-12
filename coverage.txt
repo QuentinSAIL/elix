@@ -1,12 +1,12 @@
 
 
 [1;37;40mCode Coverage Report:        [0m
-[1;37;40m  2025-08-10 18:11:11        [0m
+[1;37;40m  2025-08-12 12:21:07        [0m
 [1;37;40m                             [0m
 [1;37;40m Summary:                    [0m
 [30;43m  Classes: 64.58% (31/48)    [0m
 [30;43m  Methods: 83.82% (171/204)  [0m
-[30;42m  Lines:   90.44% (1192/1318)[0m
+[30;42m  Lines:   90.59% (1194/1318)[0m
 
 App\Http\Controllers\Auth\VerifyEmailController
   [37;41mMethods:   0.00% ( 0/ 1)[0m   [30;43mLines:  83.33% (  5/  6)[0m
@@ -53,7 +53,7 @@ App\Livewire\Note\Show
 App\Livewire\RoutineTask\Form
   [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;43mLines:  82.61% ( 38/ 46)[0m
 App\Livewire\Routine\Form
-  [30;43mMethods:  62.50% ( 5/ 8)[0m   [30;42mLines:  92.17% (106/115)[0m
+  [30;43mMethods:  62.50% ( 5/ 8)[0m   [30;42mLines:  93.91% (108/115)[0m
 App\Livewire\Routine\Index
   [30;42mMethods: 100.00% ( 5/ 5)[0m   [30;42mLines: 100.00% ( 19/ 19)[0m
 App\Livewire\Routine\Show

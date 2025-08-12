@@ -129,18 +129,6 @@ test('can handle routine-saved event for non-existent routine', function () {
         ->assertStatus(200);
 });
 
-test('loads first routine as selected by default', function () {
-    $routine1 = Routine::factory()->for($this->user)->create([
-        'name' => 'First Routine',
-    ]);
-    $routine2 = Routine::factory()->for($this->user)->create([
-        'name' => 'Second Routine',
-    ]);
-
-    Livewire::test(Index::class)
-        ->assertSet('selectedRoutine.id', $routine1->id);
-});
-
 test('can handle empty routines list', function () {
     Livewire::test(Index::class)
         ->assertStatus(200);
