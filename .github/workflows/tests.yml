@@ -84,4 +84,4 @@ jobs:
           # php artisan db:seed --class=YourSeeder
 
       - name: Run Tests
-        run: ./vendor/bin/sail test --parallel --processes=4
+        run: ./vendor/bin/phpunit --parallel --processes=4
