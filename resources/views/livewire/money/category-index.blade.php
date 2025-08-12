@@ -20,7 +20,9 @@
         <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
             <thead class="text-left sticky top-0 z-10 bg-custom">
                 <tr>
-                    <th wire:click="sortBy('color')" class="px-4 w-30 cursor-pointer group">
+                    <th wire:click="sortBy('color')" class="px-4 w-30 cursor-pointer group"
+                        aria-sort="{{ $sortField === 'color' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                    >
                         <div class="flex items-center space-x-1">
                             <span>Couleur</span>
                             @if ($sortField === 'color')
@@ -28,7 +30,9 @@
                             @endif
                         </div>
                     </th>
-                    <th wire:click="sortBy('name')" class="px-4 py-3 cursor-pointer group">
+                    <th wire:click="sortBy('name')" class="px-4 py-3 cursor-pointer group"
+                        aria-sort="{{ $sortField === 'name' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                    >
                         <div class="flex items-center space-x-1">
                             <span>Nom</span>
                             @if ($sortField === 'name')
@@ -36,7 +40,9 @@
                             @endif
                         </div>
                     </th>
-                    <th wire:click="sortBy('budget')" class="px-4 py-4 cursor-pointer text-right group">
+                    <th wire:click="sortBy('budget')" class="px-4 py-4 cursor-pointer text-right group"
+                        aria-sort="{{ $sortField === 'budget' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                    >
                         <div class="flex items-center justify-end space-x-1">
                             <span>Budget</span>
                             @if ($sortField === 'budget')
@@ -56,21 +62,24 @@
                         <td class="px-4 py-1 flex justify-center">
                             <input type="color" class="w-8 h-8 m-2 rounded cursor-pointer outline-none"
                                 wire:change="updateCategoryColor($event.target.value, '{{ $category->id }}')"
-                                value="{{ $category->color }}" />
+                                value="{{ $category->color }}"
+                                aria-label="{{ __('Category color for ') }} {{ $category->name }}" />
 
                         </td>
                         <td class="px-4 py-3">
                             <input type="text"
                                 class="w-full px-3 py-2 border-transparent focus:border-zinc-300 focus:ring-1 focus:ring-custom rounded-md bg-custom-accent outline-none transition-all duration-150"
                                 value="{{ $category->name }}"
-                                wire:change="updateCategoryName($event.target.value, '{{ $category->id }}')" />
+                                wire:change="updateCategoryName($event.target.value, '{{ $category->id }}')"
+                                aria-label="{{ __('Category name') }}" />
                         </td>
                         <td class="px-4 py-3 text-right">
                             <div class="relative">
                                 <input type="number"
                                     class="w-full px-3 py-2 text-right border-transparent focus:border-zinc-300 focus:ring-1 focus:ring-custom rounded-md bg-custom-accent outline-none transition-all duration-150"
                                     value="{{ number_format($category->budget, 2, '.', '') }}"
-                                    wire:change="updateCategoryBudget($event.target.value, '{{ $category->id }}')" />
+                                    wire:change="updateCategoryBudget($event.target.value, '{{ $category->id }}')"
+                                    aria-label="{{ __('Category budget') }}" />
                             </div>
                         </td>
                         <td class="px-2">
@@ -79,6 +88,7 @@
                                     wire:key="category-form-{{ $category->id }}" :edition="true" />
                                 <button wire:click="deleteCategory('{{ $category->id }}')"
                                     class="p-2 hover:text-danger-500 rounded-full hover:bg-danger-50 transition-colors duration-150 cursor-pointer"
+                                    aria-label="{{ __('Delete this category') }}"
                                     title="Supprimer cette catégorie">
                                     <flux:icon.trash class="w-5 h-5" variant="micro" />
                                 </button>
@@ -97,17 +107,17 @@
             <div class="col-span-1">
                 <div class="flex justify-center">
                     <input type="color" wire:model.defer="newColor"
-                        class="w-10 h-10 rounded cursor-pointer border border-zinc-300" />
+                        class="w-10 h-10 rounded cursor-pointer border border-zinc-300" aria-label="{{ __('New category color') }}" />
                 </div>
             </div>
             <div class="col-span-5">
                 <flux:input type="text" wire:model.defer="newName" placeholder="Nom de la catégorie"
-                    class="w-full" />
+                    class="w-full" aria-label="{{ __('New category name') }}" />
             </div>
             <div class="col-span-4">
                 <div class="relative">
                     <flux:input type="number" wire:model.defer="newBudget" placeholder="0.00" step="1"
-                        class="w-full" />
+                        class="w-full" aria-label="{{ __('New category budget') }}" />
                 </div>
             </div>
             <div class="col-span-2">

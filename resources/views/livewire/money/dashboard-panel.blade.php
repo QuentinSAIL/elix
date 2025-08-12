@@ -1,6 +1,6 @@
-<div wire:click="edit">
+<div wire:click="edit" role="button" tabindex="0" aria-label="{{ __('Edit panel') }} {{ $title }}">
     <h2 class="text-2xl font-bold mb-8">{{ $title }}</h2>
-    <canvas wire:ignore id="{{ $panel->id }}"></canvas>
+    <canvas wire:ignore id="{{ $panel->id }}" aria-label="{{ __('Chart displaying ') }} {{ $title }}"></canvas>
 </div>
 
 <script>

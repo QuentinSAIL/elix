@@ -1,6 +1,10 @@
 <div>
     <flux:modal.trigger name="category-form-{{ $categoryId }}" id="category-form-{{ $categoryId }}"
-        class="w-full h-full flex items-center justify-center cursor-pointer">
+        class="w-full h-full flex items-center justify-center cursor-pointer"
+        role="button"
+        tabindex="0"
+        aria-label="{{ $edition ? __('Edit category') : __('Create category') }}"
+    >
         @if ($edition)
             <div class="group p-2 rounded-lg">
                 <flux:icon.pencil-square class="cursor-pointer" variant="micro" />
@@ -68,8 +72,8 @@
                                 <div class="flex items-center space-x-2 p-4 bg-custom rounded-lg">
                                     <flux:input :placeholder="__('Ex: Carrefour, Netflix, EDF')"
                                         wire:model.lazy="categoryMatchForm.{{ $index }}.keyword"
-                                        class="flex-1 !focus:outline-none" />
-                                    <button wire:click="removeCategoryMatch({{ $index }})" class="p-1">
+                                        class="flex-1 !focus:outline-none" aria-label="{{ __('Keyword') }}" />
+                                    <button wire:click="removeCategoryMatch({{ $index }})" class="p-1" aria-label="{{ __('Remove this keyword') }}">
                                         <flux:icon.trash class="cursor-pointer text-danger-500 w-5 h-5"
                                             title="{{ __('Supprimer ce mot-clé') }}" />
                                     </button>

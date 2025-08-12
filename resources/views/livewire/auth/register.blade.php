@@ -54,7 +54,7 @@
     </form>
 
     @if ($errors->has('registration'))
-        <div class="text-center text-sm text-red-600 dark:text-red-400">
+        <div class="text-center text-sm text-red-600 dark:text-red-400" role="alert">
             {{ $errors->first('registration') }}
         </div>
     @endif

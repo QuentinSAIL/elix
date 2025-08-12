@@ -10,6 +10,7 @@
                         class="text-lg font-bold input-none w-full mr-2 bg-transparent focus:outline-none"
                         value="{{ $account->name }}"
                         wire:change="updateAccountName('{{ $account->id }}', $event.target.value)"
+                        aria-label="{{ __('Account name') }}"
                     />
                     <img
                         src="{{ $account->logo }}"

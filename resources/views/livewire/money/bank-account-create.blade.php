@@ -1,6 +1,6 @@
 <div>
     <flux:modal.trigger name="create-bank-account" id="create-bank-account">
-        <div class="bg-custom-accent shadow-md rounded-lg p-4 w-full h-full cursor-pointer hover flex items-center justify-center">
+        <div class="bg-custom-accent shadow-md rounded-lg p-4 w-full h-full cursor-pointer hover flex items-center justify-center" role="button" tabindex="0" aria-label="{{ __('Add new bank account') }}">
             <span class="m-1">
                 {{ __('Add new bank account') }}
             </span>
@@ -19,7 +19,7 @@
                     {{-- champ de recherche --}}
                     <input type="text" wire:model.live.debounce.300ms="searchTerm"
                         placeholder="Rechercher une banque…"
-                        class="w-full px-4 py-2 mb-4 border rounded outline-none" />
+                        class="w-full px-4 py-2 mb-4 border rounded outline-none" aria-label="{{ __('Search for a bank') }}" />
 
                     {{-- conteneur des résultats --}}
                     <div class="bg-custom rounded-lg shadow max-h-64 overflow-y-auto">

@@ -215,10 +215,10 @@
                                                 wire:key="task-form-{{ $task->id }}" />
                                             <flux:icon.trash class="cursor-pointer ml-2" variant="micro"
                                                 wire:click="deleteTask('{{ $task->id }}')"
-                                                wire:key="delete-task-{{ $task->id }}" />
+                                                wire:key="delete-task-{{ $task->id }}" role="button" tabindex="0" aria-label="{{ __('Delete task') }}" />
                                             <flux:icon.document-duplicate class="cursor-pointer ml-2" variant="micro"
                                                 wire:click="duplicateTask('{{ $task->id }}')"
-                                                wire:key="duplicate-task-{{ $task->id }}" />
+                                                wire:key="duplicate-task-{{ $task->id }}" role="button" tabindex="0" aria-label="{{ __('Duplicate task') }}" />
                                         </div>
                                     @endif
                                 </div>
@@ -234,7 +234,7 @@
                                     @endif
                                     <div class="ml-auto my-auto flex items-center">
                                         @if ($currentTaskIndex === null && !$isFinished)
-                                            <button type="button" class="drag-handle cursor-move">
+                                            <button type="button" class="drag-handle cursor-move" aria-label="{{ __('Reorder task') }}">
                                                 <flux:icon.bars-4 class="" />
                                             </button>
                                         @endif
@@ -260,7 +260,7 @@
 
                 @if ($currentTaskIndex === null && !$isFinished)
                     <div
-                        class="bg-custom-accent hover:bg-custom-accent/70 p-4 rounded-md border-2 border-dashed flex items-center justify-center text-center cursor-pointer transition-all">
+                        class="bg-custom-accent hover:bg-custom-accent/70 p-4 rounded-md border-2 border-dashed flex items-center justify-center text-center cursor-pointer transition-all" role="button" tabindex="0" aria-label="{{ __('Add new task') }}">
                         <livewire:routine-task.form :routine="$routine" wire:key="task-form-create" />
                     </div>
                 @endif

@@ -1,7 +1,11 @@
 <div>
     {{-- Modal de création --}}
     <flux:modal.trigger name="task-form-{{ $taskId }}" id="task-form-{{ $taskId }}"
-        class="w-full h-full flex items-center justify-center cursor-pointer">
+        class="w-full h-full flex items-center justify-center cursor-pointer"
+        role="button"
+        tabindex="0"
+        aria-label="{{ $edition ? __('Edit task') : __('Create task') }}"
+    >
         @if ($edition)
             <span class="flex items-center justify-center space-x-2">
                 <flux:icon.pencil-square class="cursor-pointer ml-2" variant="micro" />
