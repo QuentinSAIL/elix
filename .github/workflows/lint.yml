@@ -2,13 +2,9 @@ name: linter
 
 on:
   push:
-    branches:
-      - develop
-      - main
+    branches: [ develop, main ]
   pull_request:
-    branches:
-      - develop
-      - main
+    branches: [ develop, main ]
 
 permissions:
   contents: write
@@ -36,11 +32,12 @@ jobs:
       - name: Run Pint
         run: vendor/bin/pint
 
-      # - name: Commit Changes
-      #   uses: stefanzweifel/git-auto-commit-action@v5
-      #   with:
-      #     commit_message: fix code style
-      #     commit_options: '--no-verify'
-      #     file_pattern: |
-      #       **/*
-      #       !.github/workflows/*
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --memory-limit=4G
+
+      - name: Commit Pint Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: apply Pint code style fixes"
+          branch: ${{ github.head_ref || github.ref_name }}
+          file_pattern: '*.php'
