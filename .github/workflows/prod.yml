@@ -1,4 +1,3 @@
-# .github/workflows/release-prod.yml
 name: Release → Prod Deploy
 
 on:

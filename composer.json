@@ -19,6 +19,7 @@
     "sinnbeck/markdom": "^2.1"
   },
   "require-dev": {
+    "barryvdh/laravel-debugbar": "^3.16",
     "davidbadura/faker-markdown-generator": "^1.1",
     "fakerphp/faker": "^1.23",
     "larastan/larastan": "^3.6",
