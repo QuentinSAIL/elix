@@ -23,3 +23,5 @@ yarn-error.log
 /.zed
 /coverage
 /.phpunit.result.cache
+/storage/debugbar/
+/storage/debugbar-*
