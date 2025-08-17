@@ -1,9 +1,8 @@
-# .github/workflows/ci-preprod.yml
 name: CI + Preprod Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [develop]
   pull_request:
     branches: [develop, main]
 
