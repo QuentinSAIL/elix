@@ -8,12 +8,12 @@
     >
         @if ($edition)
             <span class="flex items-center justify-center space-x-2">
-                <flux:icon.pencil-square class="cursor-pointer ml-2" variant="micro" />
+                <flux:icon.pencil-square class="cursor-pointer ml-2" variant="micro" aria-hidden="true" />
             </span>
         @else
             <span class="flex items-center justify-center space-x-2 rounded-lg">
                 <span>{{ __('Create') }}</span>
-                <flux:icon.plus variant="micro" />
+                <flux:icon.plus variant="micro" aria-hidden="true" />
             </span>
         @endif
     </flux:modal.trigger>

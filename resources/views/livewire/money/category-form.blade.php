@@ -7,12 +7,12 @@
     >
         @if ($edition)
             <div class="group p-2 rounded-lg">
-                <flux:icon.pencil-square class="cursor-pointer" variant="micro" />
+                <flux:icon.pencil-square class="cursor-pointer" variant="micro" aria-hidden="true" />
             </div>
         @else
             <span class="flex items-center justify-center space-x-2 py-2 px-4">
                 <span>{{ __('Créer une catégorie') }}</span>
-                <flux:icon.plus variant="micro" />
+                <flux:icon.plus variant="micro" aria-hidden="true" />
             </span>
         @endif
     </flux:modal.trigger>
@@ -44,7 +44,7 @@
                     <flux:switch :label="__('Inclure dans les statistiques')"
                         wire:model.lazy="categoryForm.include_in_dashboard" />
                     <div class="ml-2 text-sm text-zinc-500">
-                        <flux:icon.information-circle class="inline-block w-4 h-4" />
+                        <flux:icon.information-circle class="inline-block w-4 h-4" aria-hidden="true" />
                         {{ __('Les catégories actives apparaissent dans les graphiques et analyses') }}
                     </div>
                 </div>
@@ -53,10 +53,10 @@
             <div class="space-y-4 p-4 bg-custom-accent rounded-lg">
                 <div class="flex items-center justify-between">
                     <flux:heading size="lg">{{ __('Correspondance des transactions') }}</flux:heading>
-                    <button wire:click="addCategoryMatch"
+                    <button type="button" wire:click="addCategoryMatch"
                         class="flex items-center space-x-1 text-sm bg-custom px-3 py-1 rounded-md hover:bg-custom-accent">
                         <span>{{ __('Ajouter un mot-clé') }}</span>
-                        <flux:icon.plus class="w-4 h-4" />
+                        <flux:icon.plus class="w-4 h-4" aria-hidden="true" />
                     </button>
                 </div>
 
@@ -75,7 +75,7 @@
                                         class="flex-1 !focus:outline-none" aria-label="{{ __('Keyword') }}" />
                                     <button wire:click="removeCategoryMatch({{ $index }})" class="p-1" aria-label="{{ __('Remove this keyword') }}">
                                         <flux:icon.trash class="cursor-pointer text-danger-500 w-5 h-5"
-                                            title="{{ __('Supprimer ce mot-clé') }}" />
+                                            title="{{ __('Supprimer ce mot-clé') }}" aria-hidden="true" />
                                     </button>
                                 </div>
                             @endforeach
@@ -90,7 +90,7 @@
                 @if ($this->getHasMatchChangesProperty())
                     <div class="mt-4 p-4 bg-custom rounded-lg">
                         <div class="flex items-start space-x-3 mb-3">
-                            <flux:icon.information-circle class="w-5 h-5 mt-0.5 flex-shrink-0" />
+                            <flux:icon.information-circle class="w-5 h-5 mt-0.5 flex-shrink-0" aria-hidden="true" />
                             <div class="text-sm">
                                 <p class="font-medium mb-1">
                                     {{ __('Modifications détectées dans les correspondances') }}</p>
@@ -102,26 +102,15 @@
 
                         <div class="pl-8 space-y-3">
                             <div class="flex items-center justify-between p-2 bg-custom-accent rounded-md">
-                                <div>
-                                    <flux:switch wire:model.lazy="applyMatch" id="apply-match" />
-                                    <label for="apply-match" class="ml-2 text-sm font-medium cursor-pointer">
-                                        {{ __('Appliquer aux transactions existantes') }}
-                                    </label>
+                                    <flux:switch wire:model.lazy="applyMatch" id="apply-match" :label="__('Appliquer aux transactions existantes')" />
+                                    <flux:icon.arrow-path class="w-4 h-4" aria-hidden="true" />
                                 </div>
-                                <flux:icon.arrow-path class="w-4 h-4" />
-                            </div>
 
                             @if ($applyMatch)
                                 <div class="flex items-center justify-between p-2 bg-custom-accent rounded-md">
-                                    <div>
-                                        <flux:switch wire:model.lazy="applyMatchToAlreadyCategorized"
-                                            id="apply-match-categorized" />
-                                        <label for="apply-match-categorized"
-                                            class="ml-2 text-sm font-medium cursor-pointer">
-                                            {{ __('Écraser les catégories existantes') }}
-                                        </label>
-                                    </div>
-                                    <flux:icon.document-duplicate class="w-4 h-4 " />
+                                    <flux:switch wire:model.lazy="applyMatchToAlreadyCategorized"
+                                        id="apply-match-categorized" :label="__('Écraser les catégories existantes')" />
+                                    <flux:icon.document-duplicate class="w-4 h-4 " aria-hidden="true" />
                                 </div>
                             @endif
 

@@ -4,6 +4,9 @@
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-800">
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:inline-block focus:h-auto focus:w-auto focus:border focus:border-white focus:bg-zinc-900 focus:p-4">
+            {{ __('Skip to main content') }}
+        </a>
         <flux:sidebar sticky stashable class="border-r border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" aria-label="{{ __('Close menu') }}" />
 
@@ -70,7 +73,7 @@
                     <flux:menu.separator />
 
                     <flux:menu.radio.group>
-                        <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                        <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:navlist.item>
                     </flux:menu.radio.group>
 
                     <flux:menu.separator />
@@ -136,7 +139,7 @@
             </flux:dropdown>
         </flux:header>
 
-        {{ $slot }}
+            {{ $slot }}
         <script src="https://SortableJS.github.io/Sortable/Sortable.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         @fluxScripts

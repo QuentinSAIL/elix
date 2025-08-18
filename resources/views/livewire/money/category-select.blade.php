@@ -42,7 +42,6 @@
                     <datalist id="categories-list">
                         @foreach ($categories as $category)
                             <option value="{{ $category->name }}"></option>
-                            j
                         @endforeach
                     </datalist>
 

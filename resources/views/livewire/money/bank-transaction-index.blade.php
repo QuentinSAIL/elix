@@ -7,7 +7,7 @@
         <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-3 mt-4 md:mt-0">
             <div class="relative flex-grow">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <flux:icon.magnifying-glass class="h-5 w-5 text-grey" />
+                    <flux:icon.magnifying-glass class="h-5 w-5 text-grey" aria-hidden="true" />
                 </span>
 
                 <input wire:model.live.debounce.500ms="search" x-on:click.stop placeholder="Rechercher..."
@@ -22,7 +22,7 @@
 
     <div class="mt-6 border-b border-zinc-200 dark:border-zinc-700 overflow-x-auto pb-1">
         <nav class="flex space-x-4">
-            <button wire:click="updateSelectedAccount('all')"
+            <button type="button" wire:click="updateSelectedAccount('all')"
                 class="px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors
                     {{ $allAccounts ? 'selected' : '' }}">
                 Tous les comptes
@@ -32,7 +32,7 @@
             </button>
 
             @foreach ($accounts as $acct)
-                <button wire:click="updateSelectedAccount('{{ $acct->id }}')"
+                <button type="button" wire:click="updateSelectedAccount('{{ $acct->id }}')"
                     class="px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors flex items-center
                         {{ $selectedAccount && $selectedAccount->id === $acct->id ? 'selected' : '' }}">
                     @if ($acct->logo)
@@ -94,11 +94,12 @@
                             <th wire:click="sortBy('bank_account_id')"
                                 class="px-4 py-3 text-left text-xs font-medium sticky top-0 w-32"
                                 aria-sort="{{ $sortField === 'bank_account_id' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                                role="button" tabindex="0"
                             >
                                 <div class="flex items-center">
                                     <span>Compte</span>
                                     @if ($sortField === 'bank_account_id')
-                                        <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                             @if ($sortDirection === 'asc')
                                                 <path fill-rule="evenodd"
                                                     d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
@@ -117,11 +118,12 @@
                         <th wire:click="sortBy('description')"
                             class="px-4 py-3 text-left text-xs font-medium sticky top-0 w-3/5"
                             aria-sort="{{ $sortField === 'description' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                            role="button" tabindex="0"
                         >
                             <div class="flex items-center">
                                 <span>Description</span>
                                 @if ($sortField === 'description')
-                                    <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         @if ($sortDirection === 'asc')
                                             <path fill-rule="evenodd"
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
@@ -139,11 +141,12 @@
                         <th wire:click="sortBy('transaction_date')"
                             class="px-4 py-3 text-center text-xs font-medium sticky top-0 w-1/12"
                             aria-sort="{{ $sortField === 'transaction_date' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                            role="button" tabindex="0"
                         >
                             <div class="flex items-center justify-center">
                                 <span>Date</span>
                                 @if ($sortField === 'transaction_date')
-                                    <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         @if ($sortDirection === 'asc')
                                             <path fill-rule="evenodd"
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
@@ -161,11 +164,12 @@
                         <th wire:click="sortBy('money_category_id')"
                             class="px-4 py-3 text-center text-xs font-medium sticky top-0 w-1/5"
                             aria-sort="{{ $sortField === 'money_category_id' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                            role="button" tabindex="0"
                         >
                             <div class="flex items-center justify-center">
                                 <span>Catégorie</span>
                                 @if ($sortField === 'money_category_id')
-                                    <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         @if ($sortDirection === 'asc')
                                             <path fill-rule="evenodd"
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
@@ -183,11 +187,12 @@
                         <th wire:click="sortBy('amount')"
                             class="px-4 py-3 text-right text-xs font-medium sticky top-0 w-1/12"
                             aria-sort="{{ $sortField === 'amount' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                            role="button" tabindex="0"
                         >
                             <div class="flex items-center justify-end">
                                 <span>Montant</span>
                                 @if ($sortField === 'amount')
-                                    <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         @if ($sortDirection === 'asc')
                                             <path fill-rule="evenodd"
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
@@ -211,7 +216,7 @@
                                 <td class="px-4 py-3 whitespace-nowrap text-sm">
                                     <div class="flex items-center">
                                         @if ($tx->account->logo)
-                                            <img src="{{ $tx->account->logo }}" alt="Logo"
+                                            <img src="{{ $tx->account->logo }}" alt="{{ $tx->account->name }} logo"
                                                 class="w-5 h-5 mr-2 flex-shrink-0">
                                         @endif
                                         <span class="truncate max-w-[120px]">{{ $tx->account->name }}</span>
@@ -243,7 +248,7 @@
                             <td colspan="{{ $allAccounts ? 5 : 4 }}" class="px-4 py-8 text-center text-sm text-grey" role="status">
                                 <div class="flex flex-col items-center justify-center">
                                     <svg class="h-12 w-12 text-grey" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
+                                        stroke="currentColor" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
                                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                     </svg>
@@ -263,7 +268,7 @@
         <div class="bg-custom-ultra rounded-none px-4 py-3 border-t text-center" role="status">
             <div class="text-sm text-grey-accent flex items-center justify-center"><svg
                     class="animate-spin -ml-1 mr-3 h-5 w-5 text-color" xmlns="http://www.w3.org/2000/svg"
-                    fill="none" viewBox="0 0 24 24">
+                    fill="none" viewBox="0 0 24 24" aria-hidden="true">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                         stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor"

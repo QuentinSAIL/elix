@@ -10,12 +10,12 @@
             @if ($edition)
                 <span class="flex items-center justify-center space-x-2">
                     <span>{{ __('Edit') }}</span>
-                    <flux:icon.pencil-square variant="micro" />
+                    <flux:icon.pencil-square variant="micro" aria-hidden="true" />
                 </span>
             @else
                 <span class="flex items-center justify-center space-x-2 rounded-lg">
                     <span>{{ __('Create') }}</span>
-                    <flux:icon.plus variant="micro" />
+                    <flux:icon.plus variant="micro" aria-hidden="true" />
                 </span>
             @endif
         </div>

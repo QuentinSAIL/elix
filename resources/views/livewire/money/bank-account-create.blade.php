@@ -4,7 +4,7 @@
             <span class="m-1">
                 {{ __('Add new bank account') }}
             </span>
-            <flux:icon.plus class="text-2xl" />
+            <flux:icon.plus class="text-2xl" aria-hidden="true" />
         </div>
     </flux:modal.trigger>
 

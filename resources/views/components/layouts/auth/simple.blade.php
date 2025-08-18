@@ -4,7 +4,10 @@
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-white antialiased dark:bg-linear-to-b dark:from-neutral-950 dark:to-neutral-900">
-        <div class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:inline-block focus:h-auto focus:w-auto focus:border focus:border-white focus:bg-zinc-900 focus:p-4">
+            {{ __('Skip to main content') }}
+        </a>
+        <main id="main-content" class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
             <div class="flex w-full max-w-sm flex-col gap-2">
                 <a href="{{ route('dashboard') }}" class="flex flex-col items-center gap-2 font-medium" wire:navigate>
                         <x-app-logo-icon class="size-32 fill-current text-black dark:text-white" name />
@@ -14,7 +17,7 @@
                     {{ $slot }}
                 </div>
             </div>
-        </div>
+        </main>
         {{-- @fluxScripts --}}
     </body>
 </html>

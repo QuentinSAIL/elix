@@ -15,15 +15,15 @@
                     @close-all.window="open = false">
                     <div class="relative">
                         <button @click="open = !open" class="cursor-pointer rounded-lg" aria-label="{{ __('Routine options') }}" aria-haspopup="true" x-bind:aria-expanded="open">
-                            <flux:icon.ellipsis-vertical />
+                            <flux:icon.ellipsis-vertical aria-hidden="true" />
                         </button>
                         <div x-show="open" @click.away="open = false" @keydown.escape.window="open = false" @click.stop
                             class="absolute right-0 mt-2 w-32 bg-custom-accent rounded-lg shadow-lg z-10" wire:ignore>
                             <livewire:routine.form :routine="$routine" :wire:key="'routine-form-'.$routine->id" lazy />
-                            <button wire:click="delete('{{ $routine->id }}')" @click="open = false"
+                            <button type="button" wire:click="delete('{{ $routine->id }}')" @click="open = false"
                                 class="block w-full px-2 py-2 text-sm text-danger-500 hover rounded-b-lg" aria-label="{{ __('Delete routine') }}">
                                 {{ __('Delete') }} <span class="inline-flex items-center ml-2">
-                                    <flux:icon.trash variant="micro" />
+                                    <flux:icon.trash variant="micro" aria-hidden="true" />
                                 </span>
                             </button>
                         </div>

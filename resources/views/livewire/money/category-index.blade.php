@@ -22,6 +22,7 @@
                 <tr>
                     <th wire:click="sortBy('color')" class="px-4 w-30 cursor-pointer group"
                         aria-sort="{{ $sortField === 'color' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                        role="button" tabindex="0"
                     >
                         <div class="flex items-center space-x-1">
                             <span>Couleur</span>
@@ -32,6 +33,7 @@
                     </th>
                     <th wire:click="sortBy('name')" class="px-4 py-3 cursor-pointer group"
                         aria-sort="{{ $sortField === 'name' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                        role="button" tabindex="0"
                     >
                         <div class="flex items-center space-x-1">
                             <span>Nom</span>
@@ -42,6 +44,7 @@
                     </th>
                     <th wire:click="sortBy('budget')" class="px-4 py-4 cursor-pointer text-right group"
                         aria-sort="{{ $sortField === 'budget' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                        role="button" tabindex="0"
                     >
                         <div class="flex items-center justify-end space-x-1">
                             <span>Budget</span>
@@ -86,11 +89,11 @@
                             <div class="flex items-center justify-center space-x-2">
                                 <livewire:money.category-form :category="$category"
                                     wire:key="category-form-{{ $category->id }}" :edition="true" />
-                                <button wire:click="deleteCategory('{{ $category->id }}')"
+                                <button type="button" wire:click="deleteCategory('{{ $category->id }}')"
                                     class="p-2 hover:text-danger-500 rounded-full hover:bg-danger-50 transition-colors duration-150 cursor-pointer"
                                     aria-label="{{ __('Delete this category') }}"
                                     title="Supprimer cette catégorie">
-                                    <flux:icon.trash class="w-5 h-5" variant="micro" />
+                                    <flux:icon.trash class="w-5 h-5" variant="micro" aria-hidden="true" />
                                 </button>
                             </div>
                         </td>
@@ -124,7 +127,7 @@
                 <flux:button wire:click="addCategory" wire:keydown.enter="addCategory" variant="primary"
                     class="w-full shadow-sm hover:shadow-md transition-shadow">
                     <span class="flex items-center justify-center">
-                        <flux:icon.plus class="w-4 h-4 mr-1" />
+                        <flux:icon.plus class="w-4 h-4 mr-1" aria-hidden="true" />
                         Ajouter
                     </span>
                 </flux:button>
