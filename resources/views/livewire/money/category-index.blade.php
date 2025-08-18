@@ -2,14 +2,14 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
         <div class="mb-8">
             <h3 class="text-2xl font-semibold">
-                Gestion des catégories
+                {{ __('Manage categories') }}
             </h3>
             <p class="text-sm text-grey-inverse mt-1">
-                Gérez vos catégories de dépenses et leurs budgets associés
+                {{ __('Manage your expense categories and budgets') }}
             </p>
         </div>
         <div class="bg-custom-accent rounded-lg p-4 flex flex-col items-end shadow-sm lg:-mt-12">
-            <span class="text-sm text-grey-inverse">Budget total</span>
+            <span class="text-sm text-grey-inverse">{{ __('Total budget') }}</span>
             <span class="text-xl font-bold custom">{{ number_format($categories->sum('budget'), 2, ',', ' ') }}
                 €</span>
         </div>
@@ -25,7 +25,7 @@
                         role="button" tabindex="0"
                     >
                         <div class="flex items-center space-x-1">
-                            <span>Couleur</span>
+                            <span>{{ __('Color') }}</span>
                             @if ($sortField === 'color')
                                 <x-atoms.sort-direction :sortDirection="$sortDirection" />
                             @endif
@@ -36,7 +36,7 @@
                         role="button" tabindex="0"
                     >
                         <div class="flex items-center space-x-1">
-                            <span>Nom</span>
+                            <span>{{ __('Name') }}</span>
                             @if ($sortField === 'name')
                                 <x-atoms.sort-direction :sortDirection="$sortDirection" />
                             @endif
@@ -47,14 +47,14 @@
                         role="button" tabindex="0"
                     >
                         <div class="flex items-center justify-end space-x-1">
-                            <span>Budget</span>
+                            <span>{{ __('Budget') }}</span>
                             @if ($sortField === 'budget')
                                 <x-atoms.sort-direction :sortDirection="$sortDirection" />
                             @endif
                         </div>
                     </th>
                     <th class="px-4 py-4 w-28 text-center">
-                        Actions
+                        {{ __('Actions') }}
                     </th>
                 </tr>
             </thead>
@@ -92,7 +92,7 @@
                                 <button type="button" wire:click="deleteCategory('{{ $category->id }}')"
                                     class="p-2 hover:text-danger-500 rounded-full hover:bg-danger-50 transition-colors duration-150 cursor-pointer"
                                     aria-label="{{ __('Delete this category') }}"
-                                    title="Supprimer cette catégorie">
+                                    title="{{ __('Delete this category') }}">
                                     <flux:icon.trash class="w-5 h-5" variant="micro" aria-hidden="true" />
                                 </button>
                             </div>
@@ -133,7 +133,7 @@
                         <button type="button" wire:click="deleteCategory('{{ $category->id }}')"
                             class="p-2 hover:text-danger-500 rounded-full hover:bg-danger-50 transition-colors duration-150 cursor-pointer"
                             aria-label="{{ __('Delete this category') }}"
-                            title="Supprimer cette catégorie">
+                            title="{{ __('Delete this category') }}">
                             <flux:icon.trash class="w-5 h-5" variant="micro" aria-hidden="true" />
                         </button>
                     </div>
@@ -144,7 +144,7 @@
 
     <div
         class="mt-6 p-6 rounded-lg border-2 border-dashed border-grey-accent bg-custom-accent bg-opacity-50 shadow-sm hover:shadow-md transition-shadow">
-        <h4 class="font-medium mb-6 text-grey">Ajouter une nouvelle catégorie</h4>
+        <h4 class="font-medium mb-6 text-grey">{{ __('Add a new category') }}</h4>
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
             <div class="col-span-12 sm:col-span-1">
                 <div class="flex justify-center">
@@ -153,7 +153,7 @@
                 </div>
             </div>
             <div class="col-span-12 sm:col-span-5">
-                <flux:input type="text" wire:model.defer="newName" placeholder="Nom de la catégorie"
+                <flux:input type="text" wire:model.defer="newName" placeholder="{{ __('Category name') }}"
                     class="w-full" aria-label="{{ __('New category name') }}" />
             </div>
             <div class="col-span-12 sm:col-span-4">
@@ -167,7 +167,7 @@
                     class="w-full shadow-sm hover:shadow-md transition-shadow">
                     <span class="flex items-center justify-center">
                         <flux:icon.plus class="w-4 h-4 mr-1" aria-hidden="true" />
-                        Ajouter
+                        {{ __('Add') }}
                     </span>
                 </flux:button>
             </div>

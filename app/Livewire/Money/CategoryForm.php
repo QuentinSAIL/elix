@@ -2,11 +2,12 @@
 
 namespace App\Livewire\Money;
 
-use App\Models\MoneyCategoryMatch;
 use Flux\Flux;
-use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\Attributes\On;
+use Masmerise\Toaster\Toaster;
+use App\Models\MoneyCategoryMatch;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryForm extends Component
 {
@@ -182,7 +183,7 @@ class CategoryForm extends Component
                     'existing' => $collision['existing'],
                 ]);
             }
-            $this->dispatch('show-toast', type: 'error', message: implode(' ', $messages));
+            Toaster::error(implode(' ', $messages));
 
             return;
         }
@@ -247,7 +248,7 @@ class CategoryForm extends Component
                     $transactionEdited += MoneyCategoryMatch::searchAndApplyMatchCategory($match['keyword'], $this->applyMatchToAlreadyCategorized);
                 }
             }
-            $this->dispatch('show-toast', type: 'success', message: 'Category applied to all matching transactions ('.$transactionEdited.')');
+            Toaster::success(__('Category applied to all matching transactions ('.$transactionEdited.')'));
         }
     }
 

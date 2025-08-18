@@ -41,8 +41,9 @@ test('can switch to supported language', function () {
     $testLang = array_key_first($supportedLocales);
 
     Livewire::test(LanguageSwitcher::class)
-        ->call('switchTo', $testLang)
-        ->assertSet('locale', $testLang);
+            ->call('switchTo', $testLang);
+
+    $this->assertEquals($testLang, $this->user->preference()->first()->locale);
 
     $this->assertEquals($testLang, App::getLocale());
     $this->assertEquals($testLang, Session::get('locale'));
@@ -54,10 +55,7 @@ test('cannot switch to unsupported language', function () {
 
     Livewire::test(LanguageSwitcher::class, ['supportedLocales' => $supportedLocales])
         ->call('switchTo', 'unsupported')
-        ->assertSet('locale', $originalLocale)
-        ->assertDispatched('show-toast', function (string $eventName, array $params) {
-            return $params['type'] === 'error' && str_contains($params['message'], 'Language not supported.');
-        });
+        ->assertSet('locale', $originalLocale);
 
     $this->assertEquals($originalLocale, App::getLocale());
 });

@@ -1,7 +1,7 @@
 <div class="p-6 rounded-lg">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
         <h3 class="text-2xl font-semibold">
-            Transactions bancaires
+            {{ __('Bank transactions') }}
         </h3>
 
         <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-3 mt-4 md:mt-0">
@@ -10,12 +10,12 @@
                     <flux:icon.magnifying-glass class="h-5 w-5 text-grey" aria-hidden="true" />
                 </span>
 
-                <input wire:model.live.debounce.500ms="search" x-on:click.stop placeholder="Rechercher..."
+                <input wire:model.live.debounce.500ms="search" x-on:click.stop placeholder="{{ __('Search...') }}"
                     class="pl-10 pr-4 py-2 input-neutral border rounded-lg w-full md:w-64 text-sm" aria-label="{{ __('Search transactions') }}" />
             </div>
 
             <flux:button wire:click="getTransactions" variant="primary" class="">
-                {{ __('Actualiser') }}
+                {{ __('Refresh') }}
             </flux:button>
         </div>
     </div>
@@ -25,7 +25,7 @@
             <button type="button" wire:click="updateSelectedAccount('all')"
                 class="px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors
                     {{ $allAccounts ? 'selected' : '' }}">
-                Tous les comptes
+                {{ __('All accounts') }}
                 <span class="ml-1 text-xs font-normal text-grey-inverse">
                     ({{ $user->bankTransactions()->count() }})
                 </span>
@@ -50,12 +50,10 @@
     <div class="mt-4 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
             <h4 class="text-lg font-medium">
-                {{ $selectedAccount->name ?? 'Tous les comptes bancaires' }}
+                {{ $selectedAccount->name ?? __('All bank accounts') }}
             </h4>
             <p class="mt-1 text-sm text-grey-inverse">
-                {{ count($transactions) }} transactions affichées sur
-                {{ count($selectedAccount->transactions ?? $user->bankTransactions()->get()) }} au total,
-                Solde : <span class="font-medium">
+                {{ __(':countDisplayed transactions shown out of :countTotal total, Balance:', ['countDisplayed' => count($transactions), 'countTotal' => count($selectedAccount->transactions ?? $user->bankTransactions()->get())]) }} <span class="font-medium">
                     {{ number_format($selectedAccount->balance ?? $user->sumBalances(), 2, ',', ' ') }}
                     €</span>
             </p>
@@ -63,17 +61,17 @@
 
         <div class="mt-3 md:mt-0 flex space-x-2">
             <select wire:model.live="categoryFilter" class="px-3 py-2 rounded-lg text-sm bg-custom-accent" aria-label="{{ __('Filter by category') }}">
-                <option value="">Toutes catégories</option>
+                <option value="">{{ __('All categories') }}</option>
                 @foreach ($categories as $category)
                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                 @endforeach
             </select>
 
             <select wire:model.live="dateFilter" class="px-3 py-2 rounded-lg text-sm bg-custom-accent" aria-label="{{ __('Filter by date') }}">
-                <option value="all">Toutes dates</option>
-                <option value="current_month">Mois courant</option>
-                <option value="last_month">Mois dernier</option>
-                <option value="current_year">Année courante</option>
+                <option value="all">{{ __('All dates') }}</option>
+                <option value="current_month">{{ __('Current month') }}</option>
+                <option value="last_month">{{ __('Last month') }}</option>
+                <option value="current_year">{{ __('Current year') }}</option>
             </select>
         </div>
     </div>
@@ -97,7 +95,7 @@
                                 role="button" tabindex="0"
                             >
                                 <div class="flex items-center">
-                                    <span>Compte</span>
+                                    <span>{{ __('Account') }}</span>
                                     @if ($sortField === 'bank_account_id')
                                         <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                             @if ($sortDirection === 'asc')
@@ -121,7 +119,7 @@
                             role="button" tabindex="0"
                         >
                             <div class="flex items-center">
-                                <span>Description</span>
+                                <span>{{ __('Description') }}</span>
                                 @if ($sortField === 'description')
                                     <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         @if ($sortDirection === 'asc')
@@ -144,7 +142,7 @@
                             role="button" tabindex="0"
                         >
                             <div class="flex items-center justify-center">
-                                <span>Date</span>
+                                <span>{{ __('Date') }}</span>
                                 @if ($sortField === 'transaction_date')
                                     <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         @if ($sortDirection === 'asc')
@@ -167,7 +165,7 @@
                             role="button" tabindex="0"
                         >
                             <div class="flex items-center justify-center">
-                                <span>Catégorie</span>
+                                <span>{{ __('Category') }}</span>
                                 @if ($sortField === 'money_category_id')
                                     <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         @if ($sortDirection === 'asc')
@@ -190,7 +188,7 @@
                             role="button" tabindex="0"
                         >
                             <div class="flex items-center justify-end">
-                                <span>Montant</span>
+                                <span>{{ __('Amount') }}</span>
                                 @if ($sortField === 'amount')
                                     <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         @if ($sortDirection === 'asc')
@@ -252,9 +250,9 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
                                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                     </svg>
-                                    <p class="mt-2">Aucune transaction trouvée.</p>
+                                    <p class="mt-2">{{ __('No transactions found.') }}</p>
                                     @if ($search)
-                                        <p class="mt-1 text-grey">Essayez de modifier vos critères de recherche.
+                                        <p class="mt-1 text-grey">{{ __('Try changing your search criteria.') }}
                                         </p>
                                     @endif
                                 </div>
@@ -275,7 +273,7 @@
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                     </path>
                 </svg>
-                Chargement des transactions...
+                {{ __('Loading transactions...') }}
             </div>
         </div>
     </div>

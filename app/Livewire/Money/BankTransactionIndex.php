@@ -78,9 +78,9 @@ class BankTransactionIndex extends Component
             if ($responses) {
                 foreach ($responses as $response) {
                     if (isset($response['status']) && $response['status'] === 'error') {
-                        $this->dispatch('show-toast', type: 'error', message: $response['message']);
+                        Toaster::error($response['message']);
                     } else {
-                        $this->dispatch('show-toast', type: 'success', message: $response['message']);
+                        Toaster::success($response['message']);
                     }
                 }
             }

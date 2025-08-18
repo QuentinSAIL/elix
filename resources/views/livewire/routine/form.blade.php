@@ -36,7 +36,7 @@
             </div>
 
             {{-- Nom & Description --}}
-            <flux:input :label="__('Name of the routine')" placeholder="Routine matinal"
+            <flux:input :label="__('Name of the routine')" :placeholder="__('Routine matinal')"
                 wire:model.lazy="routineForm.name" />
             <flux:textarea :label="__('Description (optional)')" wire:model.lazy="routineForm.description" />
 

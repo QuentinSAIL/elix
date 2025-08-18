@@ -2,37 +2,68 @@
 
 namespace App\Livewire\Settings;
 
+use Livewire\Component;
+use App\Models\UserPreference;
+use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
-use Livewire\Component;
 
 class LanguageSwitcher extends Component
 {
-    public string $locale;
+    public $user;
 
-    public array $supportedLocales;
+    public $userPreference;
+
+    public $locale;
+
+    public $supportedLocales;
 
     public function mount()
     {
-        // $this->locale = App::getLocale();
-        $this->locale = Session::get('locale', App::getLocale());
-        if (! isset($this->supportedLocales)) {
-            $this->supportedLocales = config('app.supported_locales');
+        $this->supportedLocales = config('app.supported_locales');
+
+        if (! is_array($this->supportedLocales) || empty($this->supportedLocales)) {
+            $this->supportedLocales = ['en' => 'English'];
         }
-        if (! in_array($this->locale, array_keys($this->supportedLocales))) {
-            $this->locale = array_key_first($this->supportedLocales);
+
+        $this->user = auth()->user();
+
+        $candidate = null;
+        if ($this->user) {
+            /** @var \App\Models\UserPreference|null $persistedPref */
+            $persistedPref = $this->user->preference()->first();
+            $candidate = $persistedPref?->locale;
+            $this->userPreference = $this->user->preference()->firstOrNew(['user_id' => $this->user->id]);
         }
+        if (! $candidate) {
+            $candidate = Session::get('locale', App::getLocale());
+        }
+
+        if (! array_key_exists((string) $candidate, $this->supportedLocales)) {
+            $candidate = array_key_first($this->supportedLocales);
+        }
+
+        $this->locale = $candidate;
     }
 
     public function switchTo(string $lang)
     {
-        if (array_key_exists($lang, $this->supportedLocales)) {
-            App::setLocale($lang);
-            Session::put('locale', $lang);
-            $this->locale = $lang;
-            $this->dispatch('show-toast', type: 'info', message: __('Language switched successfully to '.$lang));
-        } else {
-            $this->dispatch('show-toast', type: 'error', message: 'Language not supported.');
+        if (! array_key_exists($lang, $this->supportedLocales)) {
+            Toaster::error(__('Language not supported.'));
+            return;
         }
+
+        App::setLocale($lang);
+        $this->locale = $lang;
+        if ($this->user) {
+            $pref = $this->user->preference()->firstOrNew(['user_id' => $this->user->id]);
+            $pref->locale = $lang;
+            $pref->save();
+            $this->userPreference = $pref;
+        }
+        Session::put('locale', $lang);
+
+        Toaster::success(__('Language switched successfully to ') . $this->supportedLocales[$lang]);
+        return $this->redirect(route('settings.preference'));
     }
 }

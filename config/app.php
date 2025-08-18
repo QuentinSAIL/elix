@@ -118,7 +118,7 @@ return [
     |
     */
 
-    'supported_locales' => ['en' => 'english', 'fr' => 'français', 'es' => 'español', 'de' => 'deutsch'],
+        'supported_locales' => ['en' => 'english', 'fr' => 'français', 'es' => 'español', 'de' => 'deutsch', 'it' => 'italiano'],
     'locale' => 'fr',
     'fallback_locale' => 'en',
 

@@ -9,7 +9,7 @@ use App\Livewire\Money\Dashboard;
 use App\Livewire\Note\Index as NoteIndex;
 use App\Livewire\Routine\Index as RoutineIndex;
 use App\Livewire\Settings\ApiKey;
-use App\Livewire\Settings\Appearance;
+use App\Livewire\Settings\Preference;
 use App\Livewire\Settings\Modules;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -38,7 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::group(['prefix' => 'settings'], function () {
         Route::get('profile', Profile::class)->name('settings.profile');
         Route::get('password', Password::class)->name('settings.password');
-        Route::get('appearance', Appearance::class)->name('settings.appearance');
+        Route::get('preference', Preference::class)->name('settings.preference');
         Route::get('api-keys', ApiKey::class)->name('settings.api-keys');
         Route::get('modules', Modules::class)->name('settings.modules');
     });

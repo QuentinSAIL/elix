@@ -49,6 +49,7 @@ class Show extends Component
             $this->note = $this->user->notes()->create([
                 'content' => $this->markdownContent,
             ]);
+            $this->dispatch('note-created', $this->note->id);
             Toaster::success(__('Note created successfully.'));
         }
 

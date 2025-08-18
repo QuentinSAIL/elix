@@ -155,7 +155,6 @@ class Form extends Component
 
     public function save()
     {
-        // règles de validation
         $rules = [
             'routineForm.name' => 'required|string|max:255',
             'routineForm.is_active' => 'boolean',

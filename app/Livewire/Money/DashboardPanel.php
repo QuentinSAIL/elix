@@ -37,7 +37,7 @@ class DashboardPanel extends Component
     public function mount()
     {
         $this->user = Auth::user();
-        $this->title = $this->panel->title ?? 'Dashboard Panel';
+        $this->title = $this->panel->title ?? __('Dashboard');
         $this->isExpensePanel = $this->panel->is_expense ?? true; // Set isExpensePanel based on panel property
 
         $this->categories = $this->panel->categories()->get()->pluck('id')->toArray();
@@ -49,14 +49,11 @@ class DashboardPanel extends Component
 
     public function prepareChartData()
     {
-        // Filter transactions based on panel type (expenses or income)
         $filteredTransactions = $this->transactions->filter(function ($transaction) {
-            // First filter by expense/income type
             $amountCondition = $this->isExpensePanel
             ? (float) $transaction->amount < 0 // Only negative values for expenses
             : (float) $transaction->amount > 0; // Only positive values for income
 
-            // Then exclude uncategorized transactions if displayUncategorized is false
             if (! $this->displayUncategorized && ! $transaction->category) {
                 return false;
             }
@@ -64,7 +61,6 @@ class DashboardPanel extends Component
             return $amountCondition;
         });
 
-        // Use safe fallback for category names
         $this->labels = $filteredTransactions
             ->map(function ($transaction) {
                 return $transaction->category ? $transaction->category->name : 'Uncategorized';
@@ -73,7 +69,6 @@ class DashboardPanel extends Component
             ->values()
             ->toArray();
 
-        // Group by category name with fallback using filtered transactions
         $this->values = $filteredTransactions
             ->groupBy(function ($transaction) {
                 return $transaction->category ? $transaction->category->name : 'Uncategorized';
@@ -84,7 +79,6 @@ class DashboardPanel extends Component
             ->values()
             ->toArray();
 
-        // Get colors for categories
         foreach ($this->labels as $label) {
             $category = MoneyCategory::where('name', $label)->first();
             $this->colors[] = $category ? $category->color : '#CCCCCC'; // Default color for uncategorized

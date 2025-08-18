@@ -1,6 +1,6 @@
 <?php
 
-use App\Livewire\Settings\Appearance;
+use App\Livewire\Settings\Preference;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -12,7 +12,7 @@ beforeEach(function () {
     $this->actingAs($this->user);
 });
 
-test('appearance component can be rendered', function () {
-    Livewire::test(Appearance::class)
+test('preference component can be rendered', function () {
+    Livewire::test(Preference::class)
         ->assertStatus(200);
 });

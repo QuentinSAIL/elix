@@ -47,7 +47,7 @@
 
                     @if (!$alreadyExists)
                         <flux:text class="mt-4 mb-3 text-gray-400" role="status">
-                            La catégorie {{ $selectedCategory }} n'existe pas encore.
+                            {{ __('The category :name does not exist yet.', ['name' => $selectedCategory]) }}
                         </flux:text>
 
                         <div class="space-y-6">
@@ -59,7 +59,7 @@
                         wire:model.lazy="addOtherTransactions" />
 
                     @if ($addOtherTransactions)
-                        <flux:input :label="__('Keyword to match')" placeholder="Payment Amazon"
+                        <flux:input :label="__('Keyword to match')" placeholder="{{ __('Example: Amazon payment') }}"
                             wire:model.lazy="keyword" />
                     @endif
 

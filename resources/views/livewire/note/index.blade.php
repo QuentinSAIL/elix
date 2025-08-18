@@ -14,7 +14,7 @@
                 <button type="button" wire:click.stop="delete('{{ $note->id }}')"
                     class="icon-danger absolute top-2 right-2"
                     aria-label="{{ __('Delete this note') }}"
-                    title="Supprimer cette catégorie">
+                    title="{{ __('Delete this note') }}">
                     <flux:icon.trash class="w-5 h-5" variant="micro" aria-hidden="true" />
                 </button>
                 <p class="mt-2 text-sm">

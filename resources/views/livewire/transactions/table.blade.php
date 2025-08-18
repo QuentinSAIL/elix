@@ -7,9 +7,9 @@
         </div>
 
         <div class="hidden sm:grid grid-cols-12 bg-zinc-800 px-4 py-3 rounded-2xl text-xs sm:text-sm" id="table-header">
-            <div class="col-span-8">Transaction</div>
-            <div class="col-span-2">Catégorie</div>
-            <div class="col-span-2 text-end">Montant</div>
+            <div class="col-span-8">{{ __('Transaction') }}</div>
+            <div class="col-span-2">{{ __('Category') }}</div>
+            <div class="col-span-2 text-end">{{ __('Amount') }}</div>
         </div>
 
         <div class="space-y-6" id="day-transactions-list">
@@ -23,7 +23,7 @@
                         @foreach ($day['transactions'] as $transaction)
                             <div class="p-4 border-b border-zinc-700 grid grid-cols-12 gap-2 sm:gap-4" id="transaction">
                                 <div class="col-span-12 sm:col-span-8">{{$transaction->description}}</div>
-                                <div class="col-span-6 sm:col-span-2">categorie 1</div>
+                                <div class="col-span-6 sm:col-span-2">{{ __('Category 1') }}</div>
                                 <div class="col-span-6 sm:col-span-2 text-right sm:text-end {{ $transaction->amount > 0 ? 'text-green-500' : 'text-red-500' }}">@euro($transaction->amount)</div>
                             </div>
                         @endforeach

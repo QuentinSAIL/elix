@@ -18,7 +18,7 @@
                 <div class="w-full max-w-md mx-auto">
                     {{-- champ de recherche --}}
                     <input type="text" wire:model.live.debounce.300ms="searchTerm"
-                        placeholder="Rechercher une banque…"
+                        placeholder="{{ __('Search for a bank') }}"
                         class="w-full px-4 py-2 mb-4 border rounded outline-none" aria-label="{{ __('Search for a bank') }}" />
 
                     {{-- conteneur des résultats --}}

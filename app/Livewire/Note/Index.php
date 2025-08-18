@@ -3,9 +3,10 @@
 namespace App\Livewire\Note;
 
 use App\Models\Note;
-use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\Attributes\On;
+use Masmerise\Toaster\Toaster;
+use Illuminate\Support\Facades\Auth;
 
 class Index extends Component
 {
@@ -36,6 +37,7 @@ class Index extends Component
         }
     }
 
+    #[On('note-created')]
     public function selectNote($noteId)
     {
         if (! $noteId) {
@@ -50,13 +52,13 @@ class Index extends Component
     {
         if ($r = Note::where('user_id', $this->user->id)->find($id)) {
             $r->delete();
-            $this->dispatch('show-toast', type: 'success', message: __('Note deleted successfully.'));
+            Toaster::success(__('Note deleted successfully.'));
             $this->notes = $this->notes->filter(fn ($n) => $n->id !== $id);
             if ($this->selectedNote && $this->selectedNote->id === $id) {
                 $this->selectedNote = null;
             }
         } else {
-            $this->dispatch('show-toast', type: 'error', message: __('Note not found.'));
+            Toaster::error(__('Note not found.'));
         }
     }
 

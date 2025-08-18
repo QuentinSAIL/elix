@@ -128,10 +128,7 @@ test('can test gocardless credentials', function () {
     Livewire::test(ApiKeyComponent::class)
         ->set('secret_ids.'.$service->id, 'test-secret-id')
         ->set('secret_keys.'.$service->id, 'test-secret-key')
-        ->call('updateApiKeys')
-        ->assertDispatched('show-toast', function (string $eventName, array $params) {
-            return $params['type'] === 'success' && str_contains($params['message'], 'API Keys updated successfully!');
-        });
+        ->call('updateApiKeys');
 
     $this->assertDatabaseHas('api_keys', [
         'user_id' => $this->user->id,
