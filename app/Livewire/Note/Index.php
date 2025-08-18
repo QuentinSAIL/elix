@@ -3,10 +3,10 @@
 namespace App\Livewire\Note;
 
 use App\Models\Note;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class Index extends Component
 {

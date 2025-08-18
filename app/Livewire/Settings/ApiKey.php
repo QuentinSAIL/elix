@@ -2,11 +2,11 @@
 
 namespace App\Livewire\Settings;
 
-use Livewire\Component;
 use App\Models\ApiService;
-use Masmerise\Toaster\Toaster;
-use Illuminate\Support\Facades\Auth;
 use App\Services\GoCardlessDataService;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class ApiKey extends Component
 {

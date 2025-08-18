@@ -2,11 +2,10 @@
 
 namespace App\Livewire\Settings;
 
-use Livewire\Component;
-use App\Models\UserPreference;
-use Masmerise\Toaster\Toaster;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
+use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class LanguageSwitcher extends Component
 {
@@ -50,6 +49,7 @@ class LanguageSwitcher extends Component
     {
         if (! array_key_exists($lang, $this->supportedLocales)) {
             Toaster::error(__('Language not supported.'));
+
             return;
         }
 
@@ -63,7 +63,8 @@ class LanguageSwitcher extends Component
         }
         Session::put('locale', $lang);
 
-        Toaster::success(__('Language switched successfully to ') . $this->supportedLocales[$lang]);
+        Toaster::success(__('Language switched successfully to ').$this->supportedLocales[$lang]);
+
         return $this->redirect(route('settings.preference'));
     }
 }

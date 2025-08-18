@@ -41,7 +41,7 @@ test('can switch to supported language', function () {
     $testLang = array_key_first($supportedLocales);
 
     Livewire::test(LanguageSwitcher::class)
-            ->call('switchTo', $testLang);
+        ->call('switchTo', $testLang);
 
     $this->assertEquals($testLang, $this->user->preference()->first()->locale);
 
