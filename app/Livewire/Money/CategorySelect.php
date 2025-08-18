@@ -97,7 +97,7 @@ class CategorySelect extends Component
         $this->dispatch('transactions-edited');
 
         if ($this->transaction) {
-            Flux::modals()->close('transaction-form-'.$this->transaction->id);
+            Flux::modals()->close('category-form-'.$this->transaction->id);
         }
         Toaster::success('Category saved successfully');
     }

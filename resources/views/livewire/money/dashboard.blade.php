@@ -1,7 +1,7 @@
     <div class="flex flex-row flex-wrap gap-4">
         @if ($moneyDashboardPanels)
             @foreach ($moneyDashboardPanels as $moneyDashboardPanel)
-                <div class="p-8 w-1/3 h-full bg-custom-accent flex flex-col">
+                <div class="p-8 w-full sm:w-1/2 lg:w-1/3 h-full bg-custom-accent flex flex-col">
                     <div class="ml-auto">
                         <span class="flex items-center justify-center space-x-2">
                             <flux:icon.trash class="cursor-pointer"
@@ -17,7 +17,7 @@
             @endforeach
         @endif
         <div
-            class="p-8 w-1/3 h-full hover bg-custom-accent cursor-pointer flex flex-row items-center justify-center gap-2" role="button" tabindex="0" aria-label="{{ __('Add new panel') }}">
+            class="p-8 w-full sm:w-1/2 lg:w-1/3 h-full hover bg-custom-accent cursor-pointer flex flex-row items-center justify-center gap-2" role="button" tabindex="0" aria-label="{{ __('Add new panel') }}">
             <livewire:money.dashboard-panel-form wire:key="panel-form-create" :moneyDashboard="$moneyDashboard" />
         </div>
     </div>

@@ -68,6 +68,6 @@
         @endforeach
 
         <!-- Formulaire d’ajout -->
-        <livewire:money.bank-account-create wire:key="create-bank-account" class="w-2/5" />
+        <livewire:money.bank-account-create wire:key="create-bank-account" class="w-full sm:w-1/2 lg:w-1/3" />
     </div>
 </div>

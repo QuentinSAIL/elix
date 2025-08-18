@@ -1,7 +1,7 @@
 <div class="">
-    <div class="flex flex-row gap-4 overflow-x-scroll py-4 h-48">
+    <div class="flex flex-row gap-4 overflow-x-auto py-4 h-48">
         <div
-            class="flex-shrink-0 w-1/4 bg-custom-accent p-6 shadow-sm hover transition-shadow flex items-center justify-center cursor-pointer" role="button" tabindex="0" aria-label="{{ __('Add new routine') }}">
+            class="flex-shrink-0 w-4/5 sm:w-1/2 lg:w-1/4 bg-custom-accent p-6 shadow-sm hover transition-shadow flex items-center justify-center cursor-pointer" role="button" tabindex="0" aria-label="{{ __('Add new routine') }}">
             <div>
                 <livewire:routine.form wire:key="routine-form-create" />
             </div>
@@ -9,7 +9,7 @@
 
         {{-- Liste des routines existantes --}}
         @forelse($routines as $routine)
-            <div class="flex-shrink-0 w-1/4 bg-custom-accent p-6 shadow-sm hover relative cursor-pointer {{ $selectedRoutine?->id === $routine->id ? 'border-color' : '' }}"
+            <div class="flex-shrink-0 w-4/5 sm:w-1/2 lg:w-1/4 bg-custom-accent p-6 shadow-sm hover relative cursor-pointer {{ $selectedRoutine?->id === $routine->id ? 'border-color' : '' }}"
                 wire:click="selectRoutine('{{ $routine->id }}')" wire:key="routine-{{ $routine->id }}" role="button" tabindex="0" aria-label="{{ __('Select routine') }} {{ $routine->name }}">
                 <div class="absolute top-4 right-4" x-data="{ open: false }" x-init="$watch('open', value => { if (!value) $dispatch('close-all') })"
                     @close-all.window="open = false">

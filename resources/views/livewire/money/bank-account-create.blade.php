@@ -1,6 +1,6 @@
 <div>
     <flux:modal.trigger name="create-bank-account" id="create-bank-account">
-        <div class="bg-custom-accent shadow-md rounded-lg p-4 w-full h-full cursor-pointer hover flex items-center justify-center" role="button" tabindex="0" aria-label="{{ __('Add new bank account') }}">
+        <div class="bg-custom-accent shadow-md rounded-lg p-4 w-full h-full cursor-pointer hover flex items-center justify-center text-center" role="button" tabindex="0" aria-label="{{ __('Add new bank account') }}">
             <span class="m-1">
                 {{ __('Add new bank account') }}
             </span>
@@ -8,7 +8,7 @@
         </div>
     </flux:modal.trigger>
 
-    <flux:modal name="create-bank-account" class="w-5/6">
+    <flux:modal name="create-bank-account" class="w-11/12 sm:w-5/6 max-w-xl">
         <div class="space-y-6">
             <div>
                 <flux:heading size="2xl">{{ __('Add a bank account') }}</flux:heading>

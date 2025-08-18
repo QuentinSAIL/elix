@@ -1,13 +1,13 @@
 <div id="div-category-form-{{ $modalId }}">
     <flux:modal.trigger name="category-form-{{ $modalId }}" id="category-form-{{ $modalId }}"
-        class="w-full h-full flex items-center justify-center cursor-pointer"
+        class="w-full h-full flex items-center justify-center cursor-pointer px-2"
         role="button"
         tabindex="0"
         aria-label="{{ __('Edit category for transaction') }}"
     >
-        <div class="text-center">
+        <div class="text-center w-full">
             @if ($category)
-                <span class="cursor-pointer">@limit($category->name, 24)</span>
+                <span class="cursor-pointer whitespace-normal break-words">@limit($category->name, 24)</span>
             @else
                 <span class="cursor-pointer">-</span>
             @endif
@@ -25,7 +25,7 @@
                         @else
                             {{ __('Add a category to your transaction') }}
                         @endif
-                        <span class="font-extrabold"> « {{ $transaction->description }} »</span>
+                        <span class="font-extrabold block whitespace-normal break-words"> « {{ $transaction->description }} »</span>
                     </flux:text>
                 @endif
             </div>
