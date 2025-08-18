@@ -53,7 +53,7 @@ class BankTransactionIndex extends Component
     public function mount(): void
     {
         $this->user = Auth::user();
-        if (!isset($this->accounts)) {
+        if (! isset($this->accounts)) {
             $this->accounts = $this->user->bankAccounts;
         }
         $this->categories = MoneyCategory::orderBy('name')->get();

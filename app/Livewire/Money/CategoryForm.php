@@ -7,7 +7,6 @@ use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Masmerise\Toaster\Toaster;
 
 class CategoryForm extends Component
 {

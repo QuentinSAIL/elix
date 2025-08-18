@@ -11,7 +11,7 @@ class RoutineTaskTest extends TestCase
     #[Test]
     public function test_duration_text_returns_correct_format()
     {
-        $task = new RoutineTask();
+        $task = new RoutineTask;
 
         $task->duration = 30;
         $this->assertEquals('30s', $task->durationText());

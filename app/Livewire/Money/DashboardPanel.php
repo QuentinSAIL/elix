@@ -5,7 +5,6 @@ namespace App\Livewire\Money;
 use App\Models\MoneyCategory;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Masmerise\Toaster\Toaster;
 
 class DashboardPanel extends Component
 {

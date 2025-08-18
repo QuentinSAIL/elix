@@ -53,5 +53,4 @@ test('can logout', function () {
 //         // ->assertRedirect(route('dashboard', absolute: false).'?verified=1');
 
 //     $this->assertTrue(!$user->hasVerifiedEmail());
-//});
-
+// });

@@ -6,7 +6,6 @@ use App\Models\ApiService;
 use App\Services\GoCardlessDataService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Masmerise\Toaster\Toaster;
 
 class ApiKey extends Component
 {

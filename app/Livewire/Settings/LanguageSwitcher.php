@@ -5,7 +5,6 @@ namespace App\Livewire\Settings;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
-use Masmerise\Toaster\Toaster;
 
 class LanguageSwitcher extends Component
 {
@@ -17,7 +16,7 @@ class LanguageSwitcher extends Component
     {
         // $this->locale = App::getLocale();
         $this->locale = Session::get('locale', App::getLocale());
-        if (!isset($this->supportedLocales)) {
+        if (! isset($this->supportedLocales)) {
             $this->supportedLocales = config('app.supported_locales');
         }
         if (! in_array($this->locale, array_keys($this->supportedLocales))) {

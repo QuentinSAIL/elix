@@ -56,8 +56,9 @@ class BankAccountCreate extends Component
 
     public function addNewBankAccount(): void
     {
-        if (!isset($this->selectedBank)) {
+        if (! isset($this->selectedBank)) {
             $this->dispatch('error', ['message' => 'Please select a bank.']);
+
             return;
         }
 

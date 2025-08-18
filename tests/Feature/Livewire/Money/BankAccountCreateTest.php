@@ -173,7 +173,6 @@ test('handles bank selection with no logo', function () {
     $this->assertNull($component->get('logo')); // Logo should be null
 });
 
-
 test('handles bank selection with empty search term', function () {
 
     $banks = [
