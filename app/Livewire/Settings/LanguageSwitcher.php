@@ -17,12 +17,12 @@ class LanguageSwitcher extends Component
     {
         // $this->locale = App::getLocale();
         $this->locale = Session::get('locale', App::getLocale());
-        $this->supportedLocales = config('app.supported_locales');
+        if (!isset($this->supportedLocales)) {
+            $this->supportedLocales = config('app.supported_locales');
+        }
         if (! in_array($this->locale, array_keys($this->supportedLocales))) {
             $this->locale = array_key_first($this->supportedLocales);
         }
-
-        dump($this->locale);
     }
 
     public function switchTo(string $lang)
@@ -31,9 +31,9 @@ class LanguageSwitcher extends Component
             App::setLocale($lang);
             Session::put('locale', $lang);
             $this->locale = $lang;
-            Toaster::info(__('Language switched successfully to '.$lang));
+            $this->dispatch('show-toast', type: 'info', message: __('Language switched successfully to '.$lang));
         } else {
-            Toaster::error(__('Language not supported.'));
+            $this->dispatch('show-toast', type: 'error', message: 'Language not supported.');
         }
     }
 }

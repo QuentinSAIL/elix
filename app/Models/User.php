@@ -62,6 +62,11 @@ class User extends Authenticatable
         return Str::of($this->name)->explode(' ')->map(fn (string $name) => Str::of($name)->substr(0, 1))->implode('');
     }
 
+    public function hasVerifiedEmail(): bool
+    {
+        return ! is_null($this->email_verified_at);
+    }
+
     public function modules(): BelongsToMany
     {
         return $this->belongsToMany(Module::class)->withTimestamps();

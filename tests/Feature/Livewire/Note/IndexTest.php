@@ -51,7 +51,10 @@ test('can delete note', function () {
 
 test('handles deleting non-existent note', function () {
     Livewire::test(Index::class)
-        ->call('delete', '00000000-0000-0000-0000-000000000000');
+        ->call('delete', '00000000-0000-0000-0000-000000000000')
+        ->assertDispatched('show-toast', function (string $eventName, array $params) {
+            return $params['type'] === 'error' && str_contains($params['message'], 'Note not found');
+        });
 });
 
 test('can refresh notes after save', function () {

@@ -161,5 +161,6 @@ test('can edit panel', function () {
     $panel = MoneyDashboardPanel::factory()->create(['money_dashboard_id' => $dashboard->id]);
 
     Livewire::test(DashboardPanel::class, ['panel' => $panel])
-        ->call('edit');
+        ->call('edit')
+        ->assertDispatched('edit-panel', $panel->id);
 });

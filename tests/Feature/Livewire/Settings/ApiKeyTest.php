@@ -15,6 +15,10 @@ beforeEach(function () {
     $this->actingAs($this->user);
 });
 
+afterEach(function () {
+    Mockery::close();
+});
+
 test('api key component can be rendered', function () {
     $service = ApiService::factory()->create();
 
@@ -124,5 +128,15 @@ test('can test gocardless credentials', function () {
     Livewire::test(ApiKeyComponent::class)
         ->set('secret_ids.'.$service->id, 'test-secret-id')
         ->set('secret_keys.'.$service->id, 'test-secret-key')
-        ->call('updateApiKeys');
+        ->call('updateApiKeys')
+        ->assertDispatched('show-toast', function (string $eventName, array $params) {
+            return $params['type'] === 'success' && str_contains($params['message'], 'API Keys updated successfully!');
+        });
+
+    $this->assertDatabaseHas('api_keys', [
+        'user_id' => $this->user->id,
+        'api_service_id' => $service->id,
+        'secret_id' => 'test-secret-id',
+        'secret_key' => 'test-secret-key',
+    ]);
 });

@@ -53,7 +53,7 @@ class ApiKey extends Component
                         ['secret_id' => $oldCredentials->secret_id, 'secret_key' => $oldCredentials->secret_key]
                     );
                 }
-                Toaster::error(__('Failed to validate GoCardless credentials. Changes have not been saved.'));
+                $this->dispatch('show-toast', type: 'error', message: __('Failed to validate GoCardless credentials. Changes have not been saved.'));
 
                 return;
             }
@@ -63,7 +63,7 @@ class ApiKey extends Component
             $this->secret_ids[$service->id] = '';
         }
 
-        Toaster::success(__('API Keys updated successfully!'));
+        $this->dispatch('show-toast', type: 'success', message: __('API Keys updated successfully!'));
     }
 
     public function testGoCardless()
@@ -76,7 +76,7 @@ class ApiKey extends Component
     public function deleteApiKeys($serviceId)
     {
         $this->user->apiKeys()->where('api_service_id', $serviceId)->delete();
-        Toaster::success(__('API Key deleted successfully!'));
+        $this->dispatch('show-toast', type: 'success', message: __('API Key deleted successfully!'));
     }
 
     public function render()

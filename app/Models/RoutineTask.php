@@ -40,10 +40,10 @@ class RoutineTask extends Model
 
     public function durationText(): string
     {
-        $seconds = $this->duration;
-        $seconds = $seconds % 60;
-        $minutes = floor($seconds / 60);
-        $hours = floor($minutes / 60);
+        $totalSeconds = $this->duration;
+        $hours = floor($totalSeconds / 3600);
+        $minutes = floor(($totalSeconds % 3600) / 60);
+        $seconds = $totalSeconds % 60;
 
         return ($hours > 0 ? $hours.'h' : '').($minutes > 0 ? $minutes.'m' : '').($seconds > 0 ? $seconds.'s' : '');
     }

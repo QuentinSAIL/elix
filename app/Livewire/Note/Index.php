@@ -51,11 +51,13 @@ class Index extends Component
     {
         if ($r = Note::where('user_id', $this->user->id)->find($id)) {
             $r->delete();
-            Toaster::success(__('Note deleted successfully.'));
+            $this->dispatch('show-toast', type: 'success', message: __('Note deleted successfully.'));
             $this->notes = $this->notes->filter(fn ($n) => $n->id !== $id);
             if ($this->selectedNote && $this->selectedNote->id === $id) {
                 $this->selectedNote = null;
             }
+        } else {
+            $this->dispatch('show-toast', type: 'error', message: __('Note not found.'));
         }
     }
 

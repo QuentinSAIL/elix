@@ -110,7 +110,7 @@ class DashboardPanel extends Component
 
     public function edit()
     {
-        Toaster::info('Editer');
+        $this->dispatch('edit-panel', $this->panel->id);
     }
 
     public function render()

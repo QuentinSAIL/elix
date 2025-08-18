@@ -53,7 +53,9 @@ class BankTransactionIndex extends Component
     public function mount(): void
     {
         $this->user = Auth::user();
-        $this->accounts = $this->user->bankAccounts;
+        if (!isset($this->accounts)) {
+            $this->accounts = $this->user->bankAccounts;
+        }
         $this->categories = MoneyCategory::orderBy('name')->get();
         $this->transactions = new EloquentCollection;
 
@@ -68,7 +70,7 @@ class BankTransactionIndex extends Component
      */
     public function getTransactions(): void
     {
-        $gocardless = new GoCardlessDataService;
+        $gocardless = app(GoCardlessDataService::class);
 
         foreach ($this->accounts as $account) {
             $responses = $account->updateFromGocardless($gocardless);
@@ -76,9 +78,9 @@ class BankTransactionIndex extends Component
             if ($responses) {
                 foreach ($responses as $response) {
                     if (isset($response['status']) && $response['status'] === 'error') {
-                        Toaster::error($response['message'])->duration(30000);
+                        $this->dispatch('show-toast', type: 'error', message: $response['message']);
                     } else {
-                        Toaster::success($response['message'])->duration(30000);
+                        $this->dispatch('show-toast', type: 'success', message: $response['message']);
                     }
                 }
             }
