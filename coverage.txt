@@ -1,30 +1,106 @@
 
 
-[1;37;40mCode Coverage Report:       [0m
-[1;37;40m  2025-08-18 15:07:45       [0m
-[1;37;40m                            [0m
-[1;37;40m Summary:                   [0m
-[37;41m  Classes:  2.08% (1/48)    [0m
-[37;41m  Methods: 15.20% (31/204)  [0m
-[37;41m  Lines:   12.92% (171/1324)[0m
+[1;37;40mCode Coverage Report:        [0m
+[1;37;40m  2025-08-18 15:08:41        [0m
+[1;37;40m                             [0m
+[1;37;40m Summary:                    [0m
+[30;43m  Classes: 70.83% (34/48)    [0m
+[30;43m  Methods: 87.75% (179/204)  [0m
+[30;42m  Lines:   91.60% (1210/1321)[0m
 
+App\Http\Controllers\Auth\VerifyEmailController
+  [37;41mMethods:   0.00% ( 0/ 1)[0m   [30;43mLines:  83.33% (  5/  6)[0m
+App\Http\Middleware\UserHasValidGoCardlessKeys
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  4/  4)[0m
+App\Http\Middleware\UserModule
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  8/  8)[0m
+App\Livewire\Actions\Logout
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  3/  3)[0m
+App\Livewire\Auth\ConfirmPassword
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% ( 12/ 12)[0m
+App\Livewire\Auth\ForgotPassword
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  5/  5)[0m
+App\Livewire\Auth\Login
+  [30;42mMethods: 100.00% ( 3/ 3)[0m   [30;42mLines: 100.00% ( 21/ 21)[0m
+App\Livewire\Auth\Register
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% ( 12/ 12)[0m
+App\Livewire\Auth\ResetPassword
+  [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% ( 22/ 22)[0m
+App\Livewire\Auth\VerifyEmail
+  [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  7/  7)[0m
+App\Livewire\Money\BankAccountCreate
+  [30;42mMethods: 100.00% ( 5/ 5)[0m   [30;42mLines: 100.00% ( 19/ 19)[0m
+App\Livewire\Money\BankAccountIndex
+  [30;42mMethods: 100.00% ( 5/ 5)[0m   [30;42mLines: 100.00% ( 40/ 40)[0m
 App\Livewire\Money\BankTransactionIndex
   [30;43mMethods:  69.23% ( 9/13)[0m   [30;43mLines:  74.36% ( 58/ 78)[0m
+App\Livewire\Money\CategoryForm
+  [30;43mMethods:  77.78% ( 7/ 9)[0m   [30;43mLines:  72.52% ( 95/131)[0m
+App\Livewire\Money\CategoryIndex
+  [30;42mMethods:  90.00% ( 9/10)[0m   [30;42mLines:  96.08% ( 49/ 51)[0m
 App\Livewire\Money\CategorySelect
-  [37;41mMethods:  50.00% ( 2/ 4)[0m   [37;41mLines:  14.63% (  6/ 41)[0m
+  [30;42mMethods: 100.00% ( 4/ 4)[0m   [30;42mLines: 100.00% ( 41/ 41)[0m
+App\Livewire\Money\Dashboard
+  [30;42mMethods: 100.00% ( 3/ 3)[0m   [30;42mLines: 100.00% ( 10/ 10)[0m
+App\Livewire\Money\DashboardPanel
+  [30;43mMethods:  83.33% ( 5/ 6)[0m   [30;42mLines:  97.73% ( 43/ 44)[0m
+App\Livewire\Money\DashboardPanelForm
+  [30;42mMethods: 100.00% ( 5/ 5)[0m   [30;42mLines: 100.00% ( 51/ 51)[0m
+App\Livewire\Note\Index
+  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  95.24% ( 20/ 21)[0m
+App\Livewire\Note\Show
+  [30;42mMethods: 100.00% ( 4/ 4)[0m   [30;42mLines: 100.00% ( 21/ 21)[0m
+App\Livewire\RoutineTask\Form
+  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;43mLines:  82.61% ( 38/ 46)[0m
+App\Livewire\Routine\Form
+  [30;43mMethods:  62.50% ( 5/ 8)[0m   [30;42mLines:  93.91% (108/115)[0m
+App\Livewire\Routine\Index
+  [30;42mMethods: 100.00% ( 5/ 5)[0m   [30;42mLines: 100.00% ( 19/ 19)[0m
+App\Livewire\Routine\Show
+  [30;42mMethods:  92.86% (13/14)[0m   [30;42mLines:  98.00% ( 49/ 50)[0m
+App\Livewire\Settings\ApiKey
+  [30;42mMethods: 100.00% ( 5/ 5)[0m   [30;42mLines: 100.00% ( 33/ 33)[0m
+App\Livewire\Settings\DeleteUserForm
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  7/  7)[0m
+App\Livewire\Settings\LanguageSwitcher
+  [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% ( 11/ 11)[0m
+App\Livewire\Settings\Modules
+  [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  7/  7)[0m
+App\Livewire\Settings\Password
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% ( 12/ 12)[0m
+App\Livewire\Settings\Profile
+  [30;42mMethods: 100.00% ( 3/ 3)[0m   [30;42mLines: 100.00% ( 25/ 25)[0m
+App\Livewire\Transactions\Table
+  [30;42mMethods: 100.00% ( 3/ 3)[0m   [30;42mLines: 100.00% (  5/  5)[0m
 App\Models\ApiKey
-  [37;41mMethods:  50.00% ( 1/ 2)[0m   [37;41mLines:  50.00% (  1/  2)[0m
+  [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  2/  2)[0m
+App\Models\ApiService
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  1/  1)[0m
 App\Models\BankAccount
-  [30;43mMethods:  60.00% ( 3/ 5)[0m   [37;41mLines:  48.39% ( 15/ 31)[0m
+  [30;42mMethods: 100.00% ( 5/ 5)[0m   [30;42mLines: 100.00% ( 31/ 31)[0m
 App\Models\BankTransactions
   [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  2/  2)[0m
+App\Models\Frequency
+  [30;43mMethods:  60.00% ( 3/ 5)[0m   [30;42mLines:  95.83% ( 46/ 48)[0m
+App\Models\Module
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  1/  1)[0m
 App\Models\MoneyCategory
-  [37;41mMethods:  50.00% ( 2/ 4)[0m   [30;43mLines:  71.43% (  5/  7)[0m
+  [30;43mMethods:  75.00% ( 3/ 4)[0m   [30;43mLines:  85.71% (  6/  7)[0m
 App\Models\MoneyCategoryMatch
-  [37;41mMethods:  50.00% ( 3/ 6)[0m   [30;43mLines:  61.29% ( 19/ 31)[0m
+  [30;42mMethods: 100.00% ( 6/ 6)[0m   [30;42mLines: 100.00% ( 31/ 31)[0m
+App\Models\MoneyDashboard
+  [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  2/  2)[0m
+App\Models\MoneyDashboardPanel
+  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  94.34% ( 50/ 53)[0m
+App\Models\Note
+  [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  5/  5)[0m
+App\Models\Routine
+  [30;42mMethods: 100.00% ( 4/ 4)[0m   [30;42mLines: 100.00% (  7/  7)[0m
+App\Models\RoutineTask
+  [30;42mMethods: 100.00% ( 3/ 3)[0m   [30;42mLines: 100.00% ( 11/ 11)[0m
 App\Models\User
-  [37;41mMethods:  40.00% ( 6/15)[0m   [37;41mLines:  50.00% (  9/ 18)[0m
+  [30;42mMethods: 100.00% (15/15)[0m   [30;42mLines: 100.00% ( 18/ 18)[0m
 App\Providers\AppServiceProvider
-  [37;41mMethods:  50.00% ( 1/ 2)[0m   [37;41mLines:  50.00% (  6/ 12)[0m
+  [37;41mMethods:  50.00% ( 1/ 2)[0m   [30;42mLines:  91.67% ( 11/ 12)[0m
 App\Services\GoCardlessDataService
-  [37;41mMethods:  15.38% ( 2/13)[0m   [37;41mLines:  32.68% ( 50/153)[0m
+  [30;43mMethods:  61.54% ( 8/13)[0m   [30;43mLines:  82.35% (126/153)[0m
