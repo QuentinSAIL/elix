@@ -183,7 +183,7 @@ class CategoryForm extends Component
                     'existing' => $collision['existing'],
                 ]);
             }
-            Toaster::error(implode(' ', $messages), ['duration' => 60]);
+            Toaster::error(implode(' ', $messages));
 
             return;
         }
@@ -248,7 +248,7 @@ class CategoryForm extends Component
                     $transactionEdited += MoneyCategoryMatch::searchAndApplyMatchCategory($match['keyword'], $this->applyMatchToAlreadyCategorized);
                 }
             }
-            Toaster::success('Category applied to all matching transactions ('.$transactionEdited.')');
+            Toaster::success(__('Category applied to all matching transactions ('.$transactionEdited.')'));
         }
     }
 

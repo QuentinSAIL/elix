@@ -29,24 +29,24 @@
                     @endif
 
                     <div class="flex items-center gap-2">
-                        <flux:icon.clock class="text-elix" />
+                        <flux:icon.clock class="text-elix" aria-hidden="true" />
                         <span>{{ __('Total duration') }}: {{ gmdate('H:i:s', $routine->tasks->sum('duration')) }}</span>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <flux:icon.calendar class="text-elix" />
+                        <flux:icon.calendar class="text-elix" aria-hidden="true" />
                         <span>{{ __('Created') }}: {{ $routine->created_at->format('d M Y') }}</span>
                     </div>
 
                     @if ($routine->completed_count > 0)
                         <div class="flex items-center gap-2">
-                            <flux:icon.check-circle class="text-elix" />
+                            <flux:icon.check-circle class="text-elix" aria-hidden="true" />
                             <span>{{ __('Completed') }}: {{ $routine->completed_count }} {{ __('times') }}</span>
                         </div>
 
                         @if ($routine->last_completed_at)
                             <div class="flex items-center gap-2">
-                                <flux:icon.arrow-path class="text-elix" />
+                                <flux:icon.arrow-path class="text-elix" aria-hidden="true" />
                                 <span>{{ __('Last completed') }}:
                                     {{ $routine->last_completed_at->diffForHumans() }}</span>
                             </div>
@@ -56,7 +56,7 @@
 
                 <div class="mt-6">
                     <flux:button wire:click="start" variant="primary" class="w-full">
-                        <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" />
+                        <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" aria-hidden="true" />
                         {{ __('Start Routine') }}
                     </flux:button>
                 </div>
@@ -70,7 +70,7 @@
                     <!-- Celebration animation -->
                     <div class="celebration-icon text-elix mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                            class="w-24 h-24 animate-bounce">
+                            class="w-24 h-24 animate-bounce" aria-hidden="true">
                             <path fill-rule="evenodd"
                                 d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
                                 clip-rule="evenodd" />
@@ -98,7 +98,7 @@
         <!-- Timer view for active task -->
         @if ($currentTaskIndex !== null && !$isFinished)
             <div class="relative w-96 h-96 mx-auto mb-6">
-                <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
+                <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full" aria-hidden="true">
                     <circle cx="50" cy="50" r="45" :stroke-dasharray="circum"
                         :stroke-dashoffset="circum - (percent() / 100) * circum" stroke-linecap="round"
                         class="transform -rotate-90 origin-center stroke-color stroke-4 fill-transparent" />
@@ -129,15 +129,15 @@
             <div class="flex justify-center gap-2">
                 <flux:button wire:click="playPause" variant="primary">
                     @if ($isPaused)
-                        <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" />
+                        <flux:icon.play variant="micro" class="w-5 h-5 inline-block mr-1" aria-hidden="true" />
                         {{ __('Resume') }}
                     @else
-                        <flux:icon.pause variant="micro" class="w-5 h-5 inline-block mr-1" />
+                        <flux:icon.pause variant="micro" class="w-5 h-5 inline-block mr-1" aria-hidden="true" />
                         {{ __('Pause') }}
                     @endif
                 </flux:button>
                 <flux:button wire:click="stop" variant="danger">
-                    <flux:icon.stop variant="micro" class="w-5 h-5 inline-block mr-1" />
+                    <flux:icon.stop variant="micro" class="w-5 h-5 inline-block mr-1" aria-hidden="true" />
                     {{ __('Stop') }}
                 </flux:button>
             </div>
@@ -190,7 +190,7 @@
             <div class="flex items-end justify-end m-4 gap-1">
                 @if ($currentTaskIndex !== null && !$isFinished)
                     <flux:button wire:click="next" variant="primary" class="w-full">
-                        <flux:icon.check variant="micro" class="w-5 h-5 inline-block mr-1" />
+                        <flux:icon.check variant="micro" class="w-5 h-5 inline-block mr-1" aria-hidden="true" />
                         {{ __('Complete Current Task') }}
                     </flux:button>
                 @endif
@@ -215,10 +215,10 @@
                                                 wire:key="task-form-{{ $task->id }}" />
                                             <flux:icon.trash class="cursor-pointer ml-2" variant="micro"
                                                 wire:click="deleteTask('{{ $task->id }}')"
-                                                wire:key="delete-task-{{ $task->id }}" role="button" tabindex="0" aria-label="{{ __('Delete task') }}" />
+                                                wire:key="delete-task-{{ $task->id }}" role="button" tabindex="0" aria-label="{{ __('Delete task') }}" aria-hidden="true" />
                                             <flux:icon.document-duplicate class="cursor-pointer ml-2" variant="micro"
                                                 wire:click="duplicateTask('{{ $task->id }}')"
-                                                wire:key="duplicate-task-{{ $task->id }}" role="button" tabindex="0" aria-label="{{ __('Duplicate task') }}" />
+                                                wire:key="duplicate-task-{{ $task->id }}" role="button" tabindex="0" aria-label="{{ __('Duplicate task') }}" aria-hidden="true" />
                                         </div>
                                     @endif
                                 </div>
@@ -226,7 +226,7 @@
                                 <div class="flex items-center align-middle my-2">
                                     @if ($task->description)
                                         <div class="flex items-center">
-                                            <flux:icon.flag class="text-elix" />
+                                            <flux:icon.flag class="text-elix" aria-hidden="true" />
                                             <span class="mx-2">
                                                 @limit($task->description, 120)
                                             </span>
@@ -235,7 +235,7 @@
                                     <div class="ml-auto my-auto flex items-center">
                                         @if ($currentTaskIndex === null && !$isFinished)
                                             <button type="button" class="drag-handle cursor-move" aria-label="{{ __('Reorder task') }}">
-                                                <flux:icon.bars-4 class="" />
+                                                <flux:icon.bars-4 class="" aria-hidden="true" />
                                             </button>
                                         @endif
                                     </div>
@@ -244,13 +244,13 @@
                         </div>
                         <div class="flex items-center">
                             <div class="flex items-center">
-                                <flux:icon.clock class="" />
+                                <flux:icon.clock class="" aria-hidden="true" />
                                 <span class="ml-2">{{ gmdate('H:i:s', $task->duration) }}</span>
                             </div>
 
                             @if ($loop->index === $currentTaskIndex)
                                 <flux:button wire:click="next" variant="primary" class="ml-auto">
-                                    <flux:icon.arrow-right variant="micro" class="w-5 h-5 inline-block mr-1" />
+                                    <flux:icon.arrow-right variant="micro" class="w-5 h-5 inline-block mr-1" aria-hidden="true" />
                                     {{ __('Complete') }}
                                 </flux:button>
                             @endif

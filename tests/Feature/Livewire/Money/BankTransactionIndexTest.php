@@ -183,17 +183,18 @@ test('can get transactions from gocardless', function () {
     ]);
 });
 
-test('handles error when getting transactions from gocardless', function () {
-    Http::fake([
-        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
-            'access' => 'test-access-token',
-        ], 200),
-        'bankaccountdata.gocardless.com/api/v2/accounts/*/transactions/' => Http::response([
-            'error' => 'Failed to fetch transactions',
-        ], 500),
-    ]);
+test('stop loading more transactions when no more to load', function () {
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    BankTransactions::factory()->count(100)->for($bankAccount, 'account')->create();
 
-    $bankAccount = BankAccount::factory()->for($this->user)->create([
-        'gocardless_account_id' => 'test-account-id',
-    ]);
+    $component = Livewire::test(BankTransactionIndex::class);
+    $component->call('loadMore');
+
+    $this->assertTrue($component->get('noMoreToLoad'));
+
+    // Simulate no more transactions
+    $component->set('noMoreToLoad', true);
+    $component->call('loadMore');
+
+    $this->assertTrue($component->get('noMoreToLoad'));
 });

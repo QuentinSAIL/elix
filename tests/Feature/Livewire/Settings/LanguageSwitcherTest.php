@@ -14,6 +14,10 @@ beforeEach(function () {
     $this->actingAs($this->user);
 });
 
+afterEach(function () {
+    Mockery::close();
+});
+
 test('language switcher component can be rendered', function () {
     Livewire::test(LanguageSwitcher::class)
         ->assertStatus(200);
@@ -37,16 +41,23 @@ test('can switch to supported language', function () {
     $testLang = array_key_first($supportedLocales);
 
     Livewire::test(LanguageSwitcher::class)
-        ->call('switchTo', $testLang)
-        ->assertSet('locale', $testLang);
+        ->call('switchTo', $testLang);
+
+    $this->assertEquals($testLang, $this->user->preference()->first()->locale);
 
     $this->assertEquals($testLang, App::getLocale());
     $this->assertEquals($testLang, Session::get('locale'));
 });
 
 test('cannot switch to unsupported language', function () {
-    Livewire::test(LanguageSwitcher::class)
-        ->call('switchTo', 'unsupported');
+    $originalLocale = App::getLocale();
+    $supportedLocales = ['en' => 'English', 'fr' => 'Français'];
+
+    Livewire::test(LanguageSwitcher::class, ['supportedLocales' => $supportedLocales])
+        ->call('switchTo', 'unsupported')
+        ->assertSet('locale', $originalLocale);
+
+    $this->assertEquals($originalLocale, App::getLocale());
 });
 
 test('handles invalid locale in session', function () {

@@ -56,15 +56,15 @@ class BankAccountCreate extends Component
 
     public function addNewBankAccount(): void
     {
-        if (! $this->selectedBank) {
+        if (! isset($this->selectedBank)) {
+            $this->dispatch('error', ['message' => 'Please select a bank.']);
+
             return;
         }
 
         $service = app(GoCardlessDataService::class);
         $service->addNewBankAccount($this->selectedBank, $this->transactionTotalDays, $this->maxAccessValidForDays, $this->logo);
     }
-
-    public function addNewAccount(): void {}
 
     public function render(): \Illuminate\Contracts\View\View
     {

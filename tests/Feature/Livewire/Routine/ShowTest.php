@@ -165,7 +165,9 @@ test('can duplicate task', function () {
 
 test('can handle task saved event', function () {
     $routine = Routine::factory()->for($this->user)->create();
+    $task = RoutineTask::factory()->for($routine)->create();
 
     Livewire::test(Show::class, ['routine' => $routine])
-        ->call('onTaskSaved');
+        ->call('onTaskSaved')
+        ->assertSee($task->name);
 });

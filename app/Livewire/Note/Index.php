@@ -37,6 +37,7 @@ class Index extends Component
         }
     }
 
+    #[On('note-created')]
     public function selectNote($noteId)
     {
         if (! $noteId) {
@@ -56,6 +57,8 @@ class Index extends Component
             if ($this->selectedNote && $this->selectedNote->id === $id) {
                 $this->selectedNote = null;
             }
+        } else {
+            Toaster::error(__('Note not found.'));
         }
     }
 

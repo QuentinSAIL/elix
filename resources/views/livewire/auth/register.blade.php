@@ -23,7 +23,7 @@
             type="email"
             required
             autocomplete="email"
-            placeholder="email@example.com"
+            :placeholder="__('Email example')"
         />
 
         <!-- Password -->

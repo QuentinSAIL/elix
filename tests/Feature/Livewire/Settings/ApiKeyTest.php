@@ -15,6 +15,10 @@ beforeEach(function () {
     $this->actingAs($this->user);
 });
 
+afterEach(function () {
+    Mockery::close();
+});
+
 test('api key component can be rendered', function () {
     $service = ApiService::factory()->create();
 
@@ -125,4 +129,11 @@ test('can test gocardless credentials', function () {
         ->set('secret_ids.'.$service->id, 'test-secret-id')
         ->set('secret_keys.'.$service->id, 'test-secret-key')
         ->call('updateApiKeys');
+
+    $this->assertDatabaseHas('api_keys', [
+        'user_id' => $this->user->id,
+        'api_service_id' => $service->id,
+        'secret_id' => 'test-secret-id',
+        'secret_key' => 'test-secret-key',
+    ]);
 });

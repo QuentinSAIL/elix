@@ -1,13 +1,13 @@
 <div id="div-category-form-{{ $modalId }}">
     <flux:modal.trigger name="category-form-{{ $modalId }}" id="category-form-{{ $modalId }}"
-        class="w-full h-full flex items-center justify-center cursor-pointer"
+        class="w-full h-full flex items-center justify-center cursor-pointer px-2"
         role="button"
         tabindex="0"
         aria-label="{{ __('Edit category for transaction') }}"
     >
-        <div class="text-center">
+        <div class="text-center w-full">
             @if ($category)
-                <span class="cursor-pointer">@limit($category->name, 24)</span>
+                <span class="cursor-pointer whitespace-normal break-words">@limit($category->name, 24)</span>
             @else
                 <span class="cursor-pointer">-</span>
             @endif
@@ -25,7 +25,7 @@
                         @else
                             {{ __('Add a category to your transaction') }}
                         @endif
-                        <span class="font-extrabold"> « {{ $transaction->description }} »</span>
+                        <span class="font-extrabold block whitespace-normal break-words"> « {{ $transaction->description }} »</span>
                     </flux:text>
                 @endif
             </div>
@@ -42,13 +42,12 @@
                     <datalist id="categories-list">
                         @foreach ($categories as $category)
                             <option value="{{ $category->name }}"></option>
-                            j
                         @endforeach
                     </datalist>
 
                     @if (!$alreadyExists)
                         <flux:text class="mt-4 mb-3 text-gray-400" role="status">
-                            La catégorie {{ $selectedCategory }} n'existe pas encore.
+                            {{ __('The category :name does not exist yet.', ['name' => $selectedCategory]) }}
                         </flux:text>
 
                         <div class="space-y-6">
@@ -60,7 +59,7 @@
                         wire:model.lazy="addOtherTransactions" />
 
                     @if ($addOtherTransactions)
-                        <flux:input :label="__('Keyword to match')" placeholder="Payment Amazon"
+                        <flux:input :label="__('Keyword to match')" placeholder="{{ __('Example: Amazon payment') }}"
                             wire:model.lazy="keyword" />
                     @endif
 

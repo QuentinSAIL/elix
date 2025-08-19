@@ -10,12 +10,12 @@
             @if ($edition)
                 <span class="flex items-center justify-center space-x-2">
                     <span>{{ __('Edit') }}</span>
-                    <flux:icon.pencil-square variant="micro" />
+                    <flux:icon.pencil-square variant="micro" aria-hidden="true" />
                 </span>
             @else
                 <span class="flex items-center justify-center space-x-2 rounded-lg">
                     <span>{{ __('Create') }}</span>
-                    <flux:icon.plus variant="micro" />
+                    <flux:icon.plus variant="micro" aria-hidden="true" />
                 </span>
             @endif
         </div>
@@ -36,7 +36,7 @@
             </div>
 
             {{-- Nom & Description --}}
-            <flux:input :label="__('Name of the routine')" placeholder="Routine matinal"
+            <flux:input :label="__('Name of the routine')" :placeholder="__('Routine matinal')"
                 wire:model.lazy="routineForm.name" />
             <flux:textarea :label="__('Description (optional)')" wire:model.lazy="routineForm.description" />
 

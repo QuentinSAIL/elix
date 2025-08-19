@@ -3,7 +3,7 @@
     'label' => null,
     'options' => [],
     'selected' => [],
-    'placeholder' => 'Rechercher...',
+    'placeholder' => 'Search...',
     'showChips' => true,
 ])
 
@@ -82,7 +82,7 @@
                 </div>
             </template>
             <div x-show="filtered().length === 0" class="px-4 py-3 text-grey text-center italic">
-                Aucun résultat
+                {{ __('No results') }}
             </div>
         </div>
     </div>

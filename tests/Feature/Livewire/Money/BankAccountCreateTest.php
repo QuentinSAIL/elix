@@ -152,3 +152,55 @@ test('handles non-existent bank selection', function () {
     $this->assertEquals('non-existent-bank', $component->get('selectedBank'));
     $this->assertNull($component->get('searchTerm'));
 });
+
+test('handles bank selection with no logo', function () {
+
+    $banks = [
+        [
+            'id' => 'test-bank',
+            'name' => 'Test Bank',
+            'max_access_valid_for_days' => 90,
+            'transaction_total_days' => 30,
+            'logo' => null, // No logo provided
+        ],
+    ];
+
+    $component = Livewire::test(BankAccountCreate::class)
+        ->set('banks', $banks);
+    $component->call('updateSelectedBank', 'test-bank');
+
+    $this->assertEquals('test-bank', $component->get('selectedBank'));
+    $this->assertNull($component->get('logo')); // Logo should be null
+});
+
+test('handles bank selection with empty search term', function () {
+
+    $banks = [
+        [
+            'id' => 'test-bank',
+            'name' => 'Test Bank',
+            'max_access_valid_for_days' => 90,
+            'transaction_total_days' => 30,
+            'logo' => 'test-logo.png',
+        ],
+    ];
+
+    $component = Livewire::test(BankAccountCreate::class)
+        ->set('banks', $banks);
+    $component->call('updateSelectedBank', 'test-bank');
+
+    // Set search term to empty
+    $component->set('searchTerm', '');
+
+    $this->assertEquals('', $component->get('searchTerm'));
+});
+
+test('can not add new bank account without selection', function () {
+
+    $component = Livewire::test(BankAccountCreate::class);
+    $component->set('selectedBank', null); // No bank selected
+
+    $component->call('addNewBankAccount')
+        ->assertDispatched('error', ['message' => 'Please select a bank.']);
+
+});

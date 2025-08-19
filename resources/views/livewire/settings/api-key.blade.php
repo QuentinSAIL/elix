@@ -13,7 +13,7 @@
                         </div>
                         @if ($this->user->hasApiKey($service->id))
                             <div class="relative group ml-2">
-                                <flux:icon.check class="h-5 w-5 text-green-500 mr-2" />
+                                <flux:icon.check class="h-5 w-5 text-green-500 mr-2" aria-hidden="true" />
                                 <div class="absolute hidden group-hover:block bg-custom text-custom-inverse text-xs rounded py-1 px-2 -mt-8 ml-6 w-64">
                                     {{ __('You have already provided the API keys for this service') }}
                                 </div>

@@ -43,3 +43,14 @@ test('can logout', function () {
         ->call('logout')
         ->assertRedirect('/');
 });
+
+// test('can verify email', function () {
+//     $user = User::factory()->unverified()->create();
+
+//     Livewire::actingAs($user)
+//         ->test(VerifyEmail::class);
+//         // ->call('verifyEmail', $user->id)
+//         // ->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+
+//     $this->assertTrue(!$user->hasVerifiedEmail());
+// });
