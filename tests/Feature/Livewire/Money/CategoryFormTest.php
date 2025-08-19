@@ -1,11 +1,14 @@
 <?php
 
 use App\Livewire\Money\CategoryForm;
+use App\Models\BankAccount;
+use App\Models\BankTransactions;
 use App\Models\MoneyCategory;
 use App\Models\MoneyCategoryMatch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Masmerise\Toaster\Toaster;
 
 uses(RefreshDatabase::class);
 
@@ -60,13 +63,22 @@ test('can add category match', function () {
 });
 
 test('can remove category match', function () {
-    Livewire::test(CategoryForm::class)
+    $category = MoneyCategory::factory()->for($this->user)->create();
+    $match = MoneyCategoryMatch::factory()->create([
+        'money_category_id' => $category->id,
+        'user_id' => $this->user->id,
+        'keyword' => 'test1',
+    ]);
+
+    Livewire::test(CategoryForm::class, ['category' => $category])
         ->set('categoryMatchForm', [
-            ['id' => '1', 'category_id' => '1', 'keyword' => 'test1'],
+            ['id' => $match->id, 'category_id' => $category->id, 'keyword' => 'test1'],
             ['id' => '2', 'category_id' => '1', 'keyword' => 'test2'],
         ])
         ->call('removeCategoryMatch', 0)
         ->assertSet('categoryMatchForm.0.keyword', 'test2');
+
+    $this->assertDatabaseMissing('money_category_matches', ['id' => $match->id]);
 });
 
 test('can save new category', function () {
@@ -77,6 +89,9 @@ test('can save new category', function () {
             'color' => '#ff0000',
             'budget' => 100,
             'include_in_dashboard' => true,
+        ])
+        ->set('categoryMatchForm', [
+            ['id' => '', 'category_id' => '', 'keyword' => 'new'],
         ])
         ->call('save');
 
@@ -93,6 +108,9 @@ test('can save existing category', function () {
 
     Livewire::test(CategoryForm::class, ['category' => $category])
         ->set('categoryForm.name', 'Updated Name')
+        ->set('categoryMatchForm', [
+            ['id' => '', 'category_id' => '', 'keyword' => 'new'],
+        ])
         ->call('save');
 
     $category->refresh();
@@ -107,17 +125,25 @@ test('validates required fields', function () {
 });
 
 test('can apply match to existing transactions', function () {
+    Toaster::fake();
     $category = MoneyCategory::factory()->for($this->user)->create();
-    $match = MoneyCategoryMatch::factory()->create([
-        'money_category_id' => $category->id,
-        'user_id' => $this->user->id,
-        'keyword' => 'test',
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    BankTransactions::factory()->create([
+        'bank_account_id' => $bankAccount->id,
+        'description' => 'This is a test transaction',
+        'money_category_id' => null,
     ]);
 
     Livewire::test(CategoryForm::class, ['category' => $category])
+        ->set('categoryMatchForm', [
+            ['id' => '', 'category_id' => '', 'keyword' => 'test'],
+        ])
         ->set('applyMatch', true)
         ->set('applyMatchToAlreadyCategorized', true)
-        ->call('applyMatch');
+        ->call('applyMatch')
+        ->assertDispatched('transactions-edited');
+
+    // Toaster::assertSuccess('Category applied to all matching transactions (1)');
 });
 
 test('can detect match changes', function () {

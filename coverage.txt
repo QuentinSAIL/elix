@@ -1,12 +1,12 @@
 
 
 [1;37;40mCode Coverage Report:        [0m
-[1;37;40m  2025-08-18 22:12:53        [0m
+[1;37;40m  2025-08-19 11:40:21        [0m
 [1;37;40m                             [0m
 [1;37;40m Summary:                    [0m
-[30;43m  Classes: 66.00% (33/50)    [0m
-[30;43m  Methods: 85.51% (177/207)  [0m
-[30;42m  Lines:   90.87% (1234/1358)[0m
+[30;43m  Classes: 68.00% (34/50)    [0m
+[30;43m  Methods: 86.96% (180/207)  [0m
+[30;42m  Lines:   92.23% (1259/1365)[0m
 
 App\Http\Controllers\Auth\VerifyEmailController
   [37;41mMethods:   0.00% ( 0/ 1)[0m   [30;43mLines:  83.33% (  5/  6)[0m
@@ -37,7 +37,7 @@ App\Livewire\Money\BankAccountIndex
 App\Livewire\Money\BankTransactionIndex
   [30;43mMethods:  69.23% ( 9/13)[0m   [30;43mLines:  74.36% ( 58/ 78)[0m
 App\Livewire\Money\CategoryForm
-  [30;43mMethods:  66.67% ( 6/ 9)[0m   [30;43mLines:  70.99% ( 93/131)[0m
+  [30;43mMethods:  88.89% ( 8/ 9)[0m   [30;43mLines:  82.48% (113/137)[0m
 App\Livewire\Money\CategoryIndex
   [30;42mMethods:  90.00% ( 9/10)[0m   [30;42mLines:  96.08% ( 49/ 51)[0m
 App\Livewire\Money\CategorySelect
@@ -51,7 +51,7 @@ App\Livewire\Money\DashboardPanelForm
 App\Livewire\Note\Index
   [30;43mMethods:  60.00% ( 3/ 5)[0m   [30;42mLines:  90.48% ( 19/ 21)[0m
 App\Livewire\Note\Show
-  [30;42mMethods: 100.00% ( 4/ 4)[0m   [30;42mLines: 100.00% ( 21/ 21)[0m
+  [30;42mMethods: 100.00% ( 4/ 4)[0m   [30;42mLines: 100.00% ( 22/ 22)[0m
 App\Livewire\RoutineTask\Form
   [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;43mLines:  82.61% ( 38/ 46)[0m
 App\Livewire\Routine\Form
@@ -93,7 +93,7 @@ App\Models\MoneyCategoryMatch
 App\Models\MoneyDashboard
   [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  2/  2)[0m
 App\Models\MoneyDashboardPanel
-  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;43mLines:  88.68% ( 47/ 53)[0m
+  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  94.34% ( 50/ 53)[0m
 App\Models\Note
   [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  5/  5)[0m
 App\Models\Routine
@@ -102,6 +102,8 @@ App\Models\RoutineTask
   [30;42mMethods: 100.00% ( 3/ 3)[0m   [30;42mLines: 100.00% ( 11/ 11)[0m
 App\Models\User
   [30;42mMethods: 100.00% (16/16)[0m   [30;42mLines: 100.00% ( 19/ 19)[0m
+App\Models\UserPreference
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  1/  1)[0m
 App\Providers\AppServiceProvider
   [37;41mMethods:  50.00% ( 1/ 2)[0m   [30;43mLines:  88.89% ( 16/ 18)[0m
 App\Services\GoCardlessDataService

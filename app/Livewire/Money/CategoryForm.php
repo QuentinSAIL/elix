@@ -147,9 +147,17 @@ class CategoryForm extends Component
             'categoryForm.name' => 'required|string|max:255',
         ];
 
-        $existingKeywords = MoneyCategoryMatch::where('user_id', $this->user->id)
-            ->pluck('keyword')
-            ->toArray();
+        foreach ($this->categoryMatchForm as $index => $match) {
+            $rules['categoryMatchForm.'.$index.'.keyword'] = 'required|string|max:255';
+        }
+
+        $this->validate($rules);
+
+        $query = MoneyCategoryMatch::where('user_id', $this->user->id);
+        if ($this->edition) {
+            $query->where('money_category_id', '!=', $this->category->id);
+        }
+        $existingKeywords = $query->pluck('keyword')->toArray();
 
         $collisions = [];
         foreach ($this->categoryMatchForm as $index => $match) {
@@ -159,19 +167,13 @@ class CategoryForm extends Component
             $keyword = trim($match['keyword']);
             if ($keyword !== '') {
                 foreach ($existingKeywords as $existing) {
-                    if (
-                        stripos($existing, $keyword) !== false ||
-                        stripos($keyword, $existing) !== false
-                    ) {
+                    if ($existing === $keyword) {
                         $collisions[] = [
                             'input' => $keyword,
                             'existing' => $existing,
                         ];
                     }
                 }
-                $rules['categoryMatchForm.'.$index.'.keyword'] = 'required|string|max:255';
-            } else {
-                unset($this->categoryMatchForm[$index]);
             }
         }
 
@@ -188,13 +190,21 @@ class CategoryForm extends Component
             return;
         }
 
-        $this->validate($rules);
+        // Remove empty keywords and re-index after collision check
+        foreach ($this->categoryMatchForm as $index => $match) {
+            if (empty(trim($match['keyword']))) {
+                unset($this->categoryMatchForm[$index]);
+            }
+        }
+        $this->categoryMatchForm = array_values($this->categoryMatchForm);
 
         if ($this->edition) {
             $this->category->update($this->categoryForm);
 
+            $originalKeywords = $this->category->categoryMatches->pluck('keyword')->toArray();
             $newKeywords = array_filter(array_column($this->categoryMatchForm, 'keyword'));
-            $deletedKeywords = array_diff($existingKeywords, $newKeywords);
+            $deletedKeywords = array_diff($originalKeywords, $newKeywords);
+
             foreach ($deletedKeywords as $keyword) {
                 $match = $this->category->categoryMatches()->where('keyword', $keyword)->first();
                 if ($match) {
@@ -249,6 +259,7 @@ class CategoryForm extends Component
                 }
             }
             Toaster::success(__('Category applied to all matching transactions ('.$transactionEdited.')'));
+            $this->dispatch('transactions-edited');
         }
     }
 
