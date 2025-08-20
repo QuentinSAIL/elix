@@ -8,17 +8,17 @@ use Livewire\Component;
 class BankAccountCreate extends Component
 {
     /** @var array<array<string, mixed>> */
-    public array $banks;
+    public array $banks = [];
 
-    public string $selectedBank;
+    public ?string $selectedBank = null;
 
     public ?string $searchTerm = '';
 
-    public int $maxAccessValidForDays;
+    public int $maxAccessValidForDays = 0;
 
-    public int $transactionTotalDays;
+    public int $transactionTotalDays = 0;
 
-    public ?string $logo;
+    public ?string $logo = null;
 
     protected GoCardlessDataService $goCardlessDataService;
 
@@ -51,7 +51,16 @@ class BankAccountCreate extends Component
             return [];
         }
 
-        return collect($this->banks)->filter(fn ($b) => isset($b['name']) && stripos($b['name'], $this->searchTerm) !== false)->values()->toArray();
+        if ($this->searchTerm === null || $this->searchTerm === '') {
+            return $this->banks;
+        }
+
+        return collect($this->banks)
+            ->filter(function ($b) {
+                return isset($b['name']) && stripos($b['name'], (string) $this->searchTerm) !== false;
+            })
+            ->values()
+            ->toArray();
     }
 
     public function addNewBankAccount(): void

@@ -111,7 +111,7 @@
         <div class="flex justify-end">
             <flux:modal.close>
                 <flux:button variant="ghost" class="px-4">
-                    {{ __('Annuler') }}
+                    {{ __('Cancel') }}
                 </flux:button>
             </flux:modal.close>
             <flux:button wire:click="save" variant="primary" wire:keydown.enter="save">

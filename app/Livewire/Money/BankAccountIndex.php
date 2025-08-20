@@ -37,9 +37,9 @@ class BankAccountIndex extends Component
         $account = $this->accounts->find($accountId);
         if ($account) {
             $account->update(['name' => $name]);
-            Toaster::success(__('Bank account updated successfully.'));
+            Toaster::success('Compte bancaire mis à jour avec succès.');
         } else {
-            Toaster::error(__('Bank account not found.'));
+            Toaster::error('Compte bancaire introuvable.');
         }
     }
 
@@ -56,9 +56,9 @@ class BankAccountIndex extends Component
             $account->delete();
             $this->accounts = (new \Illuminate\Database\Eloquent\Collection($this->user->bankAccounts->all()));
             Flux::modals()->close('delete-account-'.$account->id);
-            Toaster::success(__('Bank account deleted successfully.'));
+            Toaster::success('Compte bancaire supprimé avec succès.');
         } else {
-            Toaster::error(__('Bank account not found.'));
+            Toaster::error('Compte bancaire introuvable.');
         }
     }
 
@@ -78,7 +78,7 @@ class BankAccountIndex extends Component
 
             $accountDetails = $goCardlessDataService->getAccountDetails($accountId);
             if (isset($accountDetails['status_code']) && $accountDetails['status_code'] !== 200) {
-                Toaster::error(__('Error fetching account details from GoCardless.'));
+                Toaster::error('Error fetching account details from GoCardless.');
 
                 return;
             }

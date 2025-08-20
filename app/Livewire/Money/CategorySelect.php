@@ -33,6 +33,8 @@ class CategorySelect extends Component
 
     public $modalId;
 
+    public $mobile = false;
+
     public function mount()
     {
         $this->user = Auth::user();
@@ -40,6 +42,7 @@ class CategorySelect extends Component
         $this->selectedCategory = $this->transaction ? $this->transaction->category?->name : null;
         $this->keyword = $this->transaction ? $this->transaction->description : null;
         $this->modalId = $this->transaction ? $this->transaction->id : ($this->selectedCategory ? $this->selectedCategory : 'create-'.Str::random(32));
+        $this->modalId .= $this->mobile ? '-m' : '';
     }
 
     public function updatedSelectedCategory($value)

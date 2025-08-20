@@ -29,12 +29,12 @@
                         </div>
                     </div>
                 </div>
-                <h3 class="text-xl font-semibold">{{ $routine->name }}</h3>
-                <p class="mt-2 text-sm">@limit($routine->description, 120)</p>
+                <h3 class="text-xl font-semibold">@limit($routine->name, 12)</h3>
+                <p class="mt-2 text-sm">@limit($routine->description, 60)</p>
                 @if ($routine->tasks->count())
                     <div class="mt-4 space-y-2">
                         @foreach ($routine->tasks->take(0) as $task)
-                            <div class="rounded-xl p-3">
+                            <div class="rounded-xl py-3">
                                 <h4 class="font">{{ $task->name }}</h4>
                                 <p class="text-sm 0">@limit($task->description, 10)</p>
                             </div>
@@ -49,7 +49,7 @@
         @endforelse
     </div>
     {{-- h-[50vh] --}}
-    <div class="flex-1 ">
+    <div class="flex-1">
         @if ($selectedRoutine)
             <livewire:routine.show :routine="$selectedRoutine" wire:key="routine-show-{{ $selectedRoutine->id }}" />
         @endif
