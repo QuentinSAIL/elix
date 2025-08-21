@@ -173,8 +173,8 @@ class GoCardlessDataService
                 ->get("{$this->baseUrl}/institutions/?country={$country}")
                 ->json();
 
-                return $res ?? [];
-            });
+            return $res ?? [];
+        });
     }
 
     public function getAccountsFromRef($ref)

@@ -45,7 +45,7 @@ class Form extends Component
     public function populateForm()
     {
         if ($this->task) {
-            $this->taskId = $this->task->id . ($this->mobile ? '-m' : '');
+            $this->taskId = $this->task->id.($this->mobile ? '-m' : '');
             $this->edition = true;
             $this->taskForm = [
                 'name' => $this->task->name,
@@ -56,7 +56,7 @@ class Form extends Component
                 'is_active' => $this->task->is_active,
             ];
         } else {
-            $this->taskId = 'create' . ($this->mobile ? '-m' : '');
+            $this->taskId = 'create'.($this->mobile ? '-m' : '');
             $this->edition = false;
             $this->resetForm();
         }

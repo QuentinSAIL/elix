@@ -198,3 +198,54 @@ test('stop loading more transactions when no more to load', function () {
 
     $this->assertTrue($component->get('noMoreToLoad'));
 });
+
+test('can filter transactions by current month', function () {
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    $transactionCurrentMonth = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->startOfMonth(),
+        'description' => 'Current Month Transaction',
+    ]);
+    $transactionLastMonth = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->subMonth()->startOfMonth(),
+        'description' => 'Last Month Transaction',
+    ]);
+
+    Livewire::test(BankTransactionIndex::class)
+        ->set('dateFilter', 'current_month')
+        ->assertSee('Current Month Transaction')
+        ->assertDontSee('Last Month Transaction');
+});
+
+test('can filter transactions by last month', function () {
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    $transactionCurrentMonth = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->startOfMonth(),
+        'description' => 'Current Month Transaction',
+    ]);
+    $transactionLastMonth = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->subMonth()->startOfMonth(),
+        'description' => 'Last Month Transaction',
+    ]);
+
+    Livewire::test(BankTransactionIndex::class)
+        ->set('dateFilter', 'last_month')
+        ->assertSee('Last Month Transaction')
+        ->assertDontSee('Current Month Transaction');
+});
+
+test('can filter transactions by current year', function () {
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    $transactionCurrentYear = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->startOfYear(),
+        'description' => 'Current Year Transaction',
+    ]);
+    $transactionLastYear = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->subYear()->startOfYear(),
+        'description' => 'Last Year Transaction',
+    ]);
+
+    Livewire::test(BankTransactionIndex::class)
+        ->set('dateFilter', 'current_year')
+        ->assertSee('Current Year Transaction')
+        ->assertDontSee('Last Year Transaction');
+});

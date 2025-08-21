@@ -25,7 +25,7 @@ class BankAccountCreate extends Component
     public function mount(): void
     {
         $this->goCardlessDataService = app(GoCardlessDataService::class);
-        $this->banks = $this->goCardlessDataService->getBanks();
+        $this->banks = $this->goCardlessDataService->getBanks() ?? [];
     }
 
     public function updateSelectedBank(string $value): void
@@ -42,25 +42,32 @@ class BankAccountCreate extends Component
         }
     }
 
+    protected function normalize(string $s): string
+    {
+        $s = \Normalizer::normalize($s, \Normalizer::FORM_D);
+        $s = preg_replace('/\p{Mn}+/u', '', $s); // enlève accents
+
+        return mb_strtolower($s);
+    }
+
     /**
      * @return array<array<string, mixed>>
      */
     public function getFilteredBanksProperty(): array
     {
-        if (! $this->banks) {
-            return [];
+        $banks = $this->banks ?? [];
+        $needle = $this->normalize((string) $this->searchTerm);
+
+        if ($needle === '') {
+            return $banks;
         }
 
-        if ($this->searchTerm === null || $this->searchTerm === '') {
-            return $this->banks;
-        }
-
-        return collect($this->banks)
-            ->filter(function ($b) {
-                return isset($b['name']) && stripos($b['name'], (string) $this->searchTerm) !== false;
-            })
+        return collect($banks)
+            ->filter(fn ($b) => isset($b['name']) && str_contains(
+                $this->normalize((string) $b['name']), $needle
+            ))
             ->values()
-            ->toArray();
+            ->all();
     }
 
     public function addNewBankAccount(): void
