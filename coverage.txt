@@ -1,10 +1,30 @@
 
 
-[1;37;40mCode Coverage Report:     [0m
-[1;37;40m  2025-08-21 09:08:44     [0m
-[1;37;40m                          [0m
-[1;37;40m Summary:                 [0m
-[37;41m  Classes:  0.00% (0/50)  [0m
-[37;41m  Methods:  0.00% (0/209) [0m
-[37;41m  Lines:    0.00% (0/1385)[0m
+Code Coverage Report:
+  2025-08-21 10:00:55
 
+ Summary:
+  Classes:  2.00% (1/50)
+  Methods: 16.27% (34/209)
+  Lines:   13.94% (193/1385)
+
+App\Livewire\Money\BankTransactionIndex
+  Methods:  92.31% (12/13)   Lines:  96.15% ( 75/ 78)
+App\Livewire\Money\CategorySelect
+  Methods:  50.00% ( 2/ 4)   Lines:  16.67% (  7/ 42)
+App\Models\ApiKey
+  Methods:  50.00% ( 1/ 2)   Lines:  50.00% (  1/  2)
+App\Models\BankAccount
+  Methods:  60.00% ( 3/ 5)   Lines:  48.39% ( 15/ 31)
+App\Models\BankTransactions
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  2/  2)
+App\Models\MoneyCategory
+  Methods:  50.00% ( 2/ 4)   Lines:  71.43% (  5/  7)
+App\Models\MoneyCategoryMatch
+  Methods:  50.00% ( 3/ 6)   Lines:  61.29% ( 19/ 31)
+App\Models\User
+  Methods:  37.50% ( 6/16)   Lines:  47.37% (  9/ 19)
+App\Providers\AppServiceProvider
+  Methods:  50.00% ( 1/ 2)   Lines:  55.56% ( 10/ 18)
+App\Services\GoCardlessDataService
+  Methods:  14.29% ( 2/14)   Lines:  31.45% ( 50/159)

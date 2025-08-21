@@ -24,7 +24,9 @@
                     <div class="bg-custom rounded-lg shadow max-h-64 overflow-y-auto">
                         @forelse($this->filteredBanks as $bank)
                             <button type="button" wire:click="updateSelectedBank('{{ $bank['id'] }}')"
-                                class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 transition">
+                                class="w-full flex items-center gap-3 px-4 py-2
+                                 hover:bg-gray-300 hover:text-gray-800
+                                 transition">
                                 <img src="{{ $bank['logo'] }}" alt="{{ $bank['name'] }} logo"
                                     class="w-8 h-8 object-contain" />
                                 <span class="flex-1 text-left">{{ $bank['name'] }}</span>

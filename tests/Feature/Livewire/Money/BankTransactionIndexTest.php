@@ -102,7 +102,10 @@ test('can sort transactions', function () {
 
     Livewire::test(BankTransactionIndex::class)
         ->call('sortBy', 'amount')
-        ->assertSet('sortField', 'amount');
+        ->assertSet('sortField', 'amount')
+        ->assertSet('sortDirection', 'asc')
+        ->call('sortBy', 'amount')
+        ->assertSet('sortDirection', 'desc');
 });
 
 test('can search and apply category', function () {
@@ -248,4 +251,19 @@ test('can filter transactions by current year', function () {
         ->set('dateFilter', 'current_year')
         ->assertSee('Current Year Transaction')
         ->assertDontSee('Last Year Transaction');
+});
+
+test('updating search resets pagination', function () {
+    Livewire::test(BankTransactionIndex::class)
+        ->set('perPage', 200)
+        ->set('search', 'test')
+        ->assertSet('perPage', 100);
+});
+
+test('no account selected returns empty collection', function () {
+    Livewire::test(BankTransactionIndex::class)
+        ->set('selectedAccount', null)
+        ->set('allAccounts', false)
+        ->call('getTransactionsProperty')
+        ->assertSet('transactions', new \Illuminate\Database\Eloquent\Collection);
 });
