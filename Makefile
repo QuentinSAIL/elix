@@ -9,9 +9,8 @@ RELEASE_NOTES := release_note.md
 
 VERSION ?= $(word 2,$(MAKECMDGOALS))
 $(VERSION):
-	@:
 
-.PHONY: release recap prereq ensure-main bump-version changelog tag push gh-release
+.PHONY: release prereq ensure-main bump-version changelog tag push gh-release
 
 prereq:
 	@command -v git >/dev/null || { echo "git manquant"; exit 1; }
@@ -28,14 +27,6 @@ ensure-main:
 	  echo "❌ Le working tree n'est pas propre (commit/stash d'abord)"; exit 1
 	fi
 
-recap:
-	git fetch --tags --quiet
-	# last = dernier tag joignable; base = BASE (si fournie) sinon last, sinon premier commit
-	last=$$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-	base=$${BASE:-$${last:-$$(git rev-list --max-parents=0 HEAD)}}
-	echo "Commits depuis $$base :"
-	git log --pretty="* %s (%h) – %an" "$$base"..HEAD
-
 bump-version:
 	test -n "$(VERSION)" || { echo "Usage: make release X.Y.Z"; exit 1; }
 	tmp=$$(mktemp)
@@ -44,32 +35,43 @@ bump-version:
 	git commit -m "chore(release): bump version to v$(VERSION)"
 
 changelog:
-	git fetch --tags --prune --quiet
-
-	# Calcule la base UNE FOIS et réutilise-la pour les 2 fichiers
+	git fetch --tags --quiet
 	last=$$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 	base=$${BASE:-$${last:-$$(git rev-list --max-parents=0 HEAD)}}
 
-	# --- release_note.md (remplacé) ---
+	read -p "🆕 Added: " added
+	read -p "🔁 Changed: " changed
+	read -p "🛠️ Fixed: " fixed
+	read -p "🔒 Security: " security
+
+	# Format Markdown
+	release_date=$$(date +%F)
+
+	# Générer release_note.md
 	{
-	  echo "# v$(VERSION) — $$(date +%F)"
+	  echo "# v$(VERSION) — $$release_date"
+	  echo
+	  echo "### Added"
+	  echo "- $$added"
+	  echo "### Changed"
+	  echo "- $$changed"
+	  echo "### Fixed"
+	  echo "- $$fixed"
+	  echo "### Security"
+	  echo "- $$security"
 	  echo
 	  echo "## Changes"
 	  git log --pretty="* %s (%h) – %an" "$$base"..HEAD
 	} > "$(RELEASE_NOTES)"
 
-	# --- CHANGELOG.md (on préprend la nouvelle section) ---
-	# On réutilise EXACTEMENT la même plage de commits
+	# Met à jour CHANGELOG.md
 	{
 	  echo "# Changelog"
 	  echo
-	  echo "## v$(VERSION) — $$(date +%F)"
+	  cat "$(RELEASE_NOTES)"
 	  echo
-	  git log --pretty="* %s (%h) – %an" "$$base"..HEAD
-	  echo
-	  # On réattache l'ancien contenu SANS son en-tête "# Changelog"
 	  if [ -f "$(CHANGELOG)" ]; then
-	    sed '1,/^## /d' "$(CHANGELOG)"
+	    sed '1,/^# Changelog/d' "$(CHANGELOG)"
 	  fi
 	} > "$(CHANGELOG).tmp"
 	mv "$(CHANGELOG).tmp" "$(CHANGELOG)"
