@@ -286,5 +286,14 @@
     "Delete bank account?": "Supprimer le compte bancaire ?",
     "You're about to delete this bank account.": "Vous êtes sur le point de supprimer ce compte bancaire.",
     "This action cannot be reversed.": "Cette action ne peut pas être annulée.",
-    "Delete this keyword": "Supprimer ce mot-clé"
+    "Delete this keyword": "Supprimer ce mot-clé",
+    "hour": "heure",
+    "hours": "heures",
+    "minute": "minute",
+    "minutes": "minutes",
+    "second": "seconde",
+    "seconds": "secondes",
+    "Duration (optional)": "Durée (optionnelle)",
+    "Duration in seconds": "Durée en secondes",
+    "Total": "Total"
 }
