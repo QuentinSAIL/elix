@@ -40,13 +40,8 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo e(Str::limit({$string}, {$limit})); ?>";
         });
 
-        // Rate limiters
         RateLimiter::for('global', function (Request $request) {
             return Limit::perMinute(200)->by(optional($request->user())->id ?: $request->ip());
-        });
-
-        RateLimiter::for('money', function (Request $request) {
-            return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
         });
     }
 }
