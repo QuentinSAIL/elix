@@ -1,15 +1,17 @@
 
 
 [1;37;40mCode Coverage Report:        [0m
-[1;37;40m  2025-08-22 12:18:58        [0m
+[1;37;40m  2025-08-22 13:49:48        [0m
 [1;37;40m                             [0m
 [1;37;40m Summary:                    [0m
-[30;43m  Classes: 68.00% (34/50)    [0m
-[30;43m  Methods: 88.52% (185/209)  [0m
-[30;42m  Lines:   93.33% (1287/1379)[0m
+[30;43m  Classes: 68.63% (35/51)    [0m
+[30;43m  Methods: 88.57% (186/210)  [0m
+[30;42m  Lines:   93.37% (1296/1388)[0m
 
 App\Http\Controllers\Auth\VerifyEmailController
   [37;41mMethods:   0.00% ( 0/ 1)[0m   [30;43mLines:  83.33% (  5/  6)[0m
+App\Http\Middleware\SecurityHeaders
+  [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  7/  7)[0m
 App\Http\Middleware\SetLocale
   [37;41mMethods:   0.00% ( 0/ 1)[0m   [30;43mLines:  84.62% ( 11/ 13)[0m
 App\Http\Middleware\UserHasValidGoCardlessKeys
@@ -53,7 +55,7 @@ App\Livewire\Note\Index
 App\Livewire\Note\Show
   [30;42mMethods: 100.00% ( 4/ 4)[0m   [30;42mLines: 100.00% ( 22/ 22)[0m
 App\Livewire\RoutineTask\Form
-  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;43mLines:  82.61% ( 38/ 46)[0m
+  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;43mLines:  83.33% ( 40/ 48)[0m
 App\Livewire\Routine\Form
   [30;43mMethods:  62.50% ( 5/ 8)[0m   [30;42mLines:  93.04% (107/115)[0m
 App\Livewire\Routine\Index

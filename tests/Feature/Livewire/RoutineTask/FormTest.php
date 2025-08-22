@@ -71,14 +71,10 @@ test('can save new task', function () {
     $routine = Routine::factory()->for($this->user)->create();
 
     Livewire::test(Form::class, ['routine' => $routine])
-        ->set('taskForm', [
-            'name' => 'New Task',
-            'description' => 'New Description',
-            'duration' => 90,
-            'order' => 1,
-            'autoskip' => true,
-            'is_active' => true,
-        ])
+        ->set('taskForm.name', 'New Task')
+        ->set('taskForm.description', 'New Description')
+        ->set('duration', 90)
+        ->set('taskForm.is_active', true)
         ->call('save');
 
     $this->assertDatabaseHas('routine_tasks', [
@@ -88,34 +84,22 @@ test('can save new task', function () {
     ]);
 });
 
-// test('can save existing task', function () {
-//     $routine = Routine::factory()->for($this->user)->create();
-//     $task = RoutineTask::factory()->for($routine)->create([
-//         'name' => 'Old Name',
-//     ]);
-
-//     Livewire::test(Form::class, ['routine' => $routine, 'task' => $task])
-//         ->set('taskForm.name', 'Updated Name')
-//         ->call('save')
-//         ->assertSet('task.name', 'Updated Name');
-// });
-
 test('validates required fields', function () {
     $routine = Routine::factory()->for($this->user)->create();
 
-    $component = Livewire::test(Form::class, ['routine' => $routine]);
-    $component->set('taskForm.name', '');
-    $component->call('save');
-    $this->assertTrue($component->errors()->has('taskForm.name'));
+    Livewire::test(Form::class, ['routine' => $routine])
+        ->set('taskForm.name', '')
+        ->call('save')
+        ->assertHasErrors(['taskForm.name' => 'required']);
 });
 
 test('validates duration minimum', function () {
     $routine = Routine::factory()->for($this->user)->create();
 
-    $component = Livewire::test(Form::class, ['routine' => $routine]);
-    $component->set('taskForm.duration', 0);
-    $component->call('save');
-    $this->assertTrue($component->errors()->has('taskForm.duration'));
+    Livewire::test(Form::class, ['routine' => $routine])
+        ->set('duration', 0)
+        ->call('save')
+        ->assertHasErrors(['taskForm.duration' => 'min']);
 });
 
 test('validates order minimum', function () {
