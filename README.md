@@ -142,18 +142,12 @@ sail artisan test (--coverage)
 
 
 
-## Sécurité & Accessibilité
-
--   **OWASP** : validation côté serveur, CSRF, durcissement des en-têtes HTTP, gestion des secrets.
-
--   **Audits dépendances**
+## Audits dépendances
 
     ```bash
     composer audit
     npm audit
     ```
-
--   **Accessibilité** : respect RGAA/WCAG (navigation clavier, ARIA, focus visible, contrastes).
 
 
 
