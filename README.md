@@ -15,7 +15,6 @@
   - [Scripts utiles](#scripts-utiles)
   - [Tests \& Qualité](#tests--qualité)
   - [CI/CD \& Déploiement](#cicd--déploiement)
-  - [Sécurité \& Accessibilité](#sécurité--accessibilité)
   - [Dépannage](#dépannage)
 
 
