@@ -142,16 +142,6 @@ sail artisan test (--coverage)
 
 
 
-## Audits dépendances
-
-    ```bash
-    composer audit
-    npm audit
-    ```
-
-
-
-
 ## Dépannage
 
 -   **Port déjà utilisé** : `sail down -v && sail up -d`
