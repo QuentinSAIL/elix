@@ -23,6 +23,8 @@ class Form extends Component
 
     public $taskForm;
 
+    public $duration = 60;
+
     #[On('task-updated')]
     public function mount()
     {
@@ -60,10 +62,13 @@ class Form extends Component
             $this->edition = false;
             $this->resetForm();
         }
+
+        $this->duration = $this->taskForm['duration'] ?? 60;
     }
 
     public function save()
     {
+        $this->taskForm['duration'] = $this->duration;
         $rules = [
             'taskForm.name' => 'required|string|max:255',
             'taskForm.description' => 'nullable|string|max:255',
