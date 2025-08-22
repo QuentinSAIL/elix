@@ -50,8 +50,14 @@ test('can delete note', function () {
 });
 
 test('handles deleting non-existent note', function () {
+    Note::factory()->for($this->user)->create();
+    $initialCount = Note::count();
+
     Livewire::test(Index::class)
-        ->call('delete', '00000000-0000-0000-0000-000000000000');
+        ->call('delete', '00000000-0000-0000-0000-000000000000')
+        ->assertSet('selectedNote', null);
+
+    $this->assertEquals($initialCount, Note::count());
 });
 
 test('can refresh notes after save', function () {

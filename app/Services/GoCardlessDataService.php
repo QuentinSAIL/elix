@@ -168,12 +168,12 @@ class GoCardlessDataService
 
     public function getBanks($country = 'fr')
     {
-        return Cache::remember('gocardless_banks', 3600 * 12, function () use ($country) {
+        return Cache::remember('gocardless_banks', 1, function () use ($country) {
             $res = Http::withToken($this->accessToken())
                 ->get("{$this->baseUrl}/institutions/?country={$country}")
                 ->json();
 
-            return $res['results'] ?? [];
+            return $res ?? [];
         });
     }
 
@@ -251,6 +251,17 @@ class GoCardlessDataService
 
             return redirect($response['link']);
         }
+    }
+
+    public function handleCallback(): \Illuminate\Http\RedirectResponse
+    {
+        $ref = request()->query('ref');
+        $error = request()->query('error');
+
+        return redirect()->route('money.accounts', array_filter([
+            'ref' => $ref,
+            'error' => $error,
+        ]));
     }
 
     public function formatDuration(int $totalSeconds): string

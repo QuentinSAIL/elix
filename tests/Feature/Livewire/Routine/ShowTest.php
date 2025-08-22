@@ -168,6 +168,7 @@ test('can handle task saved event', function () {
     $task = RoutineTask::factory()->for($routine)->create();
 
     Livewire::test(Show::class, ['routine' => $routine])
+        ->set('currentTask', $task) // Add this line
         ->call('onTaskSaved')
         ->assertSee($task->name);
 });

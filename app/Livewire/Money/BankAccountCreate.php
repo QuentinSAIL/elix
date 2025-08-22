@@ -8,24 +8,24 @@ use Livewire\Component;
 class BankAccountCreate extends Component
 {
     /** @var array<array<string, mixed>> */
-    public array $banks;
+    public array $banks = [];
 
-    public string $selectedBank;
+    public ?string $selectedBank = null;
 
     public ?string $searchTerm = '';
 
-    public int $maxAccessValidForDays;
+    public int $maxAccessValidForDays = 0;
 
-    public int $transactionTotalDays;
+    public int $transactionTotalDays = 0;
 
-    public ?string $logo;
+    public ?string $logo = null;
 
     protected GoCardlessDataService $goCardlessDataService;
 
     public function mount(): void
     {
         $this->goCardlessDataService = app(GoCardlessDataService::class);
-        $this->banks = $this->goCardlessDataService->getBanks();
+        $this->banks = $this->goCardlessDataService->getBanks() ?? [];
     }
 
     public function updateSelectedBank(string $value): void
@@ -42,16 +42,32 @@ class BankAccountCreate extends Component
         }
     }
 
+    protected function normalize(string $s): string
+    {
+        $s = \Normalizer::normalize($s, \Normalizer::FORM_D);
+        $s = preg_replace('/\p{Mn}+/u', '', $s); // enlève accents
+
+        return mb_strtolower($s);
+    }
+
     /**
      * @return array<array<string, mixed>>
      */
     public function getFilteredBanksProperty(): array
     {
-        if (! $this->banks) {
-            return [];
+        $banks = $this->banks ?? [];
+        $needle = $this->normalize((string) $this->searchTerm);
+
+        if ($needle === '') {
+            return $banks;
         }
 
-        return collect($this->banks)->filter(fn ($b) => isset($b['name']) && stripos($b['name'], $this->searchTerm) !== false)->values()->toArray();
+        return collect($banks)
+            ->filter(fn ($b) => isset($b['name']) && str_contains(
+                $this->normalize((string) $b['name']), $needle
+            ))
+            ->values()
+            ->all();
     }
 
     public function addNewBankAccount(): void

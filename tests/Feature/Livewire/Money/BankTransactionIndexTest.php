@@ -102,7 +102,10 @@ test('can sort transactions', function () {
 
     Livewire::test(BankTransactionIndex::class)
         ->call('sortBy', 'amount')
-        ->assertSet('sortField', 'amount');
+        ->assertSet('sortField', 'amount')
+        ->assertSet('sortDirection', 'asc')
+        ->call('sortBy', 'amount')
+        ->assertSet('sortDirection', 'desc');
 });
 
 test('can search and apply category', function () {
@@ -197,4 +200,70 @@ test('stop loading more transactions when no more to load', function () {
     $component->call('loadMore');
 
     $this->assertTrue($component->get('noMoreToLoad'));
+});
+
+test('can filter transactions by current month', function () {
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    $transactionCurrentMonth = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->startOfMonth(),
+        'description' => 'Current Month Transaction',
+    ]);
+    $transactionLastMonth = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->subMonth()->startOfMonth(),
+        'description' => 'Last Month Transaction',
+    ]);
+
+    Livewire::test(BankTransactionIndex::class)
+        ->set('dateFilter', 'current_month')
+        ->assertSee('Current Month Transaction')
+        ->assertDontSee('Last Month Transaction');
+});
+
+test('can filter transactions by last month', function () {
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    $transactionCurrentMonth = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->startOfMonth(),
+        'description' => 'Current Month Transaction',
+    ]);
+    $transactionLastMonth = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->subMonth()->startOfMonth(),
+        'description' => 'Last Month Transaction',
+    ]);
+
+    Livewire::test(BankTransactionIndex::class)
+        ->set('dateFilter', 'last_month')
+        ->assertSee('Last Month Transaction')
+        ->assertDontSee('Current Month Transaction');
+});
+
+test('can filter transactions by current year', function () {
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    $transactionCurrentYear = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->startOfYear(),
+        'description' => 'Current Year Transaction',
+    ]);
+    $transactionLastYear = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now()->subYear()->startOfYear(),
+        'description' => 'Last Year Transaction',
+    ]);
+
+    Livewire::test(BankTransactionIndex::class)
+        ->set('dateFilter', 'current_year')
+        ->assertSee('Current Year Transaction')
+        ->assertDontSee('Last Year Transaction');
+});
+
+test('updating search resets pagination', function () {
+    Livewire::test(BankTransactionIndex::class)
+        ->set('perPage', 200)
+        ->set('search', 'test')
+        ->assertSet('perPage', 100);
+});
+
+test('no account selected returns empty collection', function () {
+    Livewire::test(BankTransactionIndex::class)
+        ->set('selectedAccount', null)
+        ->set('allAccounts', false)
+        ->call('getTransactionsProperty')
+        ->assertSet('transactions', new \Illuminate\Database\Eloquent\Collection);
 });

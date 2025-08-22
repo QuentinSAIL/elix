@@ -1,4 +1,4 @@
-<x-layouts.app.sidebar :title="$title ?? null" clas=''>
+<x-layouts.app.sidebar :title="$title ?? null" class=''>
     <flux:main>
         {{ $slot }}
     </flux:main>

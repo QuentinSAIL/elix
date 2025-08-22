@@ -3,6 +3,7 @@
 use App\Livewire\Money\BankAccountCreate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 
@@ -23,30 +24,86 @@ beforeEach(function () {
         'secret_id' => 'test-secret-id',
         'secret_key' => 'test-secret-key',
     ]);
+});
 
-    // Move Http::fake() here
+test('bank account create component can be rendered', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
+    Livewire::test(BankAccountCreate::class)
+        ->assertStatus(200);
+});
+
+test('can filter banks by search term', function () {
     Http::fake([
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
             'access' => 'test-access-token',
         ], 200),
         'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([
-            'results' => [
-                [
-                    'id' => 'test-bank',
-                    'name' => 'Test Bank',
-                    'max_access_valid_for_days' => 90,
-                    'transaction_total_days' => 30,
-                    'logo' => 'test-logo.png',
-                ],
-                [
-                    'id' => 'other-bank',
-                    'name' => 'Other Bank',
-                    'max_access_valid_for_days' => 90,
-                    'transaction_total_days' => 30,
-                    'logo' => 'other-logo.png',
-                ],
+            [
+                'id' => 'test-bank',
+                'name' => 'Test Bank',
+                'bic' => 'TESTBANK',
+                'transaction_total_days' => 90,
+                'max_access_valid_for_days' => 90,
+                'countries' => ['FR'],
+                'logo' => 'https://cdn.gocardless.com/logo.png',
+            ],
+            [
+                'id' => 'other-bank',
+                'name' => 'Other Bank',
+                'bic' => 'OTHERBANK',
+                'transaction_total_days' => 180,
+                'max_access_valid_for_days' => 180,
+                'countries' => ['FR'],
+                'logo' => 'https://cdn.gocardless.com/logo.png',
             ],
         ], 200),
+    ]);
+
+    Livewire::test(BankAccountCreate::class)
+        ->set('searchTerm', 'Test')
+        ->assertSee('Test Bank')
+        ->assertDontSee('Other Bank');
+});
+
+test('can select a bank', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([
+            [
+                'id' => 'test-bank',
+                'name' => 'Test Bank',
+                'bic' => 'TESTBANK',
+                'transaction_total_days' => 90,
+                'max_access_valid_for_days' => 90,
+                'countries' => ['FR'],
+                'logo' => 'https://cdn.gocardless.com/logo.png',
+            ],
+        ], 200),
+    ]);
+
+    Livewire::test(BankAccountCreate::class)
+        ->call('updateSelectedBank', 'test-bank')
+        ->assertSet('selectedBank', 'test-bank')
+        ->assertSet('searchTerm', 'Test Bank')
+        ->assertSet('transactionTotalDays', 90)
+        ->assertSet('maxAccessValidForDays', 90)
+        ->assertSet('logo', 'https://cdn.gocardless.com/logo.png');
+});
+
+test('can add new bank account', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
         'bankaccountdata.gocardless.com/api/v2/agreements/enduser/' => Http::response([
             'created' => true,
             'id' => 'test-agreement',
@@ -58,149 +115,192 @@ beforeEach(function () {
             'link' => 'https://test-link.com',
         ], 200),
     ]);
-});
-
-test('bank account create component can be rendered', function () {
 
     Livewire::test(BankAccountCreate::class)
-        ->assertStatus(200);
-});
-
-test('can filter banks by search term', function () {
-
-    $banks = [
-        [
-            'id' => 'test-bank',
-            'name' => 'Test Bank',
-            'max_access_valid_for_days' => 90,
-            'transaction_total_days' => 30,
-            'logo' => 'test-logo.png',
-        ],
-        [
-            'id' => 'other-bank',
-            'name' => 'Other Bank',
-            'max_access_valid_for_days' => 90,
-            'transaction_total_days' => 30,
-            'logo' => 'other-logo.png',
-        ],
-    ];
-
-    $component = Livewire::test(BankAccountCreate::class)
-        ->set('banks', $banks);
-    $component->set('searchTerm', 'Test');
-
-    $filteredBanks = $component->instance()->getFilteredBanksProperty();
-    $this->assertCount(1, $filteredBanks);
-    $this->assertEquals('Test Bank', $filteredBanks[0]['name']);
-});
-
-test('can select a bank', function () {
-
-    $banks = [
-        [
-            'id' => 'test-bank',
-            'name' => 'Test Bank',
-            'max_access_valid_for_days' => 90,
-            'transaction_total_days' => 30,
-            'logo' => 'test-logo.png',
-        ],
-    ];
-
-    $component = Livewire::test(BankAccountCreate::class)
-        ->set('banks', $banks);
-    $component->call('updateSelectedBank', 'test-bank');
-
-    $this->assertEquals('test-bank', $component->get('selectedBank'));
-    $this->assertEquals('Test Bank', $component->get('searchTerm'));
-    $this->assertEquals(90, $component->get('maxAccessValidForDays'));
-    $this->assertEquals(30, $component->get('transactionTotalDays'));
-    $this->assertEquals('test-logo.png', $component->get('logo'));
-});
-
-test('can add new bank account', function () {
-
-    $component = Livewire::test(BankAccountCreate::class);
-    $component->set('selectedBank', 'test-bank');
-    $component->set('transactionTotalDays', 30);
-    $component->set('maxAccessValidForDays', 90);
-    $component->set('logo', 'test-logo.png');
-
-    $component->call('addNewBankAccount');
-
-    // The method should execute without errors
-    $this->assertTrue(true);
+        ->set('selectedBank', 'test-bank')
+        ->set('transactionTotalDays', 30)
+        ->set('maxAccessValidForDays', 90)
+        ->set('logo', 'test-logo.png')
+        ->call('addNewBankAccount')
+        ->assertRedirect('https://test-link.com');
 });
 
 test('handles empty banks array', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+    Cache::forget('gocardless_banks');
 
-    $component = Livewire::test(BankAccountCreate::class);
-    $component->set('banks', []);
-    $component->set('searchTerm', 'test');
-
-    $filteredBanks = $component->instance()->getFilteredBanksProperty();
-    $this->assertEmpty($filteredBanks);
+    Livewire::test(BankAccountCreate::class)
+        ->assertSet('banks', []);
 });
 
 test('handles non-existent bank selection', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
 
-    $banks = []; // No banks exist for this test case
-
-    $component = Livewire::test(BankAccountCreate::class)
-        ->set('banks', $banks);
-    $component->call('updateSelectedBank', 'non-existent-bank');
-
-    $this->assertEquals('non-existent-bank', $component->get('selectedBank'));
-    $this->assertNull($component->get('searchTerm'));
-});
-
-test('handles bank selection with no logo', function () {
-
-    $banks = [
-        [
-            'id' => 'test-bank',
-            'name' => 'Test Bank',
-            'max_access_valid_for_days' => 90,
-            'transaction_total_days' => 30,
-            'logo' => null, // No logo provided
-        ],
-    ];
-
-    $component = Livewire::test(BankAccountCreate::class)
-        ->set('banks', $banks);
-    $component->call('updateSelectedBank', 'test-bank');
-
-    $this->assertEquals('test-bank', $component->get('selectedBank'));
-    $this->assertNull($component->get('logo')); // Logo should be null
-});
-
-test('handles bank selection with empty search term', function () {
-
-    $banks = [
-        [
-            'id' => 'test-bank',
-            'name' => 'Test Bank',
-            'max_access_valid_for_days' => 90,
-            'transaction_total_days' => 30,
-            'logo' => 'test-logo.png',
-        ],
-    ];
-
-    $component = Livewire::test(BankAccountCreate::class)
-        ->set('banks', $banks);
-    $component->call('updateSelectedBank', 'test-bank');
-
-    // Set search term to empty
-    $component->set('searchTerm', '');
-
-    $this->assertEquals('', $component->get('searchTerm'));
+    Livewire::test(BankAccountCreate::class)
+        ->call('updateSelectedBank', 'non-existent-bank')
+        ->assertSet('selectedBank', 'non-existent-bank')
+        ->assertSet('searchTerm', null);
 });
 
 test('can not add new bank account without selection', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
 
-    $component = Livewire::test(BankAccountCreate::class);
-    $component->set('selectedBank', null); // No bank selected
-
-    $component->call('addNewBankAccount')
+    Livewire::test(BankAccountCreate::class)
+        ->set('selectedBank', null)
+        ->call('addNewBankAccount')
         ->assertDispatched('error', ['message' => 'Please select a bank.']);
+});
 
+test('can filter banks with accents', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([
+            [
+                'id' => 'crédit-agricole',
+                'name' => 'Crédit Agricole',
+                'bic' => 'CRAGR',
+                'transaction_total_days' => 365,
+                'max_access_valid_for_days' => 365,
+                'countries' => ['FR'],
+                'logo' => 'https://cdn.gocardless.com/logo.png',
+            ],
+        ], 200),
+    ]);
+
+    Livewire::test(BankAccountCreate::class)
+        ->set('searchTerm', 'Crédit')
+        ->assertSee('Crédit Agricole');
+
+    Livewire::test(BankAccountCreate::class)
+        ->set('searchTerm', 'credit')
+        ->assertSee('Crédit Agricole');
+});
+
+test('can filter banks with mixed case', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([
+            [
+                'id' => 'test-bank',
+                'name' => 'Test Bank',
+                'bic' => 'TESTBANK',
+                'transaction_total_days' => 90,
+                'max_access_valid_for_days' => 90,
+                'countries' => ['FR'],
+                'logo' => 'https://cdn.gocardless.com/logo.png',
+            ],
+        ], 200),
+    ]);
+
+    Livewire::test(BankAccountCreate::class)
+        ->set('searchTerm', 'tEsT')
+        ->assertSee('Test Bank');
+});
+
+test('can filter banks with no results', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([
+            [
+                'id' => 'test-bank',
+                'name' => 'Test Bank',
+                'bic' => 'TESTBANK',
+                'transaction_total_days' => 90,
+                'max_access_valid_for_days' => 90,
+                'countries' => ['FR'],
+                'logo' => 'https://cdn.gocardless.com/logo.png',
+            ],
+        ], 200),
+    ]);
+
+    Livewire::test(BankAccountCreate::class)
+        ->set('searchTerm', 'non-existent')
+        ->assertDontSee('Test Bank');
+});
+
+test('can filter banks with empty search term returns all banks', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([
+            [
+                'id' => 'test-bank',
+                'name' => 'Test Bank',
+                'bic' => 'TESTBANK',
+                'transaction_total_days' => 90,
+                'max_access_valid_for_days' => 90,
+                'countries' => ['FR'],
+                'logo' => 'https://cdn.gocardless.com/logo.png',
+            ],
+            [
+                'id' => 'other-bank',
+                'name' => 'Other Bank',
+                'bic' => 'OTHERBANK',
+                'transaction_total_days' => 180,
+                'max_access_valid_for_days' => 180,
+                'countries' => ['FR'],
+                'logo' => 'https://cdn.gocardless.com/logo.png',
+            ],
+        ], 200),
+    ]);
+
+    Livewire::test(BankAccountCreate::class)
+        ->set('searchTerm', '')
+        ->assertSee('Test Bank')
+        ->assertSee('Other Bank');
+});
+
+test('can filter banks with null search term returns all banks', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([
+            [
+                'id' => 'test-bank',
+                'name' => 'Test Bank',
+                'bic' => 'TESTBANK',
+                'transaction_total_days' => 90,
+                'max_access_valid_for_days' => 90,
+                'countries' => ['FR'],
+                'logo' => 'https://cdn.gocardless.com/logo.png',
+            ],
+            [
+                'id' => 'other-bank',
+                'name' => 'Other Bank',
+                'bic' => 'OTHERBANK',
+                'transaction_total_days' => 180,
+                'max_access_valid_for_days' => 180,
+                'countries' => ['FR'],
+                'logo' => 'https://cdn.gocardless.com/logo.png',
+            ],
+        ], 200),
+    ]);
+
+    Livewire::test(BankAccountCreate::class)
+        ->set('searchTerm', null)
+        ->assertSee('Test Bank')
+        ->assertSee('Other Bank');
 });

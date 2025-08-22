@@ -28,6 +28,13 @@ beforeEach(function () {
 });
 
 test('bank account index component can be rendered', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
     $bankAccount = BankAccount::factory()->for($this->user)->create();
 
     Livewire::test(BankAccountIndex::class)
@@ -36,6 +43,13 @@ test('bank account index component can be rendered', function () {
 });
 
 test('can update account name', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
     $bankAccount = BankAccount::factory()->for($this->user)->create([
         'name' => 'Old Name',
     ]);
@@ -52,6 +66,13 @@ test('can update account name', function () {
 });
 
 test('shows error when updating non-existent account', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
     Toaster::fake();
 
     Livewire::test(BankAccountIndex::class)
@@ -61,6 +82,13 @@ test('shows error when updating non-existent account', function () {
 });
 
 test('can delete account', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
     $bankAccount = BankAccount::factory()->for($this->user)->create();
 
     Toaster::fake();
@@ -74,6 +102,13 @@ test('can delete account', function () {
 });
 
 test('shows error when deleting non-existent account', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
     Toaster::fake();
 
     Livewire::test(BankAccountIndex::class)
@@ -87,6 +122,7 @@ test('can delete account with gocardless account id', function () {
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
             'access' => 'test-access-token',
         ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
         'bankaccountdata.gocardless.com/api/v2/requisitions/*' => Http::response([
             'status' => 'success',
         ], 200),
@@ -112,6 +148,7 @@ test('can update gocardless account', function () {
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
             'access' => 'test-access-token',
         ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
         'bankaccountdata.gocardless.com/api/v2/requisitions/?limit=100&offset=0' => Http::response([
             'results' => [
                 [
@@ -149,6 +186,7 @@ test('handles error when updating gocardless account', function () {
         'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
             'access' => 'test-access-token',
         ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
         'bankaccountdata.gocardless.com/api/v2/requisitions/?limit=100&offset=0' => Http::response([
             'results' => [
                 [

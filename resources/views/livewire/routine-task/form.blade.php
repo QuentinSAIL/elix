@@ -1,21 +1,19 @@
 <div>
-    {{-- Modal de création --}}
     <flux:modal.trigger name="task-form-{{ $taskId }}" id="task-form-{{ $taskId }}"
-        class="w-full h-full flex items-center justify-center cursor-pointer"
-        role="button"
-        tabindex="0"
-        aria-label="{{ $edition ? __('Edit task') : __('Create task') }}"
-    >
-        @if ($edition)
-            <span class="flex items-center justify-center space-x-2">
-                <flux:icon.pencil-square class="cursor-pointer ml-2" variant="micro" aria-hidden="true" />
-            </span>
-        @else
-            <span class="flex items-center justify-center space-x-2 rounded-lg">
-                <span>{{ __('Create') }}</span>
-                <flux:icon.plus variant="micro" aria-hidden="true" />
-            </span>
-        @endif
+        class="w-full h-full flex items-center justify-center cursor-pointer" role="button" tabindex="0"
+        aria-label="{{ $edition ? __('Edit task') : __('Create task') }}">
+        <div class="w-full text-center px-2 py-2 hover rounded-t-lg">
+            @if ($edition)
+                <span class="flex items-center justify-center space-x-2">
+                    <flux:icon.pencil-square class="cursor-pointer ml-2" variant="micro" aria-hidden="true" />
+                </span>
+            @else
+                <span class="flex items-center justify-center space-x-2 rounded-lg">
+                    <span>{{ __('Create') }}</span>
+                    <flux:icon.plus variant="micro" aria-hidden="true" />
+                </span>
+            @endif
+        </div>
     </flux:modal.trigger>
 
     <flux:modal name="task-form-{{ $taskId }}" class="w-5/6" wire:cancel="resetForm">

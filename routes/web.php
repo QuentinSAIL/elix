@@ -31,7 +31,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('transactions', TransactionIndex::class)->name('money.transactions');
                 Route::get('categories', CategoryIndex::class)->name('money.categories');
             });
-            Route::get('/bank-accounts/callback', [GoCardLessDataService::class, '@handleCallback'])->name('bank-accounts.callback');
+            Route::get('/bank-accounts/callback', [GoCardlessDataService::class, 'handleCallback'])->name('bank-accounts.callback');
         });
     });
     Route::redirect('settings', 'settings/profile')->name('settings');

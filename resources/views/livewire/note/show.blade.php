@@ -1,4 +1,4 @@
-<div class="h-[71vh] flex flex-row overflow-y-scroll bg-custom-accent">
+<div class="h-[64vh] flex flex-row overflow-y-scroll bg-custom-accent">
     <div class="py-3 flex-1 flex flex-col">
         <textarea wire:model.live.debounce.750ms="markdownContent"
             class="w-full flex-1 p-4 mt-2 focus:outline-none resize-none" aria-label="{{ __('Note content') }}"></textarea>
