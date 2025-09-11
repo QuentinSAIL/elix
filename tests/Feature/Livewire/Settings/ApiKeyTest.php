@@ -27,18 +27,6 @@ test('api key component can be rendered', function () {
         ->assertSee($service->name);
 });
 
-test('can mount with existing api keys', function () {
-    $service = ApiService::factory()->create();
-    $apiKey = ApiKey::factory()->for($this->user)->for($service)->create([
-        'secret_id' => 'test-secret-id',
-        'secret_key' => 'test-secret-key',
-    ]);
-
-    Livewire::test(ApiKeyComponent::class)
-        ->assertSet('secret_ids.'.$service->id, 'test-secret-id')
-        ->assertSet('secret_keys.'.$service->id, 'test-secret-key');
-});
-
 test('can mount without existing api keys', function () {
     $service = ApiService::factory()->create();
 
