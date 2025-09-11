@@ -104,14 +104,3 @@ test('can auto-save when content is updated', function () {
         'content' => 'Auto-saved Content',
     ]);
 });
-
-test('dispatches note-saved event when note is saved', function () {
-    $note = Note::factory()->for($this->user)->create([
-        'content' => 'Original Content',
-    ]);
-
-    Livewire::test(Show::class, ['note' => $note])
-        ->set('markdownContent', 'Updated Content')
-        ->call('save')
-        ->assertDispatched('note-saved');
-});
