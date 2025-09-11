@@ -73,7 +73,7 @@ class DashboardPanelForm extends Component
             'accountsId.*' => 'exists:bank_accounts,id',
             'categoriesId' => 'array',
             'categoriesId.*' => 'exists:money_categories,id',
-            'periodType' => 'required|string|in:daily,weekly,biweekly,monthly,quarterly,biannual,yearly,all',
+            'periodType' => 'required|string|in:daily,weekly,biweekly,monthly,quarterly,biannual,yearly,actual_month,previous_month,two_months_ago,three_months_ago',
         ];
 
         try {

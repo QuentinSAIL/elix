@@ -38,7 +38,11 @@ class DashboardPanel extends Component
     {
         $this->user = Auth::user();
         $this->title = $this->panel->title ?? __('Dashboard');
-        $this->isExpensePanel = $this->panel->is_expense ?? true; // Set isExpensePanel based on panel property
+        if (in_array($this->panel->period_type, ['actual_month', 'previous_month', 'two_months_ago', 'three_months_ago'])) {
+            $this->title .= ' ('.($this->panel->determinePeriode()['startDate']->translatedFormat('F') ?? '').')';
+        }
+
+        $this->isExpensePanel = $this->panel->is_expense ?? true;
 
         $this->categories = $this->panel->categories()->get()->pluck('id')->toArray();
         $this->bankAccounts = $this->panel->bankAccounts()->get()->pluck('id')->toArray();

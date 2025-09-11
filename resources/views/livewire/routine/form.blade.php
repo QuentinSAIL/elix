@@ -85,7 +85,7 @@
                         @foreach ($days as $num => $lbl)
                             <button type="button" wire:click.prevent="toggleWeekday({{ $num }})"
                                 class="w-8 h-8 flex items-center justify-center border rounded
-                                {{ in_array($num, $frequencyForm['weekdays'] ?? []) ? 'border-color title-color' : 'bg-custom' }}"
+                                {{ in_array($num, $frequencyForm['weekdays'] ?? []) ? 'border-color text-color' : 'bg-custom' }}"
                                 aria-pressed="{{ in_array($num, $frequencyForm['weekdays'] ?? []) ? 'true' : 'false' }}"
                                 aria-label="{{ $lbl }}"
                             >
@@ -109,7 +109,7 @@
                             @foreach (range(1, 31) as $day)
                                 <button type="button" wire:click.prevent="toggleMonthDay({{ $day }})"
                                     class="w-8 h-8 flex items-center justify-center border rounded
-                    {{ in_array($day, $frequencyForm['month_days'] ?? []) ? 'border-color title-color' : 'bg-custom' }}"
+                    {{ in_array($day, $frequencyForm['month_days'] ?? []) ? 'border-color text-color' : 'bg-custom' }}"
                                     aria-pressed="{{ in_array($day, $frequencyForm['month_days'] ?? []) ? 'true' : 'false' }}"
                                     aria-label="{{ $day }}"
                                 >

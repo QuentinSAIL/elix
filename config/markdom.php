@@ -2,54 +2,84 @@
 
 return [
     /**
-     * Mapping elements to class names
-     * For instance
-     * 'p' => 'lead',
-     * will give all <p> elements the class "lead"
-     * <p class="lead">
+     * Mapping elements to class names for styling with Tailwind CSS
      */
     'classes' => [
-        'h1' => 'text-3xl font-bold mt-1 mb-2 border-b',
-        'h2' => 'text-2xl font-bold my-1 border-b',
-        'h3' => 'text-xl font-bold my-1',
-        'h4' => 'text-lg font-bold my-1',
-        'h5' => 'text-base font-bold my-1',
-        'h6' => 'text-sm font-bold my-1',
-        'p' => 'py-2',
-        'ul' => 'list-disc list-inside',
-        'ul ul' => 'pl-8 list-disc list-inside',
-        'ol' => 'list-decimal list-inside',
-        'pre' => 'my-1 bg-gray-100 p-3 rounded-lg',
-        'code' => 'bg-gray-200 p-1 rounded text-sm',
-        'strong' => 'font-bold',
+        // Headings
+        'h1' => 'mt-6 mb-4 text-3xl md:text-4xl font-bold tracking-tight
+                 border-b border-slate-200 dark:border-slate-700 pb-2
+                 text-slate-900 dark:text-slate-100',
+        'h2' => 'mt-8 mb-3 text-2xl md:text-3xl font-semibold
+                 border-b border-slate-200 dark:border-slate-700 pb-1
+                 text-slate-900 dark:text-slate-100',
+        'h3' => 'mt-6 mb-2 text-xl md:text-2xl font-semibold
+                 text-slate-900 dark:text-slate-100',
+        'h4' => 'mt-5 mb-2 text-lg md:text-xl font-semibold
+                 text-slate-900 dark:text-slate-100',
+        'h5' => 'mt-4 mb-2 text-base font-semibold
+                 text-slate-900 dark:text-slate-100',
+        'h6' => 'mt-4 mb-2 text-sm font-semibold
+                 text-slate-900 dark:text-slate-100',
+
+        // Text & links
+        'p' => 'my-4 leading-7 text-slate-800 dark:text-slate-200',
+        'a' => 'text-blue-600 dark:text-blue-400 underline underline-offset-2
+                  decoration-blue-300 dark:decoration-blue-500 hover:decoration-2',
+
+        // Lists
+        'ul' => 'my-3 ms-6 list-disc space-y-1 marker:text-slate-400 dark:marker:text-slate-500',
+        'ol' => 'my-3 ms-6 list-decimal space-y-1 marker:text-slate-400 dark:marker:text-slate-500',
+        'li' => 'text-slate-800 dark:text-slate-200',
+        'ul ul' => 'ms-6 list-disc',
+        'ol ol' => 'ms-6 list-decimal',
+
+        // Code (inline & blocks)
+        'code' => 'px-1.5 py-0.5 rounded-md font-mono text-sm
+                         bg-slate-100 text-slate-800 border border-slate-200
+                         dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700',
+        'inline-code' => 'px-1.5 py-0.5 rounded-md font-mono text-sm
+                         bg-slate-100 text-slate-800 border border-slate-200
+                         dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700',
+        'pre' => 'relative my-4 rounded-xl overflow-x-auto shadow-sm
+                         border border-slate-200 bg-slate-50
+                         dark:border-slate-700 dark:bg-slate-900',
+        'pre code' => 'block p-4 text-sm leading-6 font-mono bg-transparent
+                         text-slate-800 dark:text-slate-200',
+
+        // Avoid colored backgrounds on syntax-highlight spans by default
+        'code span' => 'bg-transparent',
+
+        // Emphasis
+        'strong' => 'font-semibold text-slate-900 dark:text-slate-100',
         'em' => 'italic',
-        'a' => 'text-blue-500 hover:underline',
-        'img' => 'max-w-full h-auto rounded-lg',
-        'blockquote' => 'border-l-4 pl-4 italic text-gray-600',
-        'hr' => 'border-t border-gray-300 my-4',
-        'table' => 'table-auto w-full border-collapse my-4',
-        'th' => 'px-4 py-2 text-left border-b',
-        'td' => 'px-4 py-2 border-b',
-        'tr' => 'hover:bg-gray-100',
-        'blockquote' => 'border-l-4 pl-4 italic text-gray-600',
 
-        // Optional classes for inline code
-        'inline-code' => 'bg-gray-200 px-1 rounded-sm text-sm',
+        // Images
+        'img' => 'my-4 max-w-full h-auto rounded-lg shadow-sm
+                  ring-1 ring-slate-200 dark:ring-slate-700',
 
-        // List elements for nested lists
-        'ol ol' => 'list-decimal pl-6',
-        'ul ul' => 'list-disc pl-6',
+        // Blockquote
+        'blockquote' => 'my-4 border-l-4 pl-4 pr-2 italic
+                         border-slate-300 bg-slate-50 text-slate-700
+                         dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300
+                         rounded-r-lg',
 
-        // For preformatted text/code blocks
-        'pre code' => 'text-sm font-mono bg-transparent p-0 border-none',
+        'hr' => 'my-8 border-t border-slate-200 dark:border-slate-700',
 
-        // For highlighting code syntax
-        'code span' => 'bg-gray-200 text-red-600 px-1 rounded',
+        // Tables
+        'table' => 'my-6 w-full border-collapse rounded-lg overflow-hidden',
+        'thead' => '',
+        'tbody' => '',
+        'th' => 'px-4 py-2 text-left font-semibold
+                 bg-slate-100 text-slate-700 border-b border-slate-200
+                 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700',
+        'td' => 'px-4 py-2 text-slate-800 border-b border-slate-200
+                 dark:text-slate-200 dark:border-slate-700',
+        'tr' => 'odd:bg-slate-50 hover:bg-slate-100
+                 dark:odd:bg-slate-900 dark:hover:bg-slate-800',
     ],
 
     /**
      * Options for CommonMark parser
-     * https://commonmark.thephpleague.com/2.3/configuration/
      */
     'commonmark' => [
         'renderer' => [
@@ -71,74 +101,23 @@ return [
         'max_nesting_level' => PHP_INT_MAX,
     ],
 
-    /**
-     * Extensions for commonmark
-     * https://commonmark.thephpleague.com/2.3/extensions/overview/
-     */
     'commonmark_extensions' => [
-        League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension::class, // Required!
-        // League\CommonMark\Extension\Autolink\AutolinkExtension::class,
-        // League\CommonMark\Extension\Strikethrough\StrikethroughExtension::class,
+        League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension::class, // Required
+        League\CommonMark\Extension\Autolink\AutolinkExtension::class,
+        League\CommonMark\Extension\Strikethrough\StrikethroughExtension::class,
     ],
 
-    /**
-     * It is possible to have code tags automatically
-     * parsed and highlighted
-     *
-     * Remember to add the stylesheet to your page, if using this!
-     *
-     * @markdomStyles()
-     */
     'code_highlight' => [
         'enabled' => false,
-        'theme' => 'default',
-        'languages' => [
-            'javascript',
-            'php',
-            'css',
-        ],
+        'theme' => 'github',
+        'languages' => ['javascript', 'php', 'css'],
     ],
 
-    /**
-     * This being enabled adds an id and an (invisible) anchor tag to configured elements
-     */
     'links' => [
-        'enabled' => false,
-
-        /**
-         * Here you can define which elements will receive id tags
-         */
-        'elements' => [
-            'h2',
-            'h3',
-            'h4',
-        ],
-
-        /**
-         * Set the delimiter to use when creating id and href slugs
-         */
+        'enabled' => true,
+        'elements' => ['h2', 'h3', 'h4'],
         'slug_delimiter' => '-',
-
-        /**
-         * Whether to add an achor tag
-         */
         'add_anchor' => true,
-
-        /**
-         * Here you can define where the anchor shall be placed, possible values:
-         * - before: the anchor tag will be placed right before the element
-         *     - Example: <a name="foo"></a><h1>Foo</h1>
-         * - after: the anchor tag will be placed right after the element
-         *     - Example: <h1>Foo</h1><a name="foo"></a>
-         * - wrap: the anchor tag will wrap the element
-         *     - Example: <a name="foo"><h1>Foo</h1></a>
-         * - wrapInner: the anchor tag will wrap the content inside the element
-         *     - Example: <h1><a name="foo">Foo</a></h1>
-         * - prepend: the anchor tag will be placed before the content of the element
-         *     - Example: <h1><a name="foo"></a>Foo</h1>
-         * - append: the anchor tag will be placed after the content of the element
-         *     - Example: <h1>Foo<a name="foo"></a></h1>
-         */
-        'position' => 'before',
+        'position' => 'prepend',
     ],
 ];

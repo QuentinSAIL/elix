@@ -20,7 +20,6 @@
                         placeholder="{{ __('Search for a bank') }}"
                         class="w-full px-4 py-2 mb-4 border rounded outline-none mx-auto" aria-label="{{ __('Search for a bank') }}" />
 
-                    {{-- conteneur des résultats --}}
                     <div class="bg-custom rounded-lg shadow max-h-64 overflow-y-auto">
                         @forelse($this->filteredBanks as $bank)
                             <button type="button" wire:click="updateSelectedBank('{{ $bank['id'] }}')"

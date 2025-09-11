@@ -60,6 +60,22 @@ class MoneyDashboardPanel extends Model
                 $startDate = Carbon::now()->startOfYear();
                 $endDate = Carbon::now()->endOfYear();
                 break;
+            case 'actual_month':
+                $startDate = Carbon::now()->startOfMonth();
+                $endDate = Carbon::now();
+                break;
+            case 'previous_month':
+                $startDate = Carbon::now()->subMonth()->startOfMonth();
+                $endDate = Carbon::now()->subMonth()->endOfMonth();
+                break;
+            case 'two_months_ago':
+                $startDate = Carbon::now()->subMonths(2)->startOfMonth();
+                $endDate = Carbon::now()->subMonths(2)->endOfMonth();
+                break;
+            case 'three_months_ago':
+                $startDate = Carbon::now()->subMonths(3)->startOfMonth();
+                $endDate = Carbon::now()->subMonths(3)->endOfMonth();
+                break;
             case 'all':
                 $startDate = null;
                 $endDate = null;
