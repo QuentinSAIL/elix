@@ -101,6 +101,10 @@
                             <option value="quarterly">{{ __('Quarterly (90 days)') }}</option>
                             <option value="biannual">{{ __('Bi-annual (180 days)') }}</option>
                             <option value="yearly">{{ __('Yearly (365 days)') }}</option>
+                            <option value="actual_month">{{ __('Actual month') }}</option>
+                            <option value="previous_month">{{ __('Last month') }}</option>
+                            <option value="two_months_ago">{{ __('Two months ago') }}</option>
+                            <option value="three_months_ago">{{ __('Three months ago') }}</option>
                         </flux:select>
                     </div>
                 </div>

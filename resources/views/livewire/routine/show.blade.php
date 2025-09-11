@@ -1,5 +1,5 @@
 <div>
-    <div class="md:hidden bg-custom-accent min-h-screen flex flex-col">
+    <div class="md:hidden bg-custom-accent flex flex-col">
         <div class="flex-1 p-4 flex flex-col"
              x-data="timer(@json($routine->tasks->pluck('duration')->toArray()))" x-init="init()">
 
@@ -142,25 +142,58 @@
                 </div>
             @endif
 
-            @if ($routine->tasks->count() > 0)
-                <div class="">
-                    <div class="flex items-center gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-elix/30 scrollbar-track-transparent px-2"
-                         style="scrollbar-width: thin;">
-                        @foreach ($routine->tasks as $task)
-                            <div class="flex items-center flex-shrink-0 py-4">
-                                <span class="w-3 h-3 rounded-full
-                                    @if ($loop->index < $currentTaskIndex) bg-elix
-                                    @elseif ($loop->index === $currentTaskIndex) bg-color border border-color
-                                    @else bg-gray-400/50 @endif"></span>
-                                @unless ($loop->last)
-                                    <span class="h-0.5 w-8 mx-1
-                                        {{ $loop->index < $currentTaskIndex ? 'bg-elix' : 'bg-gray-300' }}"></span>
-                                @endunless
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
+@if ($routine->tasks->count() > 0)
+<div
+  x-data="{
+    current: @entangle('currentTaskIndex'),
+    scrollToActive() {
+      const t = this.$refs.track;
+      if (!t) return;
+      const idx = Number.isInteger(this.current) ? this.current : 0;
+      const el = t.querySelector(`[data-index='${idx}']`);
+      if (!el) return;
+
+      const targetLeft = el.offsetLeft - (t.clientWidth / 2 - el.clientWidth / 2);
+      t.scrollTo({ left: Math.max(targetLeft, 0), behavior: 'smooth' });
+    },
+    init() {
+      this.$nextTick(() => this.scrollToActive());
+      this.$watch('current', () => this.scrollToActive());
+      Livewire.hook('message.processed', () => this.$nextTick(() => this.scrollToActive()));
+    }
+  }"
+  class="px-2"
+>
+  <div
+    x-ref="track"
+    class="flex items-center gap-0 overflow-x-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-elix/30 scrollbar-track-transparent snap-x snap-mandatory"
+    style="scrollbar-width: thin;"
+  >
+    @foreach ($routine->tasks as $task)
+      <div
+        class="flex items-center flex-shrink-0 py-4 snap-center"
+        data-index="{{ $loop->index }}"
+        wire:key="m-progress-{{ $task->id }}"
+      >
+        <span
+          class="shrink-0 w-3 h-3 rounded-full transition-colors
+            @if ($loop->index < $currentTaskIndex) bg-color
+            @elseif ($loop->index === $currentTaskIndex) bg-color ring-2 ring-color/60
+            @else bg-gray-400/50 @endif">
+        </span>
+
+        @unless ($loop->last)
+          <span
+            class="shrink-0 h-0.5 w-8 mx-1 transition-colors
+              {{ $loop->index < $currentTaskIndex ? 'bg-color' : 'bg-gray-300' }}">
+          </span>
+        @endunless
+      </div>
+    @endforeach
+  </div>
+</div>
+@endif
+
 
             <div class="mt-4 flex-1 overflow-y-auto">
                 <div class="space-y-3">
@@ -332,11 +365,11 @@
                             <div class="text-sm uppercase tracking-widest">{{ __('Elapsed Time') }}</div>
                             <div class="font-mono text-4xl font-bold text-elix" x-text="hhmmss(elapsedAllMs())"></div>
                         </div>
-                        <div class="text-center">
-                            <div class="text-xs uppercase tracking-widest">
-                                {{ __('Remaining (Current Task)') }}</div>
-                            <div class="font-mono text-2xl font-semibold title-color" x-text="hhmmss(remainingMs())"></div>
-                        </div>
+<div class="text-center">
+  <div class="text-xs uppercase tracking-widest">
+    {{ __('Remaining (Current Task)') }}</div>
+  <div class="font-mono text-2xl font-semibold title-color" x-text="hhmmss(remainingMs)"></div>
+</div>
                         <div class="text-center">
                             <div class="text-xs uppercase tracking-widest">{{ __('Total Remaining') }}</div>
                             <div class="font-mono text-2xl font-semibold title-color" x-text="hhmmss(totalRemainingMs())"></div>
@@ -370,20 +403,18 @@
         <div class="col-span-1 grid grid-cols-10 gap-4 overflow-y-scroll">
             <div class="col-span-2 flex flex-col items-center mt-20 lg:mt-32 overflow-hidden">
                 @foreach ($routine->tasks as $task)
-                    <span
-                        class="w-5 h-5 rounded-full border-3
-                        @if ($loop->index < $currentTaskIndex) border-color
-                        @elseif ($loop->index === $currentTaskIndex) bg-color border-color
-                        @else border-grey @endif">
-                    </span>
+<span
+  class="w-5 h-5 rounded-full border
+  @if ($loop->index < $currentTaskIndex) border-color
+  @elseif ($loop->index === $currentTaskIndex) bg-color border-color
+  @else border-gray-300 @endif">
+</span>
 
-                    @unless ($loop->last)
-                        <span
-                            class="flex-1 {{ $loop->index < $currentTaskIndex ? 'border-color' : 'border-grey' }} border-dashed border-2">
-                        </span>
-                    @else
-                        <span class="flex-1 mb-8"></span>
-                    @endunless
+@unless ($loop->last)
+  <span class="flex-1 {{ $loop->index < $currentTaskIndex ? 'border-color' : 'border-gray-300' }} border-dashed border-2"></span>
+@else
+  <span class="flex-1 mb-8"></span>
+@endunless
                 @endforeach
             </div>
 

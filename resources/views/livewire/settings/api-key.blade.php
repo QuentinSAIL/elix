@@ -55,7 +55,7 @@
 
             <div class="flex justify-end">
                 <flux:button variant="primary" wire:click="updateApiKeys">
-                    {{ __('Save API Keys') }}
+                    {{ __('Save') }}
                 </flux:button>
             </div>
 

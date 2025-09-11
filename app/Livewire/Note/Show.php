@@ -33,7 +33,15 @@ class Show extends Component
     {
         try {
             $this->validate([
-                'markdownContent' => 'required|string|different:'.$this->note?->content,
+                'markdownContent' => [
+                    'required',
+                    'string',
+                    function ($attribute, $value, $fail) {
+                        if ($value === $this->note?->content) {
+                            $fail(__('The note content must be different.'));
+                        }
+                    },
+                ],
             ]);
         } catch (ValidationException $e) {
             Toaster::error(__('Note content is required.'));
