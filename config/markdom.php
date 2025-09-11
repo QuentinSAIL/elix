@@ -22,36 +22,36 @@ return [
                  text-slate-900 dark:text-slate-100',
 
         // Text & links
-        'p'   => 'my-4 leading-7 text-slate-800 dark:text-slate-200',
-        'a'   => 'text-blue-600 dark:text-blue-400 underline underline-offset-2
+        'p' => 'my-4 leading-7 text-slate-800 dark:text-slate-200',
+        'a' => 'text-blue-600 dark:text-blue-400 underline underline-offset-2
                   decoration-blue-300 dark:decoration-blue-500 hover:decoration-2',
 
         // Lists
-        'ul'     => 'my-3 ms-6 list-disc space-y-1 marker:text-slate-400 dark:marker:text-slate-500',
-        'ol'     => 'my-3 ms-6 list-decimal space-y-1 marker:text-slate-400 dark:marker:text-slate-500',
-        'li'     => 'text-slate-800 dark:text-slate-200',
-        'ul ul'  => 'ms-6 list-disc',
-        'ol ol'  => 'ms-6 list-decimal',
+        'ul' => 'my-3 ms-6 list-disc space-y-1 marker:text-slate-400 dark:marker:text-slate-500',
+        'ol' => 'my-3 ms-6 list-decimal space-y-1 marker:text-slate-400 dark:marker:text-slate-500',
+        'li' => 'text-slate-800 dark:text-slate-200',
+        'ul ul' => 'ms-6 list-disc',
+        'ol ol' => 'ms-6 list-decimal',
 
         // Code (inline & blocks)
-        'code'       => 'px-1.5 py-0.5 rounded-md font-mono text-sm
+        'code' => 'px-1.5 py-0.5 rounded-md font-mono text-sm
                          bg-slate-100 text-slate-800 border border-slate-200
                          dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700',
-        'inline-code'=> 'px-1.5 py-0.5 rounded-md font-mono text-sm
+        'inline-code' => 'px-1.5 py-0.5 rounded-md font-mono text-sm
                          bg-slate-100 text-slate-800 border border-slate-200
                          dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700',
-        'pre'        => 'relative my-4 rounded-xl overflow-x-auto shadow-sm
+        'pre' => 'relative my-4 rounded-xl overflow-x-auto shadow-sm
                          border border-slate-200 bg-slate-50
                          dark:border-slate-700 dark:bg-slate-900',
-        'pre code'   => 'block p-4 text-sm leading-6 font-mono bg-transparent
+        'pre code' => 'block p-4 text-sm leading-6 font-mono bg-transparent
                          text-slate-800 dark:text-slate-200',
 
         // Avoid colored backgrounds on syntax-highlight spans by default
-        'code span'  => 'bg-transparent',
+        'code span' => 'bg-transparent',
 
         // Emphasis
         'strong' => 'font-semibold text-slate-900 dark:text-slate-100',
-        'em'     => 'italic',
+        'em' => 'italic',
 
         // Images
         'img' => 'my-4 max-w-full h-auto rounded-lg shadow-sm
@@ -85,20 +85,20 @@ return [
         'renderer' => [
             'block_separator' => "\n",
             'inner_separator' => "\n",
-            'soft_break'      => "\n",
+            'soft_break' => "\n",
         ],
 
         'commonmark' => [
-            'enable_em'               => true,
-            'enable_strong'           => true,
-            'use_asterisk'            => true,
-            'use_underscore'          => true,
-            'unordered_list_markers'  => ['-', '+', '*'],
+            'enable_em' => true,
+            'enable_strong' => true,
+            'use_asterisk' => true,
+            'use_underscore' => true,
+            'unordered_list_markers' => ['-', '+', '*'],
         ],
 
-        'html_input'         => 'strip',
+        'html_input' => 'strip',
         'allow_unsafe_links' => true,
-        'max_nesting_level'  => PHP_INT_MAX,
+        'max_nesting_level' => PHP_INT_MAX,
     ],
 
     'commonmark_extensions' => [
@@ -108,16 +108,16 @@ return [
     ],
 
     'code_highlight' => [
-        'enabled'  => false,
-        'theme'    => 'github',
-        'languages'=> ['javascript','php','css'],
+        'enabled' => false,
+        'theme' => 'github',
+        'languages' => ['javascript', 'php', 'css'],
     ],
 
     'links' => [
-        'enabled'        => true,
-        'elements'       => ['h2', 'h3', 'h4'],
+        'enabled' => true,
+        'elements' => ['h2', 'h3', 'h4'],
         'slug_delimiter' => '-',
-        'add_anchor'     => true,
-        'position'       => 'prepend',
+        'add_anchor' => true,
+        'position' => 'prepend',
     ],
 ];
