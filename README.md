@@ -1,7 +1,8 @@
 # Elix 🐙
 > Application web modulaire (Laravel + Livewire + Tailwind) pour booster la productivité : routines, finances personnelles (budget/catégorisation), prise de notes Markdown, etc.
 
-
+- elix-app.com
+- preprod.elix-app.com
 
 ## Sommaire
 
