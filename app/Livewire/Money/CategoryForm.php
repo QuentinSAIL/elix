@@ -30,6 +30,8 @@ class CategoryForm extends Component
 
     public bool $applyMatch = true;
 
+    public bool $mobile = false;
+
     public bool $applyMatchToAlreadyCategorized = false;
 
     /** @var array<string> */
@@ -65,7 +67,7 @@ class CategoryForm extends Component
     public function populateForm(): void
     {
         if ($this->category) {
-            $this->categoryId = $this->category->id;
+            $this->categoryId = $this->category->id.($this->mobile ? '-m' : '');
             $this->edition = true;
             $this->categoryForm = [
                 'name' => $this->category->name,
