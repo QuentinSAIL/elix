@@ -133,7 +133,7 @@
                         </div>
 
                         <div class="flex items-end gap-2 pb-1">
-                            <livewire:money.category-form :category="$category" wire:key="category-form-mobile-{{ $category->id }}" :edition="true" />
+                            <livewire:money.category-form :category="$category" wire:key="category-form-mobile-{{ $category->id }}" :edition="true" mobile />
                             <button type="button" wire:click="deleteCategory('{{ $category->id }}')"
                                 class="p-2 hover:text-danger-500 rounded-full hover:bg-danger-50 transition-colors duration-150 cursor-pointer"
                                 aria-label="{{ __('Delete this category') }}"
