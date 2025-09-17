@@ -257,7 +257,7 @@ test('updating search resets pagination', function () {
     Livewire::test(BankTransactionIndex::class)
         ->set('perPage', 200)
         ->set('search', 'test')
-        ->assertSet('perPage', 100);
+        ->assertSet('perPage', 50);
 });
 
 test('no account selected returns empty collection', function () {

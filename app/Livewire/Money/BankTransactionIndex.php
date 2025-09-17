@@ -30,7 +30,7 @@ class BankTransactionIndex extends Component
 
     public int $onInitialLoad = 50;
 
-    public int $increasedLoad = 10;
+    public int $increasedLoad = 50;
 
     public bool $noMoreToLoad = false;
 
