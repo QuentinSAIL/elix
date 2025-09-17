@@ -184,8 +184,8 @@ class BankTransactionIndex extends Component
      * Retourne la requête de base pour les transactions
      *
      * @return HasMany<\App\Models\BankTransactions, \App\Models\BankAccount>
-     *         | HasManyThrough<\App\Models\BankTransactions, \App\Models\BankAccount, \App\Models\User>
-     *         | SupportCollection<array-key, mixed>
+     *                                                                        | HasManyThrough<\App\Models\BankTransactions, \App\Models\BankAccount, \App\Models\User>
+     *                                                                        | SupportCollection<array-key, mixed>
      */
     protected function getTransactionQuery(): HasMany|HasManyThrough|SupportCollection
     {
@@ -247,7 +247,7 @@ class BankTransactionIndex extends Component
                 $query->whereBetween('transaction_date', [$start, $end]);
                 break;
 
-            // 'all' => pas de filtre
+                // 'all' => pas de filtre
         }
     }
 
