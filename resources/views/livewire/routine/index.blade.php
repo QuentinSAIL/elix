@@ -39,7 +39,7 @@
           </div>
         </div>
 
-        <h3 class="text-xl font-semibold">@limit($routine->name, 12)</h3>
+        <h3 class="text-xl font-semibold">@limit($routine->name, 24)</h3>
         <p class="mt-2 text-sm">@limit($routine->description, 60)</p>
 
       </div>

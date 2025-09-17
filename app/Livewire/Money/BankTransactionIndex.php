@@ -28,9 +28,9 @@ class BankTransactionIndex extends Component
 
     public int $perPage = 100;
 
-    public int $onInitialLoad = 100;
+    public int $onInitialLoad = 50;
 
-    public int $increasedLoad = 50;
+    public int $increasedLoad = 10;
 
     public bool $noMoreToLoad = false;
 
@@ -44,18 +44,30 @@ class BankTransactionIndex extends Component
 
     public string $dateFilter = 'all';
 
-    /** @var EloquentCollection<array-key, \App\Models\BankTransactions> */
+    /** @var EloquentCollection<int, \App\Models\BankTransactions> */
     public EloquentCollection $transactions;
 
     /** @var EloquentCollection<int, \App\Models\MoneyCategory> */
     public EloquentCollection $categories;
 
+    /** Champs autorisés pour le tri (sécurité + perf/index) */
+    protected array $allowedSorts = [
+        'transaction_date',
+        'amount',
+        'description',
+        'money_category_id',
+        'created_at',
+        'id',
+    ];
+
     public function mount(): void
     {
         $this->user = Auth::user();
+
         if (! isset($this->accounts)) {
             $this->accounts = $this->user->bankAccounts;
         }
+
         $this->categories = MoneyCategory::orderBy('name')->get();
         $this->transactions = new EloquentCollection;
 
@@ -100,53 +112,53 @@ class BankTransactionIndex extends Component
 
     public function updateSelectedAccount(string|int $accountId): void
     {
-        $this->allAccounts = $accountId === 'all';
-        $this->selectedAccount = $this->accounts->find($accountId);
-        $this->perPage = $this->onInitialLoad;
-        $this->noMoreToLoad = false;
+        $this->allAccounts = ($accountId === 'all');
+        $this->selectedAccount = $this->allAccounts ? null : $this->accounts->find($accountId);
+
+        $this->resetPagination();
+        $this->getTransactionsProperty();
     }
 
     public function loadMore(): void
     {
         $this->perPage += $this->increasedLoad;
 
-        if ($this->perPage > $this->getTransactionQuery()->count()) {
-            $this->noMoreToLoad = true;
-        }
+        // On recharge la liste ; le flag noMoreToLoad sera calibré en fonction
+        // du "perPage + 1" dans getTransactionsProperty()
+        $this->getTransactionsProperty();
     }
 
-    /**
-     * Réinitialise la pagination lors de l'actualisation de la recherche
-     */
+    /** Réinitialise la pagination lors de l'actualisation de la recherche */
     public function updatingSearch(): void
     {
-        $this->perPage = $this->onInitialLoad;
-        $this->noMoreToLoad = false;
+        $this->resetPagination();
+        $this->getTransactionsProperty();
     }
 
-    /**
-     * Réinitialise la pagination lors du changement de filtre de catégorie
-     */
+    /** Réinitialise la pagination lors du changement de filtre de catégorie */
     public function updatingCategoryFilter(): void
     {
-        $this->perPage = $this->onInitialLoad;
-        $this->noMoreToLoad = false;
+        $this->resetPagination();
+        $this->getTransactionsProperty();
     }
 
-    /**
-     * Réinitialise la pagination lors du changement de filtre de date
-     */
+    /** Réinitialise la pagination lors du changement de filtre de date */
     public function updatingDateFilter(): void
     {
-        $this->perPage = $this->onInitialLoad;
-        $this->noMoreToLoad = false;
+        $this->resetPagination();
+        $this->getTransactionsProperty();
     }
 
     /**
-     * Gère le tri des colonnes
+     * Gère le tri des colonnes (avec whitelisting)
      */
     public function sortBy(string $field): void
     {
+        if (! in_array($field, $this->allowedSorts, true)) {
+            // Sécurité : si colonne non autorisée, on ignore
+            return;
+        }
+
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
@@ -154,7 +166,7 @@ class BankTransactionIndex extends Component
             $this->sortDirection = 'asc';
         }
 
-        // Actualiser les transactions après le changement de tri
+        $this->resetPagination();
         $this->getTransactionsProperty();
     }
 
@@ -164,14 +176,16 @@ class BankTransactionIndex extends Component
     #[On('transactions-edited')]
     public function refreshTransactions(): void
     {
+        $this->resetPagination();
         $this->getTransactionsProperty();
     }
 
     /**
      * Retourne la requête de base pour les transactions
-     */
-    /**
-     * @return HasMany<\App\Models\BankTransactions, \App\Models\BankAccount>|HasManyThrough<\App\Models\BankTransactions, \App\Models\BankAccount, \App\Models\User>|SupportCollection<array-key, mixed>
+     *
+     * @return HasMany<\App\Models\BankTransactions, \App\Models\BankAccount>
+     *                                                                        | HasManyThrough<\App\Models\BankTransactions, \App\Models\BankAccount, \App\Models\User>
+     *                                                                        | SupportCollection<array-key, mixed>
      */
     protected function getTransactionQuery(): HasMany|HasManyThrough|SupportCollection
     {
@@ -187,31 +201,60 @@ class BankTransactionIndex extends Component
             $query = $this->selectedAccount->transactions();
         }
 
-        if (Str::length($this->search) > 0) {
-            $query->whereRaw('LOWER(description) LIKE ?', ['%'.strtolower($this->search).'%']);
+        // Recherche full-text simple (case-insensitive) optimisée
+        $search = trim(Str::lower($this->search));
+        if ($search !== '') {
+            // Garde la forme actuelle (compatible tous SGBD) tout en normalisant une fois
+            $query->whereRaw('LOWER(description) LIKE ?', ['%'.$search.'%']);
         }
 
-        if ($this->categoryFilter) {
+        // Filtre de catégorie : attention aux valeurs "0"/0
+        if ($this->categoryFilter !== '' && $this->categoryFilter !== null) {
             $query->where('money_category_id', $this->categoryFilter);
         }
 
-        switch ($this->dateFilter) {
-            case 'current_month':
-                $query->whereMonth('transaction_date', now()->month)
-                    ->whereYear('transaction_date', now()->year);
-                break;
-            case 'last_month':
-                $query->whereMonth('transaction_date', now()->subMonth()->month)
-                    ->whereYear('transaction_date', now()->subMonth()->year);
-                break;
-            case 'current_year':
-                $query->whereYear('transaction_date', now()->year);
-                break;
-        }
+        // Filtre de date : passer sur des bornes (meilleure utilisation des index)
+        $this->applyDateWindow($query);
 
         return $query;
     }
 
+    /**
+     * Applique un intervalle de dates index-friendly au lieu de whereMonth/whereYear
+     *
+     * @param  HasMany|\Illuminate\Database\Eloquent\Relations\HasManyThrough  $query
+     */
+    protected function applyDateWindow($query): void
+    {
+        $now = now();
+
+        switch ($this->dateFilter) {
+            case 'current_month':
+                $start = $now->copy()->startOfMonth();
+                $end = $now->copy()->endOfMonth();
+                $query->whereBetween('transaction_date', [$start, $end]);
+                break;
+
+            case 'last_month':
+                $start = $now->copy()->subMonthNoOverflow()->startOfMonth();
+                $end = $now->copy()->subMonthNoOverflow()->endOfMonth();
+                $query->whereBetween('transaction_date', [$start, $end]);
+                break;
+
+            case 'current_year':
+                $start = $now->copy()->startOfYear();
+                $end = $now->copy()->endOfYear();
+                $query->whereBetween('transaction_date', [$start, $end]);
+                break;
+
+                // 'all' => pas de filtre
+        }
+    }
+
+    /**
+     * Recharge $this->transactions en mode "perPage + 1" pour détecter s'il reste des éléments
+     * et règle $this->noMoreToLoad sans faire de COUNT(*)
+     */
     public function getTransactionsProperty(): void
     {
         $query = $this->getTransactionQuery();
@@ -224,22 +267,44 @@ class BankTransactionIndex extends Component
                         : new \App\Models\BankTransactions((array) $item);
                 })
             );
+            // Si on est sur une collection, on n'a pas la notion de "reste"
+            $this->noMoreToLoad = true;
 
             return;
         }
 
-        $this->transactions = $query
-            ->orderBy($this->sortField, $this->sortDirection)
-            ->take($this->perPage)
-            ->get()
-            ->values();
+        // Tri sécurisé (si jamais sortField a été forcé entre-temps)
+        if (! in_array($this->sortField, $this->allowedSorts, true)) {
+            $this->sortField = 'transaction_date';
+            $this->sortDirection = 'desc';
+        }
 
+        // On récupère perPage + 1 en BDD pour savoir s'il reste des résultats
+        $rows = $query
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->take($this->perPage + 1)
+            ->get();
+
+        $this->noMoreToLoad = $rows->count() <= $this->perPage;
+
+        // On tronque à perPage pour l'affichage
+        $this->transactions = new EloquentCollection($rows->take($this->perPage)->values());
     }
 
     public function render(): \Illuminate\Contracts\View\View
     {
+        // On s'assure d'avoir les données à jour (cohérent avec le flux Livewire actuel)
         $this->getTransactionsProperty();
 
         return view('livewire.money.bank-transaction-index');
+    }
+
+    /**
+     * Remet la pagination dans son état initial (DRY)
+     */
+    protected function resetPagination(): void
+    {
+        $this->perPage = $this->onInitialLoad;
+        $this->noMoreToLoad = false;
     }
 }
