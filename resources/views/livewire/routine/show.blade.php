@@ -198,10 +198,12 @@
             <div class="mt-4 flex-1 overflow-y-auto">
                 <div class="space-y-3">
                     @foreach ($routine->tasks as $task)
-                        <div id="{{ $task->id }}" wire:key="m-task-{{ $task->id }}"
-                             class="bg-custom p-3 rounded-md shadow
-                                    {{ $loop->index === $currentTaskIndex ? 'border-l-4 border-color' : '' }}
-                                    {{ $loop->index < $currentTaskIndex ? 'opacity-70' : '' }}">
+<div id="{{ $task->id }}"
+     data-task
+     wire:key="task-{{ $task->id }}"
+     class="bg-custom p-4 rounded-md shadow-sm flex flex-col justify-between
+            {{ $loop->index === $currentTaskIndex ? 'border-l-4 border-color' : '' }}
+            {{ $loop->index < $currentTaskIndex ? 'opacity-70' : '' }}">
                             <div class="flex items-start gap-3">
                                 <div class="flex-1">
                                     <div class="flex items-center gap-2">
@@ -450,10 +452,12 @@
 
                 <div x-ref="list" class="flex-1 overflow-y-auto p-4 space-y-4">
                     @foreach ($routine->tasks as $task)
-                        <div id="{{ $task->id }}" wire:key="task-{{ $task->id }}"
-                             class="bg-custom p-4 rounded-md shadow-sm flex flex-col justify-between
-                                    {{ $loop->index === $currentTaskIndex ? 'border-l-4 border-color' : '' }}
-                                    {{ $loop->index < $currentTaskIndex ? 'opacity-70' : '' }}">
+<div id="{{ $task->id }}"
+     data-task
+     wire:key="task-{{ $task->id }}"
+     class="bg-custom p-4 rounded-md shadow-sm flex flex-col justify-between
+            {{ $loop->index === $currentTaskIndex ? 'border-l-4 border-color' : '' }}
+            {{ $loop->index < $currentTaskIndex ? 'opacity-70' : '' }}">
                             <div class="flex items-center space-x-4">
                                 <div class="w-full">
                                     <div class="flex justify-between items-center">
@@ -527,88 +531,141 @@
 </div>
 
 <script>
-    function timer(durations) {
-        const segments = durations.length;
-        const r = 45;
-        const circum = 2 * Math.PI * r;
-        const totalDuration = durations.reduce((sum, d) => sum + d, 0) * 1000;
+document.addEventListener('alpine:init', () => {
+  Alpine.data('timer', (durations) => {
+    const r = 45;
+    const circum = 2 * Math.PI * r;
+    const totalDuration = durations.reduce((s, d) => s + d, 0) * 1000;
 
-        return {
-            durations,
-            segments,
-            circum,
-            totalDuration,
-            currentIndex: 0,
-            remainingMs: 0,
-            upcomingMs: 0,
-            endTime: 0,
-            rafId: null,
+    return {
+      durations,
+      circum,
+      totalDuration,
 
-            init() {
-                Livewire.on('start-timer', ([{ duration = 0, currentIndex: idx = 0 } = {}]) => {
-                    this.currentIndex = idx;
-                    this.remainingMs = duration * 1000;
-                    this.upcomingMs = this.durations.slice(idx + 1).reduce((sum, d) => sum + d, 0) * 1000;
-                    this.endTime = Date.now() + this.remainingMs;
-                    this.start();
-                });
-                Livewire.on('stop-timer', () => this.stop());
-                Livewire.on('play-pause', ([{ isPaused: pause } = {}]) => pause ? this.pause() : this.resume());
-            },
+      currentIndex: 0,
+      remainingMs: 0,
+      upcomingMs: 0,
+      endTime: 0,
 
-            start() {
-                if (this.rafId) cancelAnimationFrame(this.rafId);
-                this.rafId = requestAnimationFrame(() => this.update());
-            },
+      rafId: null,
+      active: false,          // ← cette instance est-elle autorisée à tourner ?
+      finishSent: false,      // ← déjà envoyé `timer-finished` pour cette étape ?
 
-            update() {
-                const now = Date.now();
-                const diff = this.endTime - now;
-                this.remainingMs = diff > 0 ? diff : 0;
-                if (diff > 0) {
-                    this.rafId = requestAnimationFrame(() => this.update());
-                } else {
-                    Livewire.dispatch('timer-finished');
-                }
-            },
+      init() {
+        // Activer seulement si VISIBLE (le bloc caché par Tailwind `hidden` ne s'active pas)
+        this.active = this.isVisible();
+        if (!this.active) return;
 
-            pause() {
-                if (this.rafId) cancelAnimationFrame(this.rafId);
-                this.remainingMs = Math.max(this.endTime - Date.now(), 0);
-            },
+        // Nettoyage si l'élément est détruit par Livewire/Alpine
+        this.$el.addEventListener('alpine:destroy', () => this.stop());
 
-            resume() {
-                this.endTime = Date.now() + this.remainingMs;
-                this.start();
-            },
+        // Si l’affichage change (ex: resize qui bascule md:hidden), on (dés)active proprement
+        window.addEventListener('resize', () => {
+          const vis = this.isVisible();
+          if (vis && !this.active) { this.active = true; }
+          if (!vis && this.active) { this.active = false; this.stop(); }
+        });
 
-            stop() {
-                if (this.rafId) cancelAnimationFrame(this.rafId);
-                this.remainingMs = 0;
-            },
+        // Écoutes Livewire (seulement sur l'instance active)
+        Livewire.on('start-timer', ([{ duration = 0, currentIndex: idx = 0 } = {}]) => {
+          if (!this.active) return;
+          this.currentIndex = idx;
+          this.remainingMs = Math.max(0, duration * 1000);
+          this.upcomingMs = this.durations.slice(idx + 1).reduce((s, d) => s + d, 0) * 1000;
+          this.endTime = Date.now() + this.remainingMs;
+          this.finishSent = false;
 
-            elapsedAllMs() {
-                return this.totalDuration - (this.remainingMs + this.upcomingMs);
-            },
+          // Tâche de durée zéro → avancer immédiatement (une seule fois)
+          if (this.remainingMs === 0) {
+            if (!this.finishSent) {
+              this.finishSent = true;
+              queueMicrotask(() => Livewire.dispatch('timer-finished'));
+            }
+            return;
+          }
 
-            totalRemainingMs() {
-                return this.remainingMs + this.upcomingMs;
-            },
+          this.start();
+        });
 
-            percent() {
-                const elapsed = this.elapsedAllMs();
-                if (elapsed <= 0) return 0;
-                if (elapsed >= this.totalDuration) return 100;
-                return (elapsed / this.totalDuration) * 100;
-            },
+        Livewire.on('stop-timer', () => { if (this.active) this.stop(); });
+        Livewire.on('play-pause', ([{ isPaused: pause } = {}]) => {
+          if (!this.active) return;
+          pause ? this.pause() : this.resume();
+        });
+      },
 
-            hhmmss(ms) {
-                const sec = Math.ceil(ms / 1000);
-                const h = Math.floor(sec / 3600).toString().padStart(2, '0');
-                const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
-                const s = (sec % 60).toString().padStart(2, '0');
-                return `${h}:${m}:${s}`;
-            },
-        };
+      isVisible() {
+        // true si rendu (pas display:none)
+        const el = this.$el;
+        return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+      },
+
+      start() {
+        if (!this.active) return;
+        if (this.rafId) cancelAnimationFrame(this.rafId);
+        this.rafId = requestAnimationFrame(() => this.update());
+      },
+
+      update() {
+        if (!this.active) return;
+
+        const diff = this.endTime - Date.now();
+        this.remainingMs = diff > 0 ? diff : 0;
+
+        if (diff > 0) {
+          this.rafId = requestAnimationFrame(() => this.update());
+        } else {
+          // Fin d’étape : ne pas spammer l’événement
+          if (!this.finishSent) {
+            this.finishSent = true;
+            if (this.rafId) cancelAnimationFrame(this.rafId);
+            this.rafId = null;
+            Livewire.dispatch('timer-finished');
+          }
+        }
+      },
+
+      pause() {
+        if (this.rafId) cancelAnimationFrame(this.rafId);
+        this.rafId = null;
+        this.remainingMs = Math.max(this.endTime - Date.now(), 0);
+      },
+
+      resume() {
+        this.endTime = Date.now() + this.remainingMs;
+        this.start();
+      },
+
+      stop() {
+        if (this.rafId) cancelAnimationFrame(this.rafId);
+        this.rafId = null;
+        this.finishSent = false;
+        this.remainingMs = 0;
+      },
+
+      elapsedAllMs() {
+        return this.totalDuration - (this.remainingMs + this.upcomingMs);
+      },
+
+      totalRemainingMs() {
+        return this.remainingMs + this.upcomingMs;
+      },
+
+      percent() {
+        const e = this.elapsedAllMs();
+        if (e <= 0) return 0;
+        if (e >= this.totalDuration) return 100;
+        return (e / this.totalDuration) * 100;
+      },
+
+      hhmmss(ms) {
+        const sec = Math.ceil(ms / 1000);
+        const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+        const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+        const s = (sec % 60).toString().padStart(2, '0');
+        return `${h}:${m}:${s}`;
+      },
     }
+  });
+});
 </script>

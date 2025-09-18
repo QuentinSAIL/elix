@@ -31,10 +31,10 @@
             <flux:textarea :label="__('Description (optional)')" wire:model.lazy="taskForm.description" />
             <x:atoms.duration-picker :label="__('Duration (optional)')" wire:model.lazy="duration" />
 
-            <flux:input :label="__('Order in the routine')" placeholder="3" wire:model.lazy="taskForm.order"
-                type="number" min="1" />
+            {{-- <flux:input :label="__('Order in the routine')" placeholder="3" wire:model.lazy="taskForm.order"
+                type="number" min="1" /> --}}
             <flux:switch :label="__('Skip automatically')" wire:model.lazy="taskForm.autoskip" />
-            <flux:switch :label="__('Active')" wire:model.lazy="taskForm.is_active" />
+            {{-- <flux:switch :label="__('Active')" wire:model.lazy="taskForm.is_active" /> --}}
 
             <div class="flex gap-2 mt-6 justify-end pt-4">
                 <flux:modal.close>
