@@ -95,6 +95,7 @@ class Form extends Component
 
         Flux::modals()->close('task-form-'.$this->taskId);
         $this->dispatch('task-saved');
+        $this->resetForm();
     }
 
     public function render()
