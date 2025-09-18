@@ -1,19 +1,18 @@
 # Changelog
 
-# v1.2.1 — 2025-09-17
+# v1.2.2 — 2025-09-18
 
 ### Added
 - 
 ### Changed
-- update mobile handle for form category
+- 
 ### Fixed
-- some breaking tests
+- Timer reset routine
 ### Security
 - 
 
 ## Changes
-* chore(release): bump version to v1.2.1 (1b9927d) – Quentin SAILLARD
-* hofix(BankTransactionIndex): increase default load size from 10 to 50 (bf8c16e) – Quentin SAILLARD
-* Merge pull request #40 from QuentinSAIL/develop (1138889) – Quentin SAILLARD
-* feat(category-form): add mobile support and update category ID format (67387b4) – Quentin SAILLARD
+* chore(release): bump version to v1.2.2 (fdfba14) – Quentin SAILLARD
+* Merge pull request #41 from QuentinSAIL/develop (0c4de56) – Quentin SAILLARD
+* feat: enhance duration picker with improved Livewire integration and input handling; update task display logic and improve timer functionality (9807fdb) – Quentin SAILLARD
 
