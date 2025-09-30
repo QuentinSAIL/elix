@@ -32,6 +32,7 @@
                         <flux:navlist.group icon="banknotes" heading="{{ __('Money') }}" expandable>
                             <flux:navlist.item :href="route('money.dashboard')" icon="presentation-chart-line" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
                             <flux:navlist.item :href="route('money.accounts')" icon="building-library" wire:navigate>{{ __('Bank Account') }}</flux:navlist.item>
+                            <flux:navlist.item :href="route('money.wallets')" icon="wallet" wire:navigate>{{ __('Wallet') }}</flux:navlist.item>
                             <flux:navlist.item :href="route('money.transactions')" icon="arrows-up-down" wire:navigate>{{ __('Transactions') }}</flux:navlist.item>
                             <flux:navlist.item :href="route('money.categories')" icon="tag" wire:navigate>{{ __('Categories') }}</flux:navlist.item>
                         </flux:navlist.group>

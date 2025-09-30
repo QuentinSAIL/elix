@@ -88,12 +88,14 @@
                             <div class="flex items-center justify-center space-x-2">
                                 <livewire:money.category-form :category="$category"
                                     wire:key="category-form-{{ $category->id }}" :edition="true" />
-                                <button type="button" wire:click="deleteCategory('{{ $category->id }}')"
-                                    class="p-2 hover:text-danger-500 rounded-full hover:bg-danger-50 transition-colors duration-150 cursor-pointer"
-                                    aria-label="{{ __('Delete this category') }}"
-                                    title="{{ __('Delete this category') }}">
-                                    <flux:icon.trash class="w-5 h-5" variant="micro" aria-hidden="true" />
-                                </button>
+                                @if (!$category->wallet)
+                                    <button type="button" wire:click="deleteCategory('{{ $category->id }}')"
+                                        class="p-2 hover:text-danger-500 rounded-full hover:bg-danger-50 transition-colors duration-150 cursor-pointer"
+                                        aria-label="{{ __('Delete this category') }}"
+                                        title="{{ __('Delete this category') }}">
+                                        <flux:icon.trash class="w-5 h-5" variant="micro" aria-hidden="true" />
+                                    </button>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -134,12 +136,14 @@
 
                         <div class="flex items-end gap-2 pb-1">
                             <livewire:money.category-form :category="$category" wire:key="category-form-mobile-{{ $category->id }}" :edition="true" mobile />
-                            <button type="button" wire:click="deleteCategory('{{ $category->id }}')"
-                                class="p-2 hover:text-danger-500 rounded-full hover:bg-danger-50 transition-colors duration-150 cursor-pointer"
-                                aria-label="{{ __('Delete this category') }}"
-                                title="{{ __('Delete this category') }}">
-                                <flux:icon.trash class="w-5 h-5" variant="micro" aria-hidden="true" />
-                            </button>
+                            @if (!$category->wallet)
+                                <button type="button" wire:click="deleteCategory('{{ $category->id }}')"
+                                    class="p-2 hover:text-danger-500 rounded-full hover:bg-danger-50 transition-colors duration-150 cursor-pointer"
+                                    aria-label="{{ __('Delete this category') }}"
+                                    title="{{ __('Delete this category') }}">
+                                    <flux:icon.trash class="w-5 h-5" variant="micro" aria-hidden="true" />
+                                </button>
+                            @endif
                         </div>
                     </div>
                 </div>

@@ -4,6 +4,7 @@ use App\Http\Middleware\UserHasValidGoCardlessKeys;
 use App\Http\Middleware\UserModule;
 use App\Livewire\Money\BankAccountIndex as AccountIndex;
 use App\Livewire\Money\BankTransactionIndex as TransactionIndex;
+use App\Livewire\Money\WalletIndex;
 use App\Livewire\Money\CategoryIndex;
 use App\Livewire\Money\Dashboard;
 use App\Livewire\Note\Index as NoteIndex;
@@ -28,6 +29,7 @@ Route::middleware(['auth'])->group(function () {
                 })->name('money.index');
                 Route::get('dashboard', Dashboard::class)->name('money.dashboard');
                 Route::get('accounts', AccountIndex::class)->name('money.accounts');
+                Route::get('wallets', WalletIndex::class)->name('money.wallets');
                 Route::get('transactions', TransactionIndex::class)->name('money.transactions');
                 Route::get('categories', CategoryIndex::class)->name('money.categories');
             });
@@ -44,4 +46,4 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

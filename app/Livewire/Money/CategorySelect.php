@@ -3,6 +3,8 @@
 namespace App\Livewire\Money;
 
 use Flux\Flux;
+use App\Models\MoneyCategory;
+use App\Models\Wallet;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -35,6 +37,10 @@ class CategorySelect extends Component
 
     public $mobile = false;
 
+    public $walletAmount;
+
+    public $walletUnit;
+
     public function mount()
     {
         $this->user = Auth::user();
@@ -50,10 +56,15 @@ class CategorySelect extends Component
         $category = $this->user->moneyCategories()->where('name', $value)->first();
         if (! $category) {
             $this->alreadyExists = false;
-            Toaster::error('Category not found');
+            Toaster::error(__('Category not found'));
         } else {
             $this->alreadyExists = true;
-            Toaster::success('Category found');
+            Toaster::success(__('Category found'));
+            if ($category->wallet) {
+                $this->walletUnit = $category->wallet->unit;
+            } else {
+                $this->walletUnit = null;
+            }
         }
     }
 
@@ -66,7 +77,7 @@ class CategorySelect extends Component
         try {
             $this->validate($rules);
         } catch (ValidationException $e) {
-            Toaster::error('Le contenu de la categorie est invalide.');
+            Toaster::error(__('The category content is invalid.'));
 
             return;
         }
@@ -82,6 +93,30 @@ class CategorySelect extends Component
 
         if ($category) {
             $this->transaction->category()->associate($category)->save();
+
+            // If category is linked to a wallet, we must update wallet balance
+            if ($category->wallet) {
+                $wallet = $category->wallet;
+
+                // Determine unit and amount input
+                $unit = $this->walletUnit ?: $wallet->unit;
+                $amount = (float) ($this->walletAmount ?? 0);
+
+                if ($amount <= 0) {
+                    Toaster::error(__('Invalid wallet amount.'));
+                } else {
+                    // Positive bank transaction amount means income; negative means expense
+                    // When assigning to wallet, we add the absolute amount in the wallet's unit (user provided)
+                    // Bank transfer example: 100 EUR to Livret A (EUR) => amount=100, unit=EUR
+                    // BTC example: 100 EUR to BTC => amount=0.0001, unit=BTC
+                    // We do not convert; we trust user input and set the balance delta accordingly
+                    $wallet->balance = (string) ((float) $wallet->balance + $amount);
+                    if ($unit) {
+                        $wallet->unit = $unit;
+                    }
+                    $wallet->save();
+                }
+            }
         }
 
         if ($this->addOtherTransactions) {
@@ -102,7 +137,7 @@ class CategorySelect extends Component
         if ($this->transaction) {
             Flux::modals()->close('category-form-'.$this->transaction->id);
         }
-        Toaster::success('Category saved successfully');
+        Toaster::success(__('Category saved successfully'));
     }
 
     public function render()
