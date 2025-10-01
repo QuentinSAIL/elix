@@ -18,8 +18,16 @@ use App\Livewire\Settings\Profile;
 use App\Services\GoCardlessDataService;
 use Illuminate\Support\Facades\Route;
 
+// Landing page accessible uniquement aux utilisateurs non connectés
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return view('landing');
+})->name('landing');
+
 Route::middleware(['auth'])->group(function () {
-    Route::view('/', 'dashboard')->name('dashboard');
+    Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::middleware([UserModule::class])->group(function () {
         Route::get('routines', RoutineIndex::class)->name('routines.index');
         Route::get('notes', NoteIndex::class)->name('notes.index');
