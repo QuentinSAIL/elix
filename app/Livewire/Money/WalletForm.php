@@ -61,7 +61,7 @@ class WalletForm extends Component
                 'name' => $this->wallet->name,
                 'unit' => $this->wallet->unit,
                 'mode' => $this->wallet->mode ?? 'single',
-                'balance' => (string) $this->wallet->balance,
+                'balance' => rtrim(rtrim(number_format((float) $this->wallet->balance, 8, '.', ''), '0'), '.'),
             ];
         } else {
             $this->edition = false;
@@ -70,7 +70,7 @@ class WalletForm extends Component
                 'name' => '',
                 'unit' => 'EUR',
                 'mode' => 'single',
-                'balance' => 0,
+                'balance' => '',
             ];
         }
     }

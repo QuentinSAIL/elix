@@ -85,6 +85,10 @@ class CategorySelect extends Component
 
         if ($category) {
             $this->transaction->category()->associate($category)->save();
+            $this->transaction->refresh();
+
+            // Émettre l'événement pour mettre à jour cette transaction spécifique
+            $this->dispatch('transaction-categorized', $this->transaction->id);
         }
 
         if ($this->addOtherTransactions) {

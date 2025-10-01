@@ -5,6 +5,7 @@ namespace App\Livewire\Money;
 use App\Models\MoneyCategory;
 use App\Models\MoneyCategoryMatch;
 use App\Services\GoCardlessDataService;
+use App\Services\TransactionCacheService;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -63,16 +64,22 @@ class BankTransactionIndex extends Component
     public function mount(): void
     {
         $this->user = Auth::user();
+        $cacheService = app(TransactionCacheService::class);
 
         if (! isset($this->accounts)) {
-            $this->accounts = $this->user->bankAccounts;
+            $this->accounts = $this->user->bankAccounts()->withCount('transactions')->get();
         }
 
-        $this->categories = MoneyCategory::orderBy('name')->get();
+        // Utiliser le cache pour les catégories
+        $this->categories = $cacheService->getCategories();
         $this->transactions = new EloquentCollection;
 
         $this->allAccounts = true;
         $this->perPage = $this->onInitialLoad;
+
+        // Précharger le cache et mettre à jour les comptes
+        $cacheService->warmUpUserCache($this->user);
+        $this->updateAccountCounts();
 
         $this->getTransactionsProperty();
     }
@@ -116,34 +123,65 @@ class BankTransactionIndex extends Component
         $this->selectedAccount = $this->allAccounts ? null : $this->accounts->find($accountId);
 
         $this->resetPagination();
+
+        // Optimisation : charger les transactions en arrière-plan
+        $this->dispatch('account-changing');
+
+        // Utiliser le cache pour accélérer le chargement
+        $cacheService = app(TransactionCacheService::class);
+        $cacheService->warmUpUserCache($this->user);
+
         $this->getTransactionsProperty();
+        $this->dispatch('account-changed');
     }
 
     public function loadMore(): void
     {
+        if ($this->noMoreToLoad) {
+            return;
+        }
+
+        $oldPerPage = $this->perPage;
         $this->perPage += $this->increasedLoad;
 
-        // On recharge la liste ; le flag noMoreToLoad sera calibré en fonction
-        // du "perPage + 1" dans getTransactionsProperty()
-        $this->getTransactionsProperty();
+        // Récupérer seulement les nouvelles transactions
+        $query = $this->getTransactionQuery();
+
+        if ($query instanceof SupportCollection) {
+            return; // Pas de pagination pour les collections
+        }
+
+        // Récupérer les nouvelles transactions avec eager loading
+        $newRows = $query
+            ->with(['category', 'account'])
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->skip($oldPerPage)
+            ->take($this->increasedLoad + 1)
+            ->get();
+
+        $this->noMoreToLoad = $newRows->count() <= $this->increasedLoad;
+
+        // Ajouter les nouvelles transactions à la collection existante
+        $newTransactions = $newRows->take($this->increasedLoad);
+        $this->transactions = $this->transactions->merge($newTransactions);
     }
 
     /** Réinitialise la pagination lors de l'actualisation de la recherche */
-    public function updatingSearch(): void
+    public function updatedSearch(): void
     {
         $this->resetPagination();
         $this->getTransactionsProperty();
     }
 
     /** Réinitialise la pagination lors du changement de filtre de catégorie */
-    public function updatingCategoryFilter(): void
+    public function updatedCategoryFilter(): void
     {
         $this->resetPagination();
         $this->getTransactionsProperty();
     }
 
     /** Réinitialise la pagination lors du changement de filtre de date */
-    public function updatingDateFilter(): void
+    public function updatedDateFilter(): void
     {
         $this->resetPagination();
         $this->getTransactionsProperty();
@@ -176,8 +214,29 @@ class BankTransactionIndex extends Component
     #[On('transactions-edited')]
     public function refreshTransactions(): void
     {
-        $this->resetPagination();
-        $this->getTransactionsProperty();
+        $this->mount();
+    }
+
+    /**
+     * Met à jour une transaction spécifique après catégorisation
+     */
+    #[On('transaction-categorized')]
+    public function updateTransaction(string $transactionId): void
+    {
+        // Recharger la transaction avec ses relations
+        $updatedTransaction = \App\Models\BankTransactions::with(['category', 'account'])
+            ->find($transactionId);
+
+        if ($updatedTransaction) {
+            // Trouver et remplacer la transaction dans la collection
+            $index = $this->transactions->search(function ($transaction) use ($transactionId) {
+                return $transaction->id === $transactionId;
+            });
+
+            if ($index !== false) {
+                $this->transactions->put($index, $updatedTransaction);
+            }
+        }
     }
 
     /**
@@ -280,7 +339,9 @@ class BankTransactionIndex extends Component
         }
 
         // On récupère perPage + 1 en BDD pour savoir s'il reste des résultats
+        // Optimisation : eager loading des relations pour éviter les requêtes N+1
         $rows = $query
+            ->with(['category', 'account'])
             ->orderBy($this->sortField, $this->sortDirection)
             ->take($this->perPage + 1)
             ->get();
@@ -306,5 +367,23 @@ class BankTransactionIndex extends Component
     {
         $this->perPage = $this->onInitialLoad;
         $this->noMoreToLoad = false;
+    }
+
+    /**
+     * Met à jour les compteurs de transactions pour tous les comptes
+     */
+    protected function updateAccountCounts(): void
+    {
+        $cacheService = app(TransactionCacheService::class);
+        $accountCounts = $cacheService->getUserAccountCounts($this->user);
+        $totalCount = $cacheService->getUserTotalCount($this->user);
+
+        // Mettre à jour les comptes avec les compteurs du cache
+        foreach ($this->accounts as $account) {
+            $account->transactions_count = $accountCounts[$account->id] ?? 0;
+        }
+
+        // Ajouter le total au user pour l'affichage "All accounts"
+        $this->user->bank_transactions_count = $totalCount;
     }
 }
