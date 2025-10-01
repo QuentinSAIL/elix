@@ -57,6 +57,7 @@ class MoneyCategoryMatch extends Model
         if ($match) {
             $transaction->money_category_id = (string) $match->category->id;
             $transaction->save();
+            // The wallet update will be triggered automatically by the BankTransactions model boot method
         }
     }
 

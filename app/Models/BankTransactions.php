@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\WalletUpdateService;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,6 +32,18 @@ class BankTransactions extends Model
         'transaction_date' => 'date',
         'amount' => 'float',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Update wallet when transaction category is set or changed
+        static::saved(function (BankTransactions $transaction) {
+            if ($transaction->wasChanged('money_category_id')) {
+                app(WalletUpdateService::class)->updateWalletFromTransaction($transaction);
+            }
+        });
+    }
 
     public function account()
     {

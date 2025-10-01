@@ -10,6 +10,8 @@
         </flux:radio.group>
         
         <livewire:settings.language-switcher />
+        
+        <livewire:settings.currency-switcher />
 
     </x-settings.layout>
 </section>

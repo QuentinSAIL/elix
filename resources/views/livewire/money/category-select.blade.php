@@ -55,17 +55,6 @@
                         </div>
                     @endif
 
-                    @if ($selectedCategory)
-                        @php
-                            $selected = $categories->firstWhere('name', $selectedCategory);
-                        @endphp
-                        @if ($selected && $selected->wallet)
-                            <div class="grid grid-cols-2 gap-4">
-                                <flux:input :label="__('Wallet amount to add')" type="number" step="any" wire:model.lazy="walletAmount" />
-                                <flux:input :label="__('Wallet unit')" type="text" wire:model.lazy="walletUnit" placeholder="{{ $selected->wallet->unit }}" />
-                            </div>
-                        @endif
-                    @endif
 
                     <flux:switch :label="__('Add other transactions to this category')"
                         wire:model.lazy="addOtherTransactions" />

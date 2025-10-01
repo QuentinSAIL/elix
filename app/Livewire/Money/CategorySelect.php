@@ -37,9 +37,6 @@ class CategorySelect extends Component
 
     public $mobile = false;
 
-    public $walletAmount;
-
-    public $walletUnit;
 
     public function mount()
     {
@@ -60,11 +57,6 @@ class CategorySelect extends Component
         } else {
             $this->alreadyExists = true;
             Toaster::success(__('Category found'));
-            if ($category->wallet) {
-                $this->walletUnit = $category->wallet->unit;
-            } else {
-                $this->walletUnit = null;
-            }
         }
     }
 
@@ -93,30 +85,6 @@ class CategorySelect extends Component
 
         if ($category) {
             $this->transaction->category()->associate($category)->save();
-
-            // If category is linked to a wallet, we must update wallet balance
-            if ($category->wallet) {
-                $wallet = $category->wallet;
-
-                // Determine unit and amount input
-                $unit = $this->walletUnit ?: $wallet->unit;
-                $amount = (float) ($this->walletAmount ?? 0);
-
-                if ($amount <= 0) {
-                    Toaster::error(__('Invalid wallet amount.'));
-                } else {
-                    // Positive bank transaction amount means income; negative means expense
-                    // When assigning to wallet, we add the absolute amount in the wallet's unit (user provided)
-                    // Bank transfer example: 100 EUR to Livret A (EUR) => amount=100, unit=EUR
-                    // BTC example: 100 EUR to BTC => amount=0.0001, unit=BTC
-                    // We do not convert; we trust user input and set the balance delta accordingly
-                    $wallet->balance = (string) ((float) $wallet->balance + $amount);
-                    if ($unit) {
-                        $wallet->unit = $unit;
-                    }
-                    $wallet->save();
-                }
-            }
         }
 
         if ($this->addOtherTransactions) {
