@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -60,5 +61,45 @@ class MoneyCategory extends Model
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class, 'category_linked_id');
+    }
+
+    /**
+     * Sum of expenses (negative amounts) for this category within a month.
+     */
+    public function spentForMonth(Carbon $month): float
+    {
+        $start = $month->copy()->startOfMonth()->toDateString();
+        $end = $month->copy()->endOfMonth()->toDateString();
+
+        /** @var float $sum */
+        $sum = $this->transactions()
+            ->whereBetween('transaction_date', [$start, $end])
+            ->where('amount', '<', 0)
+            ->sum('amount');
+
+        return (float) $sum; // negative total for expenses
+    }
+
+    /**
+     * Remaining budget for given month. Returns null if no budget set.
+     * Note: amounts are negative for expenses, so remaining = budget + spent (spent is negative).
+     */
+    public function remainingForMonth(Carbon $month): ?float
+    {
+        if ($this->budget === null) {
+            return null;
+        }
+
+        $spent = $this->spentForMonth($month); // negative
+        return (float) $this->budget + (float) $spent;
+    }
+
+    /**
+     * True if category is overspent for given month.
+     */
+    public function isOverspentForMonth(Carbon $month): bool
+    {
+        $remaining = $this->remainingForMonth($month);
+        return $remaining !== null && $remaining < 0;
     }
 }

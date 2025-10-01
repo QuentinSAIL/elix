@@ -25,6 +25,8 @@ class BankTransactionIndex extends Component
 
     public ?\App\Models\BankAccount $selectedAccount = null;
 
+    public ?string $selectedAccountId = null;
+
     public bool $allAccounts = false;
 
     public int $perPage = 100;
@@ -34,6 +36,8 @@ class BankTransactionIndex extends Component
     public int $increasedLoad = 50;
 
     public bool $noMoreToLoad = false;
+
+    public bool $isAccountLoading = false;
 
     public string $search = '';
 
@@ -75,6 +79,7 @@ class BankTransactionIndex extends Component
         $this->transactions = new EloquentCollection;
 
         $this->allAccounts = true;
+        $this->selectedAccountId = null;
         $this->perPage = $this->onInitialLoad;
 
         // Précharger le cache et mettre à jour les comptes
@@ -120,11 +125,13 @@ class BankTransactionIndex extends Component
     public function updateSelectedAccount(string|int $accountId): void
     {
         $this->allAccounts = ($accountId === 'all');
-        $this->selectedAccount = $this->allAccounts ? null : $this->accounts->find($accountId);
+        $this->selectedAccountId = $this->allAccounts ? null : (string) $accountId;
+        $this->selectedAccount = $this->allAccounts ? null : $this->accounts->firstWhere('id', $this->selectedAccountId);
 
         $this->resetPagination();
 
-        // Optimisation : charger les transactions en arrière-plan
+        // Indique le chargement côté client (entangle Alpine)
+        $this->isAccountLoading = true;
         $this->dispatch('account-changing');
 
         // Utiliser le cache pour accélérer le chargement
@@ -132,6 +139,7 @@ class BankTransactionIndex extends Component
         $cacheService->warmUpUserCache($this->user);
 
         $this->getTransactionsProperty();
+        $this->isAccountLoading = false;
         $this->dispatch('account-changed');
     }
 
@@ -354,6 +362,11 @@ class BankTransactionIndex extends Component
 
     public function render(): \Illuminate\Contracts\View\View
     {
+        // Réhydrate l'objet sélectionné à partir de l'ID (évite les incohérences de rehydratation)
+        if (! $this->allAccounts && $this->selectedAccountId) {
+            $this->selectedAccount = $this->accounts->firstWhere('id', $this->selectedAccountId);
+        }
+
         // On s'assure d'avoir les données à jour (cohérent avec le flux Livewire actuel)
         $this->getTransactionsProperty();
 
@@ -380,7 +393,7 @@ class BankTransactionIndex extends Component
 
         // Mettre à jour les comptes avec les compteurs du cache
         foreach ($this->accounts as $account) {
-            $account->transactions_count = $accountCounts[$account->id] ?? 0;
+            $account->setAttribute('transactions_count', $accountCounts[$account->id] ?? 0);
         }
 
         // Ajouter le total au user pour l'affichage "All accounts"

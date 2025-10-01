@@ -4,6 +4,7 @@ use App\Http\Middleware\UserHasValidGoCardlessKeys;
 use App\Http\Middleware\UserModule;
 use App\Livewire\Money\BankAccountIndex as AccountIndex;
 use App\Livewire\Money\BankTransactionIndex as TransactionIndex;
+use App\Livewire\Money\BudgetIndex;
 use App\Livewire\Money\WalletIndex;
 use App\Livewire\Money\CategoryIndex;
 use App\Livewire\Money\Dashboard;
@@ -32,6 +33,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('wallets', WalletIndex::class)->name('money.wallets');
                 Route::get('transactions', TransactionIndex::class)->name('money.transactions');
                 Route::get('categories', CategoryIndex::class)->name('money.categories');
+                Route::get('budget', BudgetIndex::class)->name('money.budget');
             });
             Route::get('/bank-accounts/callback', [GoCardlessDataService::class, 'handleCallback'])->name('bank-accounts.callback');
         });
