@@ -56,27 +56,20 @@ class BankTransactionIndex extends Component
     public EloquentCollection $categories;
 
     /** Champs autorisés pour le tri (sécurité + perf/index) */
-    protected array $allowedSorts = [
-        'transaction_date',
-        'amount',
-        'description',
-        'money_category_id',
-        'created_at',
-        'id',
-    ];
+    protected array $allowedSorts = ['transaction_date', 'amount', 'description', 'money_category_id', 'bank_account_id', 'created_at', 'id'];
 
     public function mount(): void
     {
         $this->user = Auth::user();
         $cacheService = app(TransactionCacheService::class);
 
-        if (! isset($this->accounts)) {
+        if (!isset($this->accounts)) {
             $this->accounts = $this->user->bankAccounts()->withCount('transactions')->get();
         }
 
         // Utiliser le cache pour les catégories
         $this->categories = $cacheService->getCategories();
-        $this->transactions = new EloquentCollection;
+        $this->transactions = new EloquentCollection();
 
         $this->allAccounts = true;
         $this->selectedAccountId = null;
@@ -124,7 +117,7 @@ class BankTransactionIndex extends Component
 
     public function updateSelectedAccount(string|int $accountId): void
     {
-        $this->allAccounts = ($accountId === 'all');
+        $this->allAccounts = $accountId === 'all';
         $this->selectedAccountId = $this->allAccounts ? null : (string) $accountId;
         $this->selectedAccount = $this->allAccounts ? null : $this->accounts->firstWhere('id', $this->selectedAccountId);
 
@@ -161,7 +154,7 @@ class BankTransactionIndex extends Component
 
         // Récupérer les nouvelles transactions avec eager loading
         $newRows = $query
-            ->with(['category', 'account'])
+            ->with(['category:id,name', 'account:id,name'])
             ->orderBy($this->sortField, $this->sortDirection)
             ->skip($oldPerPage)
             ->take($this->increasedLoad + 1)
@@ -200,7 +193,7 @@ class BankTransactionIndex extends Component
      */
     public function sortBy(string $field): void
     {
-        if (! in_array($field, $this->allowedSorts, true)) {
+        if (!in_array($field, $this->allowedSorts, true)) {
             // Sécurité : si colonne non autorisée, on ignore
             return;
         }
@@ -232,8 +225,7 @@ class BankTransactionIndex extends Component
     public function updateTransaction(string $transactionId): void
     {
         // Recharger la transaction avec ses relations
-        $updatedTransaction = \App\Models\BankTransactions::with(['category', 'account'])
-            ->find($transactionId);
+        $updatedTransaction = \App\Models\BankTransactions::with(['category:id,name', 'account:id,name'])->find($transactionId);
 
         if ($updatedTransaction) {
             // Trouver et remplacer la transaction dans la collection
@@ -256,8 +248,8 @@ class BankTransactionIndex extends Component
      */
     protected function getTransactionQuery(): HasMany|HasManyThrough|SupportCollection
     {
-        if (! $this->selectedAccount && ! $this->allAccounts) {
-            return new SupportCollection;
+        if (!$this->selectedAccount && !$this->allAccounts) {
+            return new SupportCollection();
         }
 
         if ($this->allAccounts) {
@@ -272,7 +264,7 @@ class BankTransactionIndex extends Component
         $search = trim(Str::lower($this->search));
         if ($search !== '') {
             // Garde la forme actuelle (compatible tous SGBD) tout en normalisant une fois
-            $query->whereRaw('LOWER(description) LIKE ?', ['%'.$search.'%']);
+            $query->whereRaw('LOWER(description) LIKE ?', ['%' . $search . '%']);
         }
 
         // Filtre de catégorie : attention aux valeurs "0"/0
@@ -314,7 +306,7 @@ class BankTransactionIndex extends Component
                 $query->whereBetween('transaction_date', [$start, $end]);
                 break;
 
-                // 'all' => pas de filtre
+            // 'all' => pas de filtre
         }
     }
 
@@ -326,44 +318,39 @@ class BankTransactionIndex extends Component
     {
         $query = $this->getTransactionQuery();
 
-        if ($query instanceof SupportCollection) {
-            $this->transactions = new EloquentCollection(
-                collect($query->all())->map(function ($item) {
-                    return $item instanceof \App\Models\BankTransactions
-                        ? $item
-                        : new \App\Models\BankTransactions((array) $item);
-                })
-            );
-            // Si on est sur une collection, on n'a pas la notion de "reste"
-            $this->noMoreToLoad = true;
+        // Forcer le type : si $query est déjà une Collection, on wrap en queryBuilder
+        if ($query instanceof \Illuminate\Support\Collection) {
+            $ids = $query->pluck('id')->all();
 
-            return;
+            $query = \App\Models\BankTransactions::query()->whereIn('id', $ids);
+            // Ici on repasse sur une query SQL, donc tout est optimisé côté DB
         }
 
-        // Tri sécurisé (si jamais sortField a été forcé entre-temps)
-        if (! in_array($this->sortField, $this->allowedSorts, true)) {
+        // Tri sécurisé
+        if (!in_array($this->sortField, $this->allowedSorts, true)) {
             $this->sortField = 'transaction_date';
             $this->sortDirection = 'desc';
         }
 
-        // On récupère perPage + 1 en BDD pour savoir s'il reste des résultats
-        // Optimisation : eager loading des relations pour éviter les requêtes N+1
+        // On récupère perPage + 1 en BDD
         $rows = $query
-            ->with(['category', 'account'])
+            // ->with([
+            //     'category:id,name',
+            //     'account:id,name,logo',
+            // ])
             ->orderBy($this->sortField, $this->sortDirection)
             ->take($this->perPage + 1)
             ->get();
 
         $this->noMoreToLoad = $rows->count() <= $this->perPage;
 
-        // On tronque à perPage pour l'affichage
-        $this->transactions = new EloquentCollection($rows->take($this->perPage)->values());
+        $this->transactions = $rows->take($this->perPage);
     }
 
     public function render(): \Illuminate\Contracts\View\View
     {
         // Réhydrate l'objet sélectionné à partir de l'ID (évite les incohérences de rehydratation)
-        if (! $this->allAccounts && $this->selectedAccountId) {
+        if (!$this->allAccounts && $this->selectedAccountId) {
             $this->selectedAccount = $this->accounts->firstWhere('id', $this->selectedAccountId);
         }
 
