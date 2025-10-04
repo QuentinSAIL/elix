@@ -101,6 +101,61 @@ class BankAccountIndex extends Component
         }
     }
 
+    public function needsRenewal(\App\Models\BankAccount $account, int $weeksThreshold = 8): bool
+    {
+        if (!$account->end_valid_access) {
+            return false;
+        }
+
+        $endDate = \Carbon\Carbon::parse($account->end_valid_access);
+        $weeksRemaining = now()->diffInWeeks($endDate, false);
+
+        return $weeksRemaining <= $weeksThreshold && $weeksRemaining >= 0;
+    }
+
+    public function renewAuthorization(string|int $accountId): void
+    {
+        /** @var \App\Models\BankAccount|null $account */
+        $account = $this->accounts->find($accountId);
+
+        if (!$account) {
+            Toaster::error('Compte bancaire introuvable.');
+            return;
+        }
+
+        if (!$account->gocardless_account_id || !$account->institution_id || !$account->agreement_id) {
+            Toaster::error('Impossible de renouveler l\'autorisation pour ce compte.');
+            return;
+        }
+
+        try {
+            $goCardlessDataService = new GoCardlessDataService;
+
+            // Récupérer les informations de la banque pour obtenir le max_access_valid_for_days
+            $banks = $goCardlessDataService->getBanks();
+            $bank = collect($banks)->firstWhere('id', $account->institution_id);
+
+            if (!$bank) {
+                Toaster::error('Impossible de récupérer les informations de la banque.');
+                return;
+            }
+
+            $maxAccessValidForDays = $bank['max_access_valid_for_days'] ?? 90; // Fallback à 90 jours si non trouvé
+
+            // Créer un nouvel accord avec la même institution
+            $response = $goCardlessDataService->addNewBankAccount(
+                $account->institution_id,
+                $account->transaction_total_days,
+                $maxAccessValidForDays,
+                $account->logo
+            );
+
+            Toaster::success('Redirection vers votre banque pour renouveler l\'autorisation.');
+        } catch (\Exception $e) {
+            Toaster::error('Erreur lors du renouvellement de l\'autorisation: ' . $e->getMessage());
+        }
+    }
+
     public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.money.bank-account-index');

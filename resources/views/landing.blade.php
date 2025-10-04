@@ -29,6 +29,18 @@
 
                 <!-- CTA Button -->
                 <div class="flex items-center space-x-4">
+                    <!-- Dark/Light Mode Toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors" aria-label="Toggle theme">
+                        <!-- Sun icon (visible in dark mode) -->
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-zinc-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+                        </svg>
+                        <!-- Moon icon (visible in light mode) -->
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-zinc-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                    </button>
+
                     <a href="{{ route('login') }}" class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 dark:hover:text-primarydark-500 transition-colors">Connexion</a>
                     <a href="{{ route('register') }}" class="bg-primary-500 dark:bg-primarydark-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 dark:hover:bg-primarydark-600 transition-colors">
                         Commencer
@@ -564,5 +576,43 @@
 
     @fluxScripts
     @livewireScripts
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        // Check for saved theme preference or default to 'dark'
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+
+        // Apply the current theme
+        if (currentTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+            themeToggleDarkIcon.classList.remove('hidden');
+            themeToggleLightIcon.classList.add('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeToggleDarkIcon.classList.add('hidden');
+            themeToggleLightIcon.classList.remove('hidden');
+        }
+
+        // Toggle theme on button click
+        themeToggle.addEventListener('click', function() {
+            // Toggle the dark class
+            document.documentElement.classList.toggle('dark');
+
+            // Update icon visibility
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleDarkIcon.classList.remove('hidden');
+                themeToggleLightIcon.classList.add('hidden');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggleDarkIcon.classList.add('hidden');
+                themeToggleLightIcon.classList.remove('hidden');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
 </body>
 </html>

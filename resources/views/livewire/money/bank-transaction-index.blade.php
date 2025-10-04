@@ -75,7 +75,7 @@
                     {{ $selectedAccount->name ?? __('All bank accounts') }}
                 </h4>
                 <p class="mt-1 text-sm text-grey-inverse">
-                    {{ __(':countDisplayed transactions shown out of :countTotal total, Balance:', ['countDisplayed' => count($transactions), 'countTotal' => $allAccounts ? ($user->bank_transactions_count ?? $user->bankTransactions()->count()) : ($selectedAccount->transactions_count ?? $selectedAccount->transactions()->count())]) }}
+                    {{ __(':countDisplayed transactions shown out of :countTotal total, Balance:', ['countDisplayed' => count($transactions), 'countTotal' => $allAccounts ? ($user->bank_transactions_count ?? $user->bankTransactions()->count()) : ($selectedAccount ? ($selectedAccount->transactions_count ?? $selectedAccount->transactions()->count()) : 0)]) }}
                     <span class="font-medium">
                         {{ number_format($selectedAccount->balance ?? $user->sumBalances(), 2, ',', ' ') }} €
                     </span>
@@ -280,7 +280,7 @@
                     {{ $selectedAccount->name ?? __('All bank accounts') }}
                 </h4>
                 <p class="mt-1 text-sm text-grey-inverse">
-                    {{ __(':countDisplayed transactions shown out of :countTotal total, Balance:', ['countDisplayed' => count($transactions), 'countTotal' => $allAccounts ? ($user->bank_transactions_count ?? $user->bankTransactions()->count()) : ($selectedAccount->transactions_count ?? $selectedAccount->transactions()->count())]) }}
+                    {{ __(':countDisplayed transactions shown out of :countTotal total, Balance:', ['countDisplayed' => count($transactions), 'countTotal' => $allAccounts ? ($user->bank_transactions_count ?? $user->bankTransactions()->count()) : ($selectedAccount ? ($selectedAccount->transactions_count ?? $selectedAccount->transactions()->count()) : 0)]) }}
                     <span class="font-medium">
                         {{ number_format($selectedAccount->balance ?? $user->sumBalances(), 2, ',', ' ') }}
                         €</span>
