@@ -15,25 +15,26 @@ class WalletUpdateService
     public function updateWalletFromTransaction(BankTransactions $transaction): void
     {
         // Only process if transaction has a category
-        if (!$transaction->money_category_id) {
+        if (! $transaction->money_category_id) {
             return;
         }
 
         // Get the category
         $category = $transaction->category;
-        if (!$category) {
+        if (! $category) {
             return;
         }
 
         // Check if category is linked to a wallet
         $wallet = $category->wallet;
-        if (!$wallet) {
+        if (! $wallet) {
             return;
         }
 
         // Only update single mode wallets
-        if (!$wallet->isSingleMode()) {
+        if (! $wallet->isSingleMode()) {
             Log::info("Wallet {$wallet->id} is in multi mode, skipping automatic balance update");
+
             return;
         }
 
@@ -85,7 +86,7 @@ class WalletUpdateService
      */
     public function recalculateWalletBalance(Wallet $wallet): void
     {
-        if (!$wallet->isSingleMode()) {
+        if (! $wallet->isSingleMode()) {
             return;
         }
 

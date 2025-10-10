@@ -19,12 +19,13 @@ class TransactionCacheServiceTest extends TestCase
     use RefreshDatabase;
 
     protected TransactionCacheService $service;
+
     protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new TransactionCacheService();
+        $this->service = new TransactionCacheService;
         $this->user = User::factory()->create();
         Cache::clear(); // Ensure a clean cache for each test
     }
@@ -32,7 +33,7 @@ class TransactionCacheServiceTest extends TestCase
     #[test]
     public function get_user_account_counts_returns_cached_value()
     {
-        $cacheKey = 'user_transactions_' . $this->user->id . '_counts';
+        $cacheKey = 'user_transactions_'.$this->user->id.'_counts';
         Cache::put($cacheKey, ['account-id-1' => 5, 'account-id-2' => 10], 300);
 
         $counts = $this->service->getUserAccountCounts($this->user);
@@ -51,13 +52,13 @@ class TransactionCacheServiceTest extends TestCase
         $counts = $this->service->getUserAccountCounts($this->user);
 
         $this->assertEquals([$account1->id => 3, $account2->id => 2], $counts);
-        $this->assertTrue(Cache::has('user_transactions_' . $this->user->id . '_counts'));
+        $this->assertTrue(Cache::has('user_transactions_'.$this->user->id.'_counts'));
     }
 
     #[test]
     public function get_user_total_count_returns_cached_value()
     {
-        $cacheKey = 'user_transactions_' . $this->user->id . '_total';
+        $cacheKey = 'user_transactions_'.$this->user->id.'_total';
         Cache::put($cacheKey, 100, 300);
 
         $total = $this->service->getUserTotalCount($this->user);
@@ -73,7 +74,7 @@ class TransactionCacheServiceTest extends TestCase
         $total = $this->service->getUserTotalCount($this->user);
 
         $this->assertEquals(7, $total);
-        $this->assertTrue(Cache::has('user_transactions_' . $this->user->id . '_total'));
+        $this->assertTrue(Cache::has('user_transactions_'.$this->user->id.'_total'));
     }
 
     #[test]
@@ -102,8 +103,8 @@ class TransactionCacheServiceTest extends TestCase
     #[test]
     public function clear_user_cache_clears_user_specific_caches()
     {
-        $userCountsCacheKey = 'user_transactions_' . $this->user->id . '_counts';
-        $userTotalCacheKey = 'user_transactions_' . $this->user->id . '_total';
+        $userCountsCacheKey = 'user_transactions_'.$this->user->id.'_counts';
+        $userTotalCacheKey = 'user_transactions_'.$this->user->id.'_total';
         Cache::put($userCountsCacheKey, [], 300);
         Cache::put($userTotalCacheKey, 0, 300);
 
@@ -117,9 +118,9 @@ class TransactionCacheServiceTest extends TestCase
     public function clear_account_cache_clears_account_and_user_caches()
     {
         $account = BankAccount::factory()->create(['user_id' => $this->user->id]);
-        $accountCacheKey = 'account_transactions_' . $account->id;
-        $userCountsCacheKey = 'user_transactions_' . $this->user->id . '_counts';
-        $userTotalCacheKey = 'user_transactions_' . $this->user->id . '_total';
+        $accountCacheKey = 'account_transactions_'.$account->id;
+        $userCountsCacheKey = 'user_transactions_'.$this->user->id.'_counts';
+        $userTotalCacheKey = 'user_transactions_'.$this->user->id.'_total';
 
         Cache::put($accountCacheKey, [], 300);
         Cache::put($userCountsCacheKey, [], 300);
@@ -224,8 +225,8 @@ class TransactionCacheServiceTest extends TestCase
 
         $this->service->warmUpUserCache($this->user);
 
-        $this->assertTrue(Cache::has('user_transactions_' . $this->user->id . '_counts'));
-        $this->assertTrue(Cache::has('user_transactions_' . $this->user->id . '_total'));
+        $this->assertTrue(Cache::has('user_transactions_'.$this->user->id.'_counts'));
+        $this->assertTrue(Cache::has('user_transactions_'.$this->user->id.'_total'));
         $this->assertTrue(Cache::has('categories_all'));
     }
 }

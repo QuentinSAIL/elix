@@ -6,8 +6,8 @@ use App\Models\Wallet;
 use App\Models\WalletPosition;
 use App\Services\PriceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Mockery;
+use Tests\TestCase;
 
 /**
  * @coversDefaultClass \App\Models\WalletPosition

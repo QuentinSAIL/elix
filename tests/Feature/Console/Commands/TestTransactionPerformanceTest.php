@@ -7,7 +7,6 @@ use App\Models\BankTransactions;
 use App\Models\User;
 use App\Services\TransactionCacheService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class TestTransactionPerformanceTest extends TestCase
@@ -49,7 +48,7 @@ class TestTransactionPerformanceTest extends TestCase
         // Create some transactions
         BankTransactions::factory()->count(10)->create();
 
-        $command = new TestTransactionPerformance();
+        $command = new TestTransactionPerformance;
 
         // Mock the output to avoid null reference
         $command->setOutput($this->createMock(\Illuminate\Console\OutputStyle::class));
@@ -72,7 +71,7 @@ class TestTransactionPerformanceTest extends TestCase
         // Create some transactions with categories
         BankTransactions::factory()->count(5)->create();
 
-        $command = new TestTransactionPerformance();
+        $command = new TestTransactionPerformance;
 
         // Mock the output to avoid null reference
         $command->setOutput($this->createMock(\Illuminate\Console\OutputStyle::class));
@@ -95,7 +94,7 @@ class TestTransactionPerformanceTest extends TestCase
         // Create some transactions
         BankTransactions::factory()->count(3)->create();
 
-        $command = new TestTransactionPerformance();
+        $command = new TestTransactionPerformance;
 
         // Mock the output to avoid null reference
         $command->setOutput($this->createMock(\Illuminate\Console\OutputStyle::class));
@@ -129,7 +128,7 @@ class TestTransactionPerformanceTest extends TestCase
             'description' => 'Test transaction',
         ]);
 
-        $command = new TestTransactionPerformance();
+        $command = new TestTransactionPerformance;
 
         // Mock the output to avoid null reference
         $command->setOutput($this->createMock(\Illuminate\Console\OutputStyle::class));

@@ -93,4 +93,3 @@ test('app service provider global rate limiter uses ip when not authenticated', 
 
     expect($limit)->toBeInstanceOf(\Illuminate\Cache\RateLimiting\Limit::class);
 });
-

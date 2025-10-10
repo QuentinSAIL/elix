@@ -91,6 +91,7 @@ class MoneyCategory extends Model
         }
 
         $spent = $this->spentForMonth($month); // negative
+
         return (float) $this->budget + (float) $spent;
     }
 
@@ -100,6 +101,7 @@ class MoneyCategory extends Model
     public function isOverspentForMonth(Carbon $month): bool
     {
         $remaining = $this->remainingForMonth($month);
+
         return $remaining !== null && $remaining < 0;
     }
 }

@@ -18,7 +18,7 @@ class PriceServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->priceService = new PriceService();
+        $this->priceService = new PriceService;
         Cache::clear(); // Ensure a clean cache for each test
         Log::swap($this->createMock(\Psr\Log\LoggerInterface::class)); // Mock logger to prevent actual logging
     }

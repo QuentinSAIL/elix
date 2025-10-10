@@ -10,7 +10,7 @@ class TestTransactionPerformanceMinimalTest extends TestCase
     #[test]
     public function it_can_be_instantiated()
     {
-        $command = new TestTransactionPerformance();
+        $command = new TestTransactionPerformance;
         $this->assertInstanceOf(TestTransactionPerformance::class, $command);
     }
 }

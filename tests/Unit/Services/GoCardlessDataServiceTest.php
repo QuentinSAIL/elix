@@ -5,7 +5,6 @@ namespace Tests\Unit\Services;
 use App\Models\ApiKey;
 use App\Models\ApiService;
 use App\Models\BankAccount;
-use App\Models\BankTransactions;
 use App\Models\MoneyCategoryMatch;
 use App\Models\User;
 use App\Services\GoCardlessDataService;
@@ -15,7 +14,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -26,13 +24,15 @@ class GoCardlessDataServiceTest extends TestCase
     use RefreshDatabase;
 
     protected GoCardlessDataService $service;
+
     protected User $user;
+
     protected ApiKey $apiKey;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new GoCardlessDataService();
+        $this->service = new GoCardlessDataService;
         $this->user = User::factory()->create();
         Auth::login($this->user);
 

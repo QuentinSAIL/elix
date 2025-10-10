@@ -27,7 +27,7 @@ class VerifyEmailControllerTest extends TestCase
         $request = EmailVerificationRequest::create('/email/verify/1/hash', ['id' => $user->id]);
         $request->setUserResolver(fn () => $user);
 
-        $controller = new VerifyEmailController();
+        $controller = new VerifyEmailController;
         $response = $controller($request);
 
         $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
@@ -45,7 +45,7 @@ class VerifyEmailControllerTest extends TestCase
         $request = EmailVerificationRequest::create('/email/verify/1/hash', ['id' => $user->id]);
         $request->setUserResolver(fn () => $user);
 
-        $controller = new VerifyEmailController();
+        $controller = new VerifyEmailController;
         $response = $controller($request);
 
         Event::assertDispatched(Verified::class);

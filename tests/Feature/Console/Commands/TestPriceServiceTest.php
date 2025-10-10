@@ -102,4 +102,3 @@ test('test price service command handles null prices', function () {
         ->expectsOutput('  ✅ ETH: 3000 USD')
         ->assertExitCode(0);
 });
-

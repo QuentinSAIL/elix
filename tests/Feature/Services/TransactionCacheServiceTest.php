@@ -20,7 +20,7 @@ class TransactionCacheServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->transactionCacheService = new TransactionCacheService();
+        $this->transactionCacheService = new TransactionCacheService;
     }
 
     public function test_can_warm_up_user_cache(): void
@@ -37,7 +37,7 @@ class TransactionCacheServiceTest extends TestCase
         // Check if cache keys exist
         $this->assertTrue(Cache::has("user_transactions_{$user->id}_counts"));
         $this->assertTrue(Cache::has("user_transactions_{$user->id}_total"));
-        $this->assertTrue(Cache::has("categories_all"));
+        $this->assertTrue(Cache::has('categories_all'));
     }
 
     public function test_can_get_user_account_counts(): void

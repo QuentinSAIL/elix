@@ -10,7 +10,7 @@ class UpdateWalletsFromTransactionsMinimalTest extends TestCase
     #[test]
     public function it_can_be_instantiated()
     {
-        $command = new UpdateWalletsFromTransactions();
+        $command = new UpdateWalletsFromTransactions;
         $this->assertInstanceOf(UpdateWalletsFromTransactions::class, $command);
     }
 }

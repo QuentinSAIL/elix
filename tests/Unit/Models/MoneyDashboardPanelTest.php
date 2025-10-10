@@ -21,6 +21,7 @@ class MoneyDashboardPanelTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected MoneyDashboard $dashboard;
 
     protected function setUp(): void

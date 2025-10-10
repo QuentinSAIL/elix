@@ -18,6 +18,7 @@ class FormTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected Routine $routine;
 
     protected function setUp(): void

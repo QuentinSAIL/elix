@@ -90,6 +90,7 @@ class CategoryIndex extends Component
         if ($cat) {
             if ($cat->wallet) {
                 Toaster::error(__('Unable to delete a category linked to a wallet.'));
+
                 return;
             }
             $cat->delete();

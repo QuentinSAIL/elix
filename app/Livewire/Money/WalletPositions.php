@@ -5,7 +5,6 @@ namespace App\Livewire\Money;
 use App\Models\Wallet;
 use App\Models\WalletPosition;
 use App\Services\PriceService;
-use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
@@ -56,6 +55,7 @@ class WalletPositions extends Component
         $pos = $this->wallet->positions()->find($positionId);
         if (! $pos) {
             Toaster::error(__('Position not found.'));
+
             return;
         }
         $this->editing = $pos;
@@ -121,8 +121,9 @@ class WalletPositions extends Component
     public function delete(string $positionId): void
     {
         $pos = $this->wallet->positions()->find($positionId);
-        if (!$pos) {
+        if (! $pos) {
             Toaster::error(__('Position not found.'));
+
             return;
         }
 
@@ -140,7 +141,7 @@ class WalletPositions extends Component
      */
     public function getCurrentPrice(WalletPosition $position): ?float
     {
-        if (!$position->ticker) {
+        if (! $position->ticker) {
             return null;
         }
 

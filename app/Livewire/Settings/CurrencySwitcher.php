@@ -9,8 +9,11 @@ use Masmerise\Toaster\Toaster;
 class CurrencySwitcher extends Component
 {
     public $user;
+
     public $userPreference;
+
     public $currency;
+
     public $supportedCurrencies;
 
     public function mount()
@@ -36,11 +39,11 @@ class CurrencySwitcher extends Component
             $this->userPreference = $this->user->preference()->firstOrNew(['user_id' => $this->user->id]);
         }
 
-        if (!$candidate) {
+        if (! $candidate) {
             $candidate = 'EUR'; // Default currency
         }
 
-        if (!array_key_exists($candidate, $this->supportedCurrencies)) {
+        if (! array_key_exists($candidate, $this->supportedCurrencies)) {
             $candidate = 'EUR';
         }
 
@@ -49,13 +52,14 @@ class CurrencySwitcher extends Component
 
     public function switchTo(string $currency)
     {
-        if (!array_key_exists($currency, $this->supportedCurrencies)) {
+        if (! array_key_exists($currency, $this->supportedCurrencies)) {
             Toaster::error(__('Currency not supported.'));
+
             return;
         }
 
         $this->currency = $currency;
-        
+
         if ($this->user) {
             $pref = $this->user->preference()->firstOrNew(['user_id' => $this->user->id]);
             $pref->currency = $currency;
@@ -63,7 +67,7 @@ class CurrencySwitcher extends Component
             $this->userPreference = $pref;
         }
 
-        Toaster::success(__('Currency switched successfully to ') . $this->supportedCurrencies[$currency]);
+        Toaster::success(__('Currency switched successfully to ').$this->supportedCurrencies[$currency]);
     }
 
     public function render()

@@ -64,7 +64,7 @@ class WalletTest extends TestCase
 
     public function test_wallet_has_correct_fillable_attributes(): void
     {
-        $wallet = new Wallet();
+        $wallet = new Wallet;
 
         $expectedFillable = [
             'id',
@@ -83,7 +83,7 @@ class WalletTest extends TestCase
 
     public function test_wallet_has_correct_casts(): void
     {
-        $wallet = new Wallet();
+        $wallet = new Wallet;
 
         $expectedCasts = [
             'id' => 'string',

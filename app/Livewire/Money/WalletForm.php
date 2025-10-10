@@ -46,7 +46,7 @@ class WalletForm extends Component
     {
         $this->user = Auth::user();
         $this->populateForm();
-        $this->positions = new \Illuminate\Database\Eloquent\Collection();
+        $this->positions = new \Illuminate\Database\Eloquent\Collection;
         if ($this->wallet) {
             $this->positions = $this->wallet->positions()->get();
         }
@@ -144,8 +144,9 @@ class WalletForm extends Component
 
     public function savePosition(): void
     {
-        if (!$this->wallet) {
+        if (! $this->wallet) {
             Toaster::error(__('Save wallet before adding positions.'));
+
             return;
         }
 
@@ -198,8 +199,9 @@ class WalletForm extends Component
     public function editPosition(string $positionId): void
     {
         $position = $this->wallet->positions()->find($positionId);
-        if (!$position) {
+        if (! $position) {
             Toaster::error(__('Position not found.'));
+
             return;
         }
 
@@ -222,8 +224,9 @@ class WalletForm extends Component
     public function deletePosition(string $positionId): void
     {
         $position = $this->wallet->positions()->find($positionId);
-        if (!$position) {
+        if (! $position) {
             Toaster::error(__('Position not found.'));
+
             return;
         }
 

@@ -6,11 +6,9 @@ use App\Models\MoneyCategory;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WalletPosition;
-use App\Services\PriceService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
-use Mockery;
 use Tests\TestCase;
 
 /**
@@ -112,6 +110,7 @@ class WalletTest extends TestCase
             $mock->shouldReceive('getCurrentPrice')
                 ->andReturnUsing(function () {
                     static $prices = [50, 100];
+
                     return array_shift($prices);
                 });
         });
@@ -138,6 +137,7 @@ class WalletTest extends TestCase
             $mock->shouldReceive('getCurrentPrice')
                 ->andReturnUsing(function () {
                     static $prices = [50, 100];
+
                     return array_shift($prices);
                 });
         });

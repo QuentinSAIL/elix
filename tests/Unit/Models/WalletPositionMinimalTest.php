@@ -7,12 +7,10 @@ use App\Models\WalletPosition;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-
 class WalletPositionMinimalTest extends TestCase
 {
     use RefreshDatabase;
 
-    
     #[test]
     public function it_can_be_instantiated()
     {

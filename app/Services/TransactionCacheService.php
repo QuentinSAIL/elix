@@ -3,17 +3,18 @@
 namespace App\Services;
 
 use App\Models\BankAccount;
-use App\Models\BankTransactions;
 use App\Models\MoneyCategory;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class TransactionCacheService
 {
     private const CACHE_DURATION = 300; // 5 minutes
+
     private const USER_CACHE_PREFIX = 'user_transactions_';
+
     private const ACCOUNT_CACHE_PREFIX = 'account_transactions_';
+
     private const CATEGORY_CACHE_PREFIX = 'categories_';
 
     /**
@@ -21,7 +22,7 @@ class TransactionCacheService
      */
     public function getUserAccountCounts(User $user): array
     {
-        $cacheKey = self::USER_CACHE_PREFIX . $user->id . '_counts';
+        $cacheKey = self::USER_CACHE_PREFIX.$user->id.'_counts';
 
         return Cache::remember($cacheKey, self::CACHE_DURATION, function () use ($user) {
             return $user->bankAccounts()->withCount('transactions')->get()
@@ -35,7 +36,7 @@ class TransactionCacheService
      */
     public function getUserTotalCount(User $user): int
     {
-        $cacheKey = self::USER_CACHE_PREFIX . $user->id . '_total';
+        $cacheKey = self::USER_CACHE_PREFIX.$user->id.'_total';
 
         return Cache::remember($cacheKey, self::CACHE_DURATION, function () use ($user) {
             return $user->bankTransactions()->count();
@@ -47,7 +48,7 @@ class TransactionCacheService
      */
     public function getCategories(): \Illuminate\Database\Eloquent\Collection
     {
-        $cacheKey = self::CATEGORY_CACHE_PREFIX . 'all';
+        $cacheKey = self::CATEGORY_CACHE_PREFIX.'all';
 
         return Cache::remember($cacheKey, self::CACHE_DURATION, function () {
             return MoneyCategory::orderBy('name')->get();
@@ -59,8 +60,8 @@ class TransactionCacheService
      */
     public function clearUserCache(User $user): void
     {
-        Cache::forget(self::USER_CACHE_PREFIX . $user->id . '_counts');
-        Cache::forget(self::USER_CACHE_PREFIX . $user->id . '_total');
+        Cache::forget(self::USER_CACHE_PREFIX.$user->id.'_counts');
+        Cache::forget(self::USER_CACHE_PREFIX.$user->id.'_total');
     }
 
     /**
@@ -68,7 +69,7 @@ class TransactionCacheService
      */
     public function clearAccountCache(BankAccount $account): void
     {
-        Cache::forget(self::ACCOUNT_CACHE_PREFIX . $account->id);
+        Cache::forget(self::ACCOUNT_CACHE_PREFIX.$account->id);
         $this->clearUserCache($account->user);
     }
 
@@ -90,15 +91,15 @@ class TransactionCacheService
             : $user->bankTransactions();
 
         // Apply filters
-        if (!empty($filters['search'])) {
-            $query->whereRaw('LOWER(description) LIKE ?', ['%' . strtolower($filters['search']) . '%']);
+        if (! empty($filters['search'])) {
+            $query->whereRaw('LOWER(description) LIKE ?', ['%'.strtolower($filters['search']).'%']);
         }
 
-        if (!empty($filters['category'])) {
+        if (! empty($filters['category'])) {
             $query->where('money_category_id', $filters['category']);
         }
 
-        if (!empty($filters['date_range'])) {
+        if (! empty($filters['date_range'])) {
             $query->whereBetween('transaction_date', $filters['date_range']);
         }
 

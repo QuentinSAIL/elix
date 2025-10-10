@@ -3,8 +3,6 @@
 namespace App\Livewire\Money;
 
 use Flux\Flux;
-use App\Models\MoneyCategory;
-use App\Models\Wallet;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -36,7 +34,6 @@ class CategorySelect extends Component
     public $modalId;
 
     public $mobile = false;
-
 
     public function mount()
     {

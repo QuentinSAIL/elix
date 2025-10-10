@@ -9,7 +9,6 @@ use App\Models\WalletPosition;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
-use Flux\Flux;
 
 class WalletPositionsTest extends TestCase
 {

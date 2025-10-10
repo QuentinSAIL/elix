@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Log;
 class PriceService
 {
     private const CACHE_DURATION = 300; // 5 minutes
+
     private const API_TIMEOUT = 10;
+
     private const EXCHANGE_CACHE_DURATION = 3600; // 1 hour for exchange rates
 
     /**
@@ -28,13 +30,16 @@ class PriceService
 
                 if ($price !== null) {
                     Log::info("Price fetched for {$ticker}: {$price} {$currency}");
+
                     return $price;
                 }
 
                 Log::warning("No price found for ticker: {$ticker}");
+
                 return null;
             } catch (\Exception $e) {
-                Log::error("Error fetching price for {$ticker}: " . $e->getMessage());
+                Log::error("Error fetching price for {$ticker}: ".$e->getMessage());
+
                 return null;
             }
         });
@@ -62,9 +67,10 @@ class PriceService
         $totalValue = 0;
 
         foreach ($positions as $position) {
-            if (!$position['ticker']) {
+            if (! $position['ticker']) {
                 // For positions without ticker, use stocked price
                 $totalValue += (float) $position['quantity'] * (float) $position['price'];
+
                 continue;
             }
 
@@ -90,7 +96,7 @@ class PriceService
                 ->get('https://www.alphavantage.co/query', [
                     'function' => 'GLOBAL_QUOTE',
                     'symbol' => $ticker,
-                    'apikey' => config('services.alpha_vantage.key', 'demo')
+                    'apikey' => config('services.alpha_vantage.key', 'demo'),
                 ]);
 
             if ($response->successful()) {
@@ -100,7 +106,7 @@ class PriceService
                 }
             }
         } catch (\Exception $e) {
-            Log::debug("Alpha Vantage API error for {$ticker}: " . $e->getMessage());
+            Log::debug("Alpha Vantage API error for {$ticker}: ".$e->getMessage());
         }
 
         return null;
@@ -122,7 +128,7 @@ class PriceService
                 }
             }
         } catch (\Exception $e) {
-            Log::debug("Yahoo Finance API error for {$ticker}: " . $e->getMessage());
+            Log::debug("Yahoo Finance API error for {$ticker}: ".$e->getMessage());
         }
 
         return null;
@@ -149,9 +155,9 @@ class PriceService
             $coinId = $cryptoMapping[strtoupper($ticker)] ?? strtolower($ticker);
 
             $response = Http::timeout(self::API_TIMEOUT)
-                ->get("https://api.coingecko.com/api/v3/simple/price", [
+                ->get('https://api.coingecko.com/api/v3/simple/price', [
                     'ids' => $coinId,
-                    'vs_currencies' => strtolower($currency)
+                    'vs_currencies' => strtolower($currency),
                 ]);
 
             if ($response->successful()) {
@@ -161,7 +167,7 @@ class PriceService
                 }
             }
         } catch (\Exception $e) {
-            Log::debug("CoinGecko API error for {$ticker}: " . $e->getMessage());
+            Log::debug("CoinGecko API error for {$ticker}: ".$e->getMessage());
         }
 
         return null;
@@ -202,13 +208,16 @@ class PriceService
 
                 if ($rate !== null) {
                     Log::info("Exchange rate fetched: 1 {$fromCurrency} = {$rate} {$toCurrency}");
+
                     return $rate;
                 }
 
                 Log::warning("No exchange rate found for {$fromCurrency} to {$toCurrency}");
+
                 return null;
             } catch (\Exception $e) {
-                Log::error("Error fetching exchange rate for {$fromCurrency} to {$toCurrency}: " . $e->getMessage());
+                Log::error("Error fetching exchange rate for {$fromCurrency} to {$toCurrency}: ".$e->getMessage());
+
                 return null;
             }
         });
@@ -252,9 +261,10 @@ class PriceService
         $totalValue = 0;
 
         foreach ($positions as $position) {
-            if (!$position['ticker']) {
+            if (! $position['ticker']) {
                 // For positions without ticker, assume they're already in user's currency
                 $totalValue += (float) $position['quantity'] * (float) $position['price'];
+
                 continue;
             }
 
@@ -288,7 +298,7 @@ class PriceService
                 ->get('https://api.fixer.io/latest', [
                     'access_key' => config('services.fixer.key', ''),
                     'base' => $fromCurrency,
-                    'symbols' => $toCurrency
+                    'symbols' => $toCurrency,
                 ]);
 
             if ($response->successful()) {
@@ -298,7 +308,7 @@ class PriceService
                 }
             }
         } catch (\Exception $e) {
-            Log::debug("Fixer API error for {$fromCurrency} to {$toCurrency}: " . $e->getMessage());
+            Log::debug("Fixer API error for {$fromCurrency} to {$toCurrency}: ".$e->getMessage());
         }
 
         return null;
@@ -320,7 +330,7 @@ class PriceService
                 }
             }
         } catch (\Exception $e) {
-            Log::debug("ExchangeRates-API error for {$fromCurrency} to {$toCurrency}: " . $e->getMessage());
+            Log::debug("ExchangeRates-API error for {$fromCurrency} to {$toCurrency}: ".$e->getMessage());
         }
 
         return null;

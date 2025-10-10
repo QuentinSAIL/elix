@@ -18,7 +18,7 @@ class PriceServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->priceService = new PriceService();
+        $this->priceService = new PriceService;
     }
 
     public function test_get_price_caches_result(): void
@@ -26,9 +26,9 @@ class PriceServiceTest extends TestCase
         Http::fake([
             'alphavantage.co/*' => Http::response([
                 'Global Quote' => [
-                    '05. price' => '150.25'
-                ]
-            ])
+                    '05. price' => '150.25',
+                ],
+            ]),
         ]);
 
         $price1 = $this->priceService->getPrice('AAPL', 'EUR');
@@ -46,9 +46,9 @@ class PriceServiceTest extends TestCase
         Http::fake([
             'alphavantage.co/*' => Http::response([
                 'Global Quote' => [
-                    '05. price' => '150.25'
-                ]
-            ])
+                    '05. price' => '150.25',
+                ],
+            ]),
         ]);
 
         $price = $this->priceService->getPrice('AAPL', 'EUR');
@@ -65,12 +65,12 @@ class PriceServiceTest extends TestCase
                     'result' => [
                         [
                             'meta' => [
-                                'regularMarketPrice' => 150.25
-                            ]
-                        ]
-                    ]
-                ]
-            ])
+                                'regularMarketPrice' => 150.25,
+                            ],
+                        ],
+                    ],
+                ],
+            ]),
         ]);
 
         $price = $this->priceService->getPrice('AAPL', 'EUR');
@@ -85,9 +85,9 @@ class PriceServiceTest extends TestCase
             'query1.finance.yahoo.com/*' => Http::response([], 500), // Yahoo fails
             'api.coingecko.com/*' => Http::response([
                 'bitcoin' => [
-                    'eur' => 45000.50
-                ]
-            ])
+                    'eur' => 45000.50,
+                ],
+            ]),
         ]);
 
         $price = $this->priceService->getPrice('BTC', 'EUR');
@@ -113,9 +113,9 @@ class PriceServiceTest extends TestCase
         Http::fake([
             'alphavantage.co/*' => Http::response([
                 'Global Quote' => [
-                    '05. price' => '150.25'
-                ]
-            ])
+                    '05. price' => '150.25',
+                ],
+            ]),
         ]);
 
         $prices = $this->priceService->getPrices(['AAPL', 'GOOGL'], 'EUR');
@@ -130,22 +130,22 @@ class PriceServiceTest extends TestCase
         Http::fake([
             'alphavantage.co/*' => Http::response([
                 'Global Quote' => [
-                    '05. price' => '150.25'
-                ]
-            ])
+                    '05. price' => '150.25',
+                ],
+            ]),
         ]);
 
         $positions = [
             [
                 'ticker' => 'AAPL',
                 'quantity' => 10,
-                'price' => 100
+                'price' => 100,
             ],
             [
                 'ticker' => null,
                 'quantity' => 5,
-                'price' => 200
-            ]
+                'price' => 200,
+            ],
         ];
 
         $totalValue = $this->priceService->calculatePositionsValue($positions, 'EUR');
@@ -166,8 +166,8 @@ class PriceServiceTest extends TestCase
             [
                 'ticker' => 'AAPL',
                 'quantity' => 10,
-                'price' => 100
-            ]
+                'price' => 100,
+            ],
         ];
 
         $totalValue = $this->priceService->calculatePositionsValue($positions, 'EUR');
@@ -188,9 +188,9 @@ class PriceServiceTest extends TestCase
         Http::fake([
             'api.fixer.io/*' => Http::response([
                 'rates' => [
-                    'USD' => 1.1
-                ]
-            ])
+                    'USD' => 1.1,
+                ],
+            ]),
         ]);
 
         $rate = $this->priceService->getExchangeRate('EUR', 'USD');
@@ -204,9 +204,9 @@ class PriceServiceTest extends TestCase
             'api.fixer.io/*' => Http::response([], 500), // Fixer fails
             'api.exchangerate-api.com/*' => Http::response([
                 'rates' => [
-                    'USD' => 1.1
-                ]
-            ])
+                    'USD' => 1.1,
+                ],
+            ]),
         ]);
 
         $rate = $this->priceService->getExchangeRate('EUR', 'USD');
@@ -219,9 +219,9 @@ class PriceServiceTest extends TestCase
         Http::fake([
             'api.fixer.io/*' => Http::response([
                 'rates' => [
-                    'USD' => 1.1
-                ]
-            ])
+                    'USD' => 1.1,
+                ],
+            ]),
         ]);
 
         $convertedAmount = $this->priceService->convertCurrency(100, 'EUR', 'USD');
@@ -246,14 +246,14 @@ class PriceServiceTest extends TestCase
         Http::fake([
             'alphavantage.co/*' => Http::response([
                 'Global Quote' => [
-                    '05. price' => '150.25'
-                ]
+                    '05. price' => '150.25',
+                ],
             ]),
             'api.fixer.io/*' => Http::response([
                 'rates' => [
-                    'EUR' => 0.85
-                ]
-            ])
+                    'EUR' => 0.85,
+                ],
+            ]),
         ]);
 
         $price = $this->priceService->getPriceInCurrency('AAPL', 'EUR', 'USD');
@@ -267,27 +267,27 @@ class PriceServiceTest extends TestCase
         Http::fake([
             'alphavantage.co/*' => Http::response([
                 'Global Quote' => [
-                    '05. price' => '150.25'
-                ]
+                    '05. price' => '150.25',
+                ],
             ]),
             'api.fixer.io/*' => Http::response([
                 'rates' => [
-                    'EUR' => 0.85
-                ]
-            ])
+                    'EUR' => 0.85,
+                ],
+            ]),
         ]);
 
         $positions = [
             [
                 'ticker' => 'AAPL',
                 'quantity' => 10,
-                'price' => 100
+                'price' => 100,
             ],
             [
                 'ticker' => null,
                 'quantity' => 5,
-                'price' => 200
-            ]
+                'price' => 200,
+            ],
         ];
 
         $totalValue = $this->priceService->calculatePositionsValueInCurrency($positions, 'EUR');
@@ -323,8 +323,8 @@ class PriceServiceTest extends TestCase
         Http::fake([
             'api.coingecko.com/*' => Http::response([
                 'bitcoin' => ['eur' => 45000],
-                'ethereum' => ['eur' => 3000]
-            ])
+                'ethereum' => ['eur' => 3000],
+            ]),
         ]);
 
         $btcPrice = $this->priceService->getPrice('BTC', 'EUR');
@@ -343,9 +343,9 @@ class PriceServiceTest extends TestCase
         Http::fake([
             'alphavantage.co/*' => Http::response([
                 'Global Quote' => [
-                    '05. price' => '150.25'
-                ]
-            ])
+                    '05. price' => '150.25',
+                ],
+            ]),
         ]);
 
         $this->priceService->getPrice('AAPL', 'EUR');

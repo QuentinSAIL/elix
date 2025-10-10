@@ -19,12 +19,13 @@ class WalletUpdateServiceTest extends TestCase
     use RefreshDatabase;
 
     protected WalletUpdateService $service;
+
     protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new WalletUpdateService();
+        $this->service = new WalletUpdateService;
         $this->user = User::factory()->create();
         Log::swap($this->createMock(\Psr\Log\LoggerInterface::class)); // Mock logger
     }

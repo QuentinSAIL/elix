@@ -6,13 +6,12 @@ use App\Models\UserPreference;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->middleware = new SetLocale();
+    $this->middleware = new SetLocale;
     $this->user = User::factory()->create();
 });
 
@@ -129,4 +128,3 @@ test('set locale middleware handles unauthenticated user', function () {
     expect($response->getStatusCode())->toBe(200);
     expect(App::getLocale())->toBe(config('app.locale'));
 });
-

@@ -5,9 +5,9 @@ use App\Http\Middleware\UserModule;
 use App\Livewire\Money\BankAccountIndex as AccountIndex;
 use App\Livewire\Money\BankTransactionIndex as TransactionIndex;
 use App\Livewire\Money\BudgetIndex;
-use App\Livewire\Money\WalletIndex;
 use App\Livewire\Money\CategoryIndex;
 use App\Livewire\Money\Dashboard;
+use App\Livewire\Money\WalletIndex;
 use App\Livewire\Note\Index as NoteIndex;
 use App\Livewire\Routine\Index as RoutineIndex;
 use App\Livewire\Settings\ApiKey;
@@ -23,6 +23,7 @@ Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }
+
     return view('landing');
 })->name('landing');
 
@@ -56,4 +57,4 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

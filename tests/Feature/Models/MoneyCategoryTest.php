@@ -4,7 +4,6 @@ namespace Tests\Feature\Models;
 
 use App\Models\MoneyCategory;
 use App\Models\User;
-use App\Models\Wallet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -61,7 +60,7 @@ class MoneyCategoryTest extends TestCase
 
     public function test_money_category_has_correct_fillable_attributes(): void
     {
-        $category = new MoneyCategory();
+        $category = new MoneyCategory;
 
         $expectedFillable = [
             'id',
@@ -81,7 +80,7 @@ class MoneyCategoryTest extends TestCase
 
     public function test_money_category_has_correct_casts(): void
     {
-        $category = new MoneyCategory();
+        $category = new MoneyCategory;
 
         // MoneyCategory doesn't have explicit casts defined, so it uses defaults
         $this->assertIsArray($category->getCasts());

@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Money;
 
-use App\Models\MoneyCategory;
 use App\Models\MoneyCategoryMatch;
 use App\Services\GoCardlessDataService;
 use App\Services\TransactionCacheService;
@@ -63,13 +62,13 @@ class BankTransactionIndex extends Component
         $this->user = Auth::user();
         $cacheService = app(TransactionCacheService::class);
 
-        if (!isset($this->accounts)) {
+        if (! isset($this->accounts)) {
             $this->accounts = $this->user->bankAccounts()->withCount('transactions')->get();
         }
 
         // Utiliser le cache pour les catégories
         $this->categories = $cacheService->getCategories();
-        $this->transactions = new EloquentCollection();
+        $this->transactions = new EloquentCollection;
 
         $this->allAccounts = true;
         $this->selectedAccountId = null;
@@ -193,7 +192,7 @@ class BankTransactionIndex extends Component
      */
     public function sortBy(string $field): void
     {
-        if (!in_array($field, $this->allowedSorts, true)) {
+        if (! in_array($field, $this->allowedSorts, true)) {
             // Sécurité : si colonne non autorisée, on ignore
             return;
         }
@@ -248,8 +247,8 @@ class BankTransactionIndex extends Component
      */
     protected function getTransactionQuery(): HasMany|HasManyThrough|SupportCollection
     {
-        if (!$this->selectedAccount && !$this->allAccounts) {
-            return new SupportCollection();
+        if (! $this->selectedAccount && ! $this->allAccounts) {
+            return new SupportCollection;
         }
 
         if ($this->allAccounts) {
@@ -264,7 +263,7 @@ class BankTransactionIndex extends Component
         $search = trim(Str::lower($this->search));
         if ($search !== '') {
             // Garde la forme actuelle (compatible tous SGBD) tout en normalisant une fois
-            $query->whereRaw('LOWER(description) LIKE ?', ['%' . $search . '%']);
+            $query->whereRaw('LOWER(description) LIKE ?', ['%'.$search.'%']);
         }
 
         // Filtre de catégorie : attention aux valeurs "0"/0
@@ -306,7 +305,7 @@ class BankTransactionIndex extends Component
                 $query->whereBetween('transaction_date', [$start, $end]);
                 break;
 
-            // 'all' => pas de filtre
+                // 'all' => pas de filtre
         }
     }
 
@@ -327,7 +326,7 @@ class BankTransactionIndex extends Component
         }
 
         // Tri sécurisé
-        if (!in_array($this->sortField, $this->allowedSorts, true)) {
+        if (! in_array($this->sortField, $this->allowedSorts, true)) {
             $this->sortField = 'transaction_date';
             $this->sortDirection = 'desc';
         }
@@ -350,7 +349,7 @@ class BankTransactionIndex extends Component
     public function render(): \Illuminate\Contracts\View\View
     {
         // Réhydrate l'objet sélectionné à partir de l'ID (évite les incohérences de rehydratation)
-        if (!$this->allAccounts && $this->selectedAccountId) {
+        if (! $this->allAccounts && $this->selectedAccountId) {
             $this->selectedAccount = $this->accounts->firstWhere('id', $this->selectedAccountId);
         }
 

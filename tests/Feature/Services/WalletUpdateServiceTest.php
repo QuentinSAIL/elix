@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Services;
 
+use App\Models\BankTransactions;
+use App\Models\MoneyCategory;
 use App\Models\User;
 use App\Models\Wallet;
-use App\Models\MoneyCategory;
-use App\Models\BankTransactions;
 use App\Services\WalletUpdateService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
@@ -20,7 +20,7 @@ class WalletUpdateServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->walletUpdateService = new WalletUpdateService();
+        $this->walletUpdateService = new WalletUpdateService;
     }
 
     public function test_update_wallet_from_transaction_with_category(): void

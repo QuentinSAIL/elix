@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Livewire\Money;
 
-use App\Models\BankAccount;
 use App\Livewire\Money\BudgetIndex;
+use App\Models\BankAccount;
 use App\Models\MoneyCategory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,9 +35,8 @@ class BudgetIndexTest extends TestCase
             'bank_account_id' => $bankAccount->id,
             'transaction_date' => now(),
             'amount' => -100,
-            'description' => 'test'
+            'description' => 'test',
         ]);
-
 
         Livewire::test(BudgetIndex::class)
             ->assertSet('rows.0.category.id', $category->id)
@@ -82,7 +81,7 @@ class BudgetIndexTest extends TestCase
             'bank_account_id' => $bankAccount->id,
             'transaction_date' => now()->subMonth(),
             'amount' => -50,
-            'description' => 'test'
+            'description' => 'test',
         ]);
 
         Livewire::test(BudgetIndex::class)

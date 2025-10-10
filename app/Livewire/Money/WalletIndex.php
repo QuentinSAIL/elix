@@ -47,8 +47,9 @@ class WalletIndex extends Component
         /** @var \App\Models\Wallet|null $wallet */
         $wallet = $this->user->wallets()->find($walletId);
 
-        if (!$wallet) {
+        if (! $wallet) {
             Toaster::error(__('Wallet not found.'));
+
             return;
         }
 

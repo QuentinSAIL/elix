@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class TestPriceService extends Command
 {
     protected $signature = 'test:price-service {ticker?}';
+
     protected $description = 'Test the price service with various tickers';
 
     public function handle(): int
@@ -32,7 +33,7 @@ class TestPriceService extends Command
 
         // Test multiple tickers
         $tickers = ['AAPL', 'GOOGL', 'MSFT', 'BTC', 'ETH'];
-        $this->info("Testing multiple tickers:");
+        $this->info('Testing multiple tickers:');
 
         foreach ($tickers as $testTicker) {
             $testPrice = $priceService->getPrice($testTicker, 'USD');
@@ -44,7 +45,7 @@ class TestPriceService extends Command
         }
 
         $this->newLine();
-        $this->info("Price service test completed!");
+        $this->info('Price service test completed!');
 
         return 0;
     }

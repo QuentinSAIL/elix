@@ -40,9 +40,9 @@ class WalletIndexTest extends TestCase
         Wallet::factory()->for($user)->create();
 
         $component = Livewire::test(WalletIndex::class);
-        
+
         Wallet::factory()->for($user)->create();
-        
+
         $component->dispatch('wallets-updated')
             ->assertViewHas('wallets', function ($wallets) {
                 return count($wallets) === 2;
@@ -70,5 +70,4 @@ class WalletIndexTest extends TestCase
         Livewire::test(WalletIndex::class)
             ->assertSet('userCurrency', 'USD');
     }
-
 }

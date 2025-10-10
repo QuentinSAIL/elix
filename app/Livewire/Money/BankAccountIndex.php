@@ -103,7 +103,7 @@ class BankAccountIndex extends Component
 
     public function needsRenewal(\App\Models\BankAccount $account, int $weeksThreshold = 8): bool
     {
-        if (!$account->end_valid_access) {
+        if (! $account->end_valid_access) {
             return false;
         }
 
@@ -118,13 +118,15 @@ class BankAccountIndex extends Component
         /** @var \App\Models\BankAccount|null $account */
         $account = $this->accounts->find($accountId);
 
-        if (!$account) {
+        if (! $account) {
             Toaster::error('Compte bancaire introuvable.');
+
             return;
         }
 
-        if (!$account->gocardless_account_id || !$account->institution_id || !$account->agreement_id) {
+        if (! $account->gocardless_account_id || ! $account->institution_id || ! $account->agreement_id) {
             Toaster::error('Impossible de renouveler l\'autorisation pour ce compte.');
+
             return;
         }
 
@@ -135,8 +137,9 @@ class BankAccountIndex extends Component
             $banks = $goCardlessDataService->getBanks();
             $bank = collect($banks)->firstWhere('id', $account->institution_id);
 
-            if (!$bank) {
+            if (! $bank) {
                 Toaster::error('Impossible de récupérer les informations de la banque.');
+
                 return;
             }
 
@@ -152,7 +155,7 @@ class BankAccountIndex extends Component
 
             Toaster::success('Redirection vers votre banque pour renouveler l\'autorisation.');
         } catch (\Exception $e) {
-            Toaster::error('Erreur lors du renouvellement de l\'autorisation: ' . $e->getMessage());
+            Toaster::error('Erreur lors du renouvellement de l\'autorisation: '.$e->getMessage());
         }
     }
 

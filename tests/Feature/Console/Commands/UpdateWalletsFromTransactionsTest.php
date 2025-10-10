@@ -3,11 +3,10 @@
 namespace Tests\Feature\Console\Commands;
 
 use App\Console\Commands\UpdateWalletsFromTransactions;
+use App\Models\BankTransactions;
+use App\Models\MoneyCategory;
 use App\Models\User;
 use App\Models\Wallet;
-use App\Models\MoneyCategory;
-use App\Models\BankTransactions;
-use App\Services\WalletUpdateService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

@@ -42,7 +42,7 @@ class WalletPosition extends Model
      */
     public function updateCurrentPrice(): bool
     {
-        if (!$this->ticker) {
+        if (! $this->ticker) {
             return false;
         }
 
@@ -51,6 +51,7 @@ class WalletPosition extends Model
 
         if ($currentPrice !== null) {
             $this->update(['price' => (string) $currentPrice]);
+
             return true;
         }
 
@@ -69,6 +70,7 @@ class WalletPosition extends Model
             if ($currentPrice !== null) {
                 // Update the stored price with the current market price
                 $this->update(['price' => (string) $currentPrice]);
+
                 return $currentPrice;
             }
         }
