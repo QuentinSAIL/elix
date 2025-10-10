@@ -8,9 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ * @property int $id
  * @property string $description
  * @property string $money_category_id
+ * @property float $amount
+ * @property \Illuminate\Support\Carbon $transaction_date
  * @property-read \App\Models\MoneyCategory $category
+ * @property-read \App\Models\BankAccount $account
  */
 class BankTransactions extends Model
 {

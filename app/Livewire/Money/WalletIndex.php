@@ -23,7 +23,7 @@ class WalletIndex extends Component
 
         // Get user's preferred currency
         $userPreference = $this->user->preference()->first();
-        $this->userCurrency = $userPreference?->currency ?? 'EUR';
+        $this->userCurrency = $userPreference->currency ?? 'EUR';
 
         $this->loadWallets();
     }
@@ -36,10 +36,12 @@ class WalletIndex extends Component
 
     private function loadWallets(): void
     {
-        $this->wallets = $this->user->wallets()
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Wallet> $wallets */
+        $wallets = $this->user->wallets()
             ->withCount('positions')
             ->orderBy('created_at', 'desc')
             ->get();
+        $this->wallets = $wallets;
     }
 
     public function delete(string|int $walletId): void
@@ -82,7 +84,9 @@ class WalletIndex extends Component
         }
 
         // For multi mode, calculate from positions
-        $positions = $wallet->positions->map(function ($position) {
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
+        $positions = $wallet->positions;
+        $positionsArray = $positions->map(function (\App\Models\WalletPosition $position) {
             return [
                 'ticker' => $position->ticker,
                 'quantity' => $position->quantity,
@@ -90,7 +94,7 @@ class WalletIndex extends Component
             ];
         })->toArray();
 
-        return app(PriceService::class)->calculatePositionsValueInCurrency($positions, $this->userCurrency);
+        return app(PriceService::class)->calculatePositionsValueInCurrency($positionsArray, $this->userCurrency);
     }
 
     /**

@@ -143,6 +143,7 @@ class Wallet extends Model
 
         $totalValue = 0;
         foreach ($positions as $position) {
+            /** @var \App\Models\WalletPosition $position */
             // Get current price (will update stored price if ticker exists)
             $currentPrice = $position->getCurrentPrice();
             $totalValue += (float) $position->quantity * $currentPrice;

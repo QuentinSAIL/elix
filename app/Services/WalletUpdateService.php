@@ -21,11 +21,13 @@ class WalletUpdateService
 
         // Get the category
         $category = $transaction->category;
+        // @phpstan-ignore-next-line
         if (! $category) {
             return;
         }
 
         // Check if category is linked to a wallet
+        /** @var \App\Models\Wallet|null $wallet */
         $wallet = $category->wallet;
         if (! $wallet) {
             return;
@@ -67,6 +69,7 @@ class WalletUpdateService
         $processedCount = 0;
 
         // Get all transactions that have categories linked to single mode wallets
+        // @phpstan-ignore-next-line
         $transactions = BankTransactions::whereHas('category.wallet', function ($query) {
             $query->where('mode', 'single');
         })->get();
@@ -107,13 +110,19 @@ class WalletUpdateService
     public function handleCategoryChange(BankTransactions $transaction, ?MoneyCategory $oldCategory, MoneyCategory $newCategory): void
     {
         // If old category was linked to a wallet, we might need to adjust it
-        if ($oldCategory && $oldCategory->wallet && $oldCategory->wallet->isSingleMode()) {
-            $this->recalculateWalletBalance($oldCategory->wallet);
+        if ($oldCategory) {
+            /** @var Wallet|null $wallet */
+            $wallet = $oldCategory->wallet;
+            if ($wallet && $wallet->isSingleMode()) {
+                $this->recalculateWalletBalance($wallet);
+            }
         }
 
         // If new category is linked to a wallet, update it
-        if ($newCategory->wallet && $newCategory->wallet->isSingleMode()) {
-            $this->updateWalletBalance($newCategory->wallet, $transaction);
+        /** @var Wallet|null $wallet */
+        $wallet = $newCategory->wallet;
+        if ($wallet && $wallet->isSingleMode()) {
+            $this->updateWalletBalance($wallet, $transaction);
         }
     }
 }

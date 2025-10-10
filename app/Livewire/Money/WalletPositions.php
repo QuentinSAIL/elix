@@ -38,20 +38,23 @@ class WalletPositions extends Component
 
         // Get user's preferred currency
         $userPreference = $this->user->preference()->first();
-        $this->userCurrency = $userPreference?->currency ?? 'EUR';
+        $this->userCurrency = $userPreference->currency ?? 'EUR';
 
         $this->refreshList();
     }
 
     public function refreshList(): void
     {
-        $this->positions = $this->wallet->positions()
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
+        $positions = $this->wallet->positions()
             ->orderBy('created_at', 'desc')
             ->get();
+        $this->positions = $positions;
     }
 
     public function edit(string $positionId): void
     {
+        /** @var \App\Models\WalletPosition|null $pos */
         $pos = $this->wallet->positions()->find($positionId);
         if (! $pos) {
             Toaster::error(__('Position not found.'));

@@ -48,7 +48,9 @@ class WalletForm extends Component
         $this->populateForm();
         $this->positions = new \Illuminate\Database\Eloquent\Collection;
         if ($this->wallet) {
-            $this->positions = $this->wallet->positions()->get();
+            /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
+            $positions = $this->wallet->positions()->get();
+            $this->positions = $positions;
         }
     }
 
@@ -108,7 +110,9 @@ class WalletForm extends Component
 
                 $this->wallet->update($updateData);
                 Toaster::success(__('Wallet updated successfully.'));
-                $this->positions = $this->wallet->positions()->get();
+                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
+                $positions = $this->wallet->positions()->get();
+                $this->positions = $positions;
             } else {
                 $walletData = [
                     'user_id' => $this->user->id,
@@ -169,6 +173,7 @@ class WalletForm extends Component
                 ]);
                 Toaster::success(__('Position updated successfully.'));
             } else {
+                /** @var \App\Models\WalletPosition $position */
                 $position = $this->wallet->positions()->create([
                     'name' => trim($this->positionForm['name']),
                     'ticker' => $this->positionForm['ticker'] ? strtoupper(trim($this->positionForm['ticker'])) : null,
@@ -185,7 +190,9 @@ class WalletForm extends Component
             }
 
             $this->resetPositionForm();
-            $this->positions = $this->wallet->positions()->get();
+            /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
+            $positions = $this->wallet->positions()->get();
+            $this->positions = $positions;
 
             // Update price for the position if it has a ticker
             if ($this->editingPosition && $this->editingPosition->ticker) {
@@ -198,7 +205,9 @@ class WalletForm extends Component
 
     public function editPosition(string $positionId): void
     {
+        /** @var \App\Models\WalletPosition $position */
         $position = $this->wallet->positions()->find($positionId);
+        // @phpstan-ignore-next-line
         if (! $position) {
             Toaster::error(__('Position not found.'));
 
@@ -232,7 +241,9 @@ class WalletForm extends Component
 
         try {
             $position->delete();
-            $this->positions = $this->wallet->positions()->get();
+            /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
+            $positions = $this->wallet->positions()->get();
+            $this->positions = $positions;
             Toaster::success(__('Position deleted successfully.'));
         } catch (\Exception $e) {
             Toaster::error(__('Failed to delete position. Please try again.'));

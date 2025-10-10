@@ -70,7 +70,9 @@ class TransactionCacheService
     public function clearAccountCache(BankAccount $account): void
     {
         Cache::forget(self::ACCOUNT_CACHE_PREFIX.$account->id);
-        $this->clearUserCache($account->user);
+        /** @var \App\Models\User $user */
+        $user = $account->user;
+        $this->clearUserCache($user);
     }
 
     /**
@@ -84,7 +86,7 @@ class TransactionCacheService
     /**
      * Get optimized transaction query with caching
      */
-    public function getOptimizedTransactionQuery(User $user, ?BankAccount $selectedAccount = null, array $filters = []): \Illuminate\Database\Eloquent\Builder
+    public function getOptimizedTransactionQuery(User $user, ?BankAccount $selectedAccount = null, array $filters = []): \Illuminate\Database\Eloquent\Relations\HasMany|\Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         $query = $selectedAccount
             ? $selectedAccount->transactions()

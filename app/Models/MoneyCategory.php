@@ -12,8 +12,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
+ * @property int $id
+ * @property string $name
+ * @property string|null $description
+ * @property string|null $color
+ * @property float|null $budget
+ * @property bool $include_in_dashboard
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MoneyCategoryMatch> $categoryMatches
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankTransactions> $transactions
+ * @property-read \App\Models\Wallet|null $wallet
  *
  * @method static \Database\Factories\MoneyCategoryFactory factory($count = null, $state = [])
  */

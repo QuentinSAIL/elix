@@ -63,7 +63,9 @@ class BankTransactionIndex extends Component
         $cacheService = app(TransactionCacheService::class);
 
         if (! isset($this->accounts)) {
-            $this->accounts = $this->user->bankAccounts()->withCount('transactions')->get();
+            /** @var EloquentCollection<int, \App\Models\BankAccount> $accounts */
+            $accounts = $this->user->bankAccounts()->withCount('transactions')->get();
+            $this->accounts = $accounts;
         }
 
         // Utiliser le cache pour les catégories
@@ -153,7 +155,10 @@ class BankTransactionIndex extends Component
 
         // Récupérer les nouvelles transactions avec eager loading
         $newRows = $query
-            ->with(['category:id,name', 'account:id,name'])
+            ->with([
+                'category' => fn ($query) => $query->select('id', 'name'),
+                'account' => fn ($query) => $query->select('id', 'name'),
+            ])
             ->orderBy($this->sortField, $this->sortDirection)
             ->skip($oldPerPage)
             ->take($this->increasedLoad + 1)
@@ -224,12 +229,16 @@ class BankTransactionIndex extends Component
     public function updateTransaction(string $transactionId): void
     {
         // Recharger la transaction avec ses relations
-        $updatedTransaction = \App\Models\BankTransactions::with(['category:id,name', 'account:id,name'])->find($transactionId);
+        // @phpstan-ignore-next-line
+        $updatedTransaction = \App\Models\BankTransactions::with([
+            'category' => fn ($query) => $query->select('id', 'name'),
+            'account' => fn ($query) => $query->select('id', 'name'),
+        ])->find($transactionId);
 
         if ($updatedTransaction) {
             // Trouver et remplacer la transaction dans la collection
             $index = $this->transactions->search(function ($transaction) use ($transactionId) {
-                return $transaction->id === $transactionId;
+                return $transaction->id === (int) $transactionId;
             });
 
             if ($index !== false) {
@@ -333,10 +342,7 @@ class BankTransactionIndex extends Component
 
         // On récupère perPage + 1 en BDD
         $rows = $query
-            // ->with([
-            //     'category:id,name',
-            //     'account:id,name,logo',
-            // ])
+            ->with(['category:id,name', 'account:id,name'])
             ->orderBy($this->sortField, $this->sortDirection)
             ->take($this->perPage + 1)
             ->get();
@@ -383,6 +389,6 @@ class BankTransactionIndex extends Component
         }
 
         // Ajouter le total au user pour l'affichage "All accounts"
-        $this->user->bank_transactions_count = $totalCount;
+        $this->user->setAttribute('bank_transactions_count', $totalCount);
     }
 }

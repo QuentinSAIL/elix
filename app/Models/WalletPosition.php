@@ -7,6 +7,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string $id
+ * @property string $wallet_id
+ * @property string $name
+ * @property string|null $ticker
+ * @property string $unit
+ * @property string $quantity
+ * @property string $price
+ * @property-read \App\Models\Wallet $wallet
+ * @method bool updateCurrentPrice()
+ */
 class WalletPosition extends Model
 {
     use HasFactory, HasUuids;
