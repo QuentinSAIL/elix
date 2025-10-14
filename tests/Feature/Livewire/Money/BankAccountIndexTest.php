@@ -231,3 +231,219 @@ test('can check if account needs renewal', function () {
 
     $this->assertIsBool($needsRenewal);
 });
+
+test('needs renewal returns false when no end valid access', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
+    $bankAccount = BankAccount::factory()->for($this->user)->create([
+        'end_valid_access' => null,
+    ]);
+
+    $component = Livewire::test(BankAccountIndex::class);
+    $needsRenewal = $component->instance()->needsRenewal($bankAccount, 8);
+
+    $this->assertFalse($needsRenewal);
+});
+
+test('needs renewal returns true when within threshold', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
+    $bankAccount = BankAccount::factory()->for($this->user)->create([
+        'end_valid_access' => now()->addWeeks(4), // 4 weeks from now
+    ]);
+
+    $component = Livewire::test(BankAccountIndex::class);
+    $needsRenewal = $component->instance()->needsRenewal($bankAccount, 8);
+
+    $this->assertTrue($needsRenewal);
+});
+
+test('needs renewal returns false when beyond threshold', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
+    $bankAccount = BankAccount::factory()->for($this->user)->create([
+        'end_valid_access' => now()->addWeeks(12), // 12 weeks from now
+    ]);
+
+    $component = Livewire::test(BankAccountIndex::class);
+    $needsRenewal = $component->instance()->needsRenewal($bankAccount, 8);
+
+    $this->assertFalse($needsRenewal);
+});
+
+test('needs renewal returns false when already expired', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
+    $bankAccount = BankAccount::factory()->for($this->user)->create([
+        'end_valid_access' => now()->subWeeks(2), // 2 weeks ago
+    ]);
+
+    $component = Livewire::test(BankAccountIndex::class);
+    $needsRenewal = $component->instance()->needsRenewal($bankAccount, 8);
+
+    $this->assertFalse($needsRenewal);
+});
+
+test('can renew authorization successfully', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([
+            [
+                'id' => 'test-institution-id',
+                'name' => 'Test Bank',
+                'logo' => 'test-logo.png',
+                'max_access_valid_for_days' => 90,
+            ],
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/agreements/enduser/' => Http::response([
+            'created' => true,
+            'id' => 'new-agreement-id',
+            'access_valid_for_days' => 90,
+            'max_historical_days' => 90,
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/requisitions/' => Http::response([
+            'created' => true,
+            'link' => 'https://example.com/redirect',
+        ], 200),
+    ]);
+
+    $bankAccount = BankAccount::factory()->for($this->user)->create([
+        'gocardless_account_id' => 'test-account-id',
+        'institution_id' => 'test-institution-id',
+        'agreement_id' => 'old-agreement-id',
+        'transaction_total_days' => 90,
+        'logo' => 'test-logo.png',
+    ]);
+
+    Toaster::fake();
+
+    Livewire::test(BankAccountIndex::class)
+        ->call('renewAuthorization', $bankAccount->id);
+
+    Toaster::assertDispatched('Redirection vers votre banque pour renouveler l\'autorisation.');
+});
+
+test('renew authorization fails when account not found', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
+    Toaster::fake();
+
+    Livewire::test(BankAccountIndex::class)
+        ->call('renewAuthorization', '00000000-0000-0000-0000-000000000000');
+
+    Toaster::assertDispatched('Compte bancaire introuvable.');
+});
+
+test('renew authorization fails when missing required fields', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
+    $bankAccount = BankAccount::factory()->for($this->user)->create([
+        'gocardless_account_id' => null, // Missing required field
+        'institution_id' => null,
+        'agreement_id' => null,
+    ]);
+
+    Toaster::fake();
+
+    Livewire::test(BankAccountIndex::class)
+        ->call('renewAuthorization', $bankAccount->id);
+
+    Toaster::assertDispatched('Impossible de renouveler l\'autorisation pour ce compte.');
+});
+
+test('renew authorization handles bank not found', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
+    $bankAccount = BankAccount::factory()->for($this->user)->create([
+        'gocardless_account_id' => 'test-account-id',
+        'institution_id' => 'non-existent-institution',
+        'agreement_id' => 'test-agreement-id',
+        'transaction_total_days' => 90,
+        'logo' => 'test-logo.png',
+    ]);
+
+    Toaster::fake();
+
+    Livewire::test(BankAccountIndex::class)
+        ->call('renewAuthorization', $bankAccount->id);
+
+    Toaster::assertDispatched('Impossible de récupérer les informations de la banque.');
+});
+
+test('renew authorization uses fallback max access days', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([
+            [
+                'id' => 'test-institution-id',
+                'name' => 'Test Bank',
+                'logo' => 'test-logo.png',
+                // No max_access_valid_for_days field
+            ],
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/agreements/enduser/' => Http::response([
+            'created' => true,
+            'id' => 'new-agreement-id',
+            'access_valid_for_days' => 90,
+            'max_historical_days' => 90,
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/requisitions/' => Http::response([
+            'created' => true,
+            'link' => 'https://example.com/redirect',
+        ], 200),
+    ]);
+
+    $bankAccount = BankAccount::factory()->for($this->user)->create([
+        'gocardless_account_id' => 'test-account-id',
+        'institution_id' => 'test-institution-id',
+        'agreement_id' => 'test-agreement-id',
+        'transaction_total_days' => 90,
+        'logo' => 'test-logo.png',
+    ]);
+
+    Toaster::fake();
+
+    Livewire::test(BankAccountIndex::class)
+        ->call('renewAuthorization', $bankAccount->id);
+
+    Toaster::assertDispatched('Redirection vers votre banque pour renouveler l\'autorisation.');
+});

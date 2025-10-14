@@ -183,4 +183,109 @@ class FormTest extends TestCase
             ->assertSet('edition', false)
             ->assertSet('mobile', true);
     }
+
+    #[test]
+    public function it_saves_task_with_mobile_flag()
+    {
+        $component = Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Mobile Task')
+            ->set('mobile', true);
+        $component->call('save');
+        $component->assertHasNoErrors();
+        $this->assertDatabaseHas('routine_tasks', [
+            'routine_id' => $this->routine->id,
+            'name' => 'Mobile Task',
+            'mobile_task_id' => 1,
+        ]);
+    }
+
+    #[test]
+    public function it_saves_task_without_mobile_flag()
+    {
+        $component = Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Non-Mobile Task');
+        $component->call('save');
+        $component->assertHasNoErrors();
+        $this->assertDatabaseHas('routine_tasks', [
+            'routine_id' => $this->routine->id,
+            'name' => 'Non-Mobile Task',
+            'mobile_task_id' => null,
+        ]);
+    }
+
+    #[test]
+    public function it_handles_task_updated_event()
+    {
+        $task = RoutineTask::factory()->for($this->routine)->create(['name' => 'Test Task']);
+
+        Livewire::test(Form::class, ['routine' => $this->routine, 'task' => $task])
+            ->dispatch('task-updated')
+            ->assertSet('edition', true)
+            ->assertSet('taskForm.name', 'Test Task');
+    }
+
+    #[test]
+    public function it_validates_string_fields()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', str_repeat('a', 256)) // Too long
+            ->set('taskForm.description', str_repeat('a', 256)) // Too long
+            ->call('save')
+            ->assertHasErrors([
+                'taskForm.name' => 'max',
+                'taskForm.description' => 'max',
+            ]);
+    }
+
+    #[test]
+    public function it_validates_integer_fields()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Test')
+            ->set('taskForm.duration', 'not-a-number')
+            ->set('taskForm.order', 'not-a-number')
+            ->call('save')
+            ->assertHasErrors([
+                'taskForm.duration' => 'integer',
+                'taskForm.order' => 'integer',
+            ]);
+    }
+
+    #[test]
+    public function it_validates_boolean_fields()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Test')
+            ->set('taskForm.autoskip', 'not-boolean')
+            ->set('taskForm.is_active', 'not-boolean')
+            ->call('save')
+            ->assertHasErrors([
+                'taskForm.autoskip' => 'boolean',
+                'taskForm.is_active' => 'boolean',
+            ]);
+    }
+
+    #[test]
+    public function it_dispatches_task_saved_event()
+    {
+        $component = Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Test Task');
+
+        $component->call('save');
+
+        $component->assertDispatched('task-saved');
+    }
+
+    #[test]
+    public function it_resets_form_after_save()
+    {
+        $component = Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Test Task')
+            ->set('taskForm.description', 'Test Description');
+
+        $component->call('save');
+
+        $component->assertSet('taskForm.name', '')
+            ->assertSet('taskForm.description', '');
+    }
 }
