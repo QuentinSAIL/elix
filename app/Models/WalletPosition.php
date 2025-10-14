@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $quantity
  * @property string $price
  * @property-read \App\Models\Wallet $wallet
+ *
  * @method bool updateCurrentPrice()
  */
 class WalletPosition extends Model

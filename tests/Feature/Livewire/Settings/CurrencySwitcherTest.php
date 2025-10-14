@@ -62,7 +62,7 @@ class CurrencySwitcherTest extends TestCase
     public function it_defaults_and_switches_without_persist_when_unauthenticated()
     {
         // Simulate unauthenticated
-        $this->be(new \App\Models\User());
+        $this->be(new \App\Models\User);
         $this->app['auth']->forgetGuards();
 
         Livewire::test(CurrencySwitcher::class)
@@ -90,8 +90,7 @@ class CurrencySwitcherTest extends TestCase
     {
         Livewire::test(CurrencySwitcher::class)
             ->call('switchTo', 'XYZ')
-            ->assertSet('currency', 'EUR') // Should remain default or previous
-            ;
+            ->assertSet('currency', 'EUR'); // Should remain default or previous
 
         $this->assertDatabaseMissing('user_preferences', [
             'user_id' => $this->user->id,

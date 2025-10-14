@@ -17,7 +17,7 @@ class TransactionCacheServiceQueryTest extends TestCase
 
     public function test_get_optimized_transaction_query_applies_filters(): void
     {
-        $service = new TransactionCacheService();
+        $service = new TransactionCacheService;
         /** @var \App\Models\User $user */
         $user = User::factory()->create();
         $this->actingAs($user);

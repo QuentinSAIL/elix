@@ -49,7 +49,7 @@ test('can switch to supported language', function () {
     $this->assertEquals($testLang, App::getLocale());
     $this->assertEquals($testLang, Session::get('locale'));
 
-    Toaster::assertDispatched('Language switched successfully to ' . $supportedLocales[$testLang]);
+    Toaster::assertDispatched('Language switched successfully to '.$supportedLocales[$testLang]);
 });
 
 test('cannot switch to unsupported language', function () {

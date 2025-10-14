@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class PriceService
 {
-    private const CACHE_DURATION = 300; // 5 minutes
+    private const CACHE_DURATION = 900; // 15 minutes (reduced API calls)
 
     private const API_TIMEOUT = 10;
 

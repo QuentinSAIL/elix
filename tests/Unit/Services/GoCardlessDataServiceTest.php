@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test as test;
+use Tests\TestCase;
 
 /**
  * @covers \App\Services\GoCardlessDataService

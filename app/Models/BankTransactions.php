@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @mixin \Illuminate\Database\Eloquent\Builder
+ *
  * @property int $id
  * @property string $description
  * @property string $money_category_id
