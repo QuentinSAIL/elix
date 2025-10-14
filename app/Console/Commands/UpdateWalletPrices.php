@@ -6,6 +6,7 @@ use App\Jobs\UpdateWalletPricesJob;
 use App\Models\WalletPosition;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 
 class UpdateWalletPrices extends Command
 {
@@ -103,9 +104,9 @@ class UpdateWalletPrices extends Command
         try {
             // Only works with Redis cache driver
             if (Cache::getStore() instanceof \Illuminate\Cache\RedisStore) {
-                $keys = Cache::getRedis()->keys('*price_*');
+                $keys = Redis::keys('*price_*');
                 if (! empty($keys)) {
-                    Cache::getRedis()->del($keys);
+                    Redis::del($keys);
                     $this->info('Cleared '.count($keys).' price cache entries.');
                 }
             } else {
