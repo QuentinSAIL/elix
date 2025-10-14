@@ -158,8 +158,11 @@ class PriceServiceTest extends TestCase
 
     public function test_calculate_positions_value_with_fallback_price(): void
     {
+        Cache::flush();
         Http::fake([
             'alphavantage.co/*' => Http::response([], 500), // API fails
+            'query1.finance.yahoo.com/*' => Http::response([], 500), // Ensure yahoo fails too
+            'api.coingecko.com/*' => Http::response([], 500), // Ensure coingecko fails too
         ]);
 
         $positions = [
@@ -173,7 +176,7 @@ class PriceServiceTest extends TestCase
         $totalValue = $this->priceService->calculatePositionsValue($positions, 'EUR');
 
         // Should fallback to stored price: 10 * 100 = 1000
-        $this->assertEquals(2571.3, $totalValue);
+        $this->assertEquals(1000.0, $totalValue);
     }
 
     public function test_get_exchange_rate_same_currency(): void
@@ -320,7 +323,10 @@ class PriceServiceTest extends TestCase
 
     public function test_crypto_mapping(): void
     {
+        Cache::flush();
         Http::fake([
+            'alphavantage.co/*' => Http::response([], 500),
+            'query1.finance.yahoo.com/*' => Http::response([], 500),
             'api.coingecko.com/*' => Http::response([
                 'bitcoin' => ['eur' => 45000],
                 'ethereum' => ['eur' => 3000],
@@ -330,8 +336,9 @@ class PriceServiceTest extends TestCase
         $btcPrice = $this->priceService->getPrice('BTC', 'EUR');
         $ethPrice = $this->priceService->getPrice('ETH', 'EUR');
 
-        $this->assertEquals(53.6, $btcPrice);
-        $this->assertEquals(42.38, $ethPrice);
+        // Should return faked CoinGecko prices as-is
+        $this->assertEquals(45000.0, $btcPrice);
+        $this->assertEquals(3000.0, $ethPrice);
     }
 
     public function test_logs_price_fetch_success(): void

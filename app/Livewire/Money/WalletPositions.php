@@ -90,7 +90,7 @@ class WalletPositions extends Component
             'positionForm.ticker' => 'nullable|string|max:32',
             'positionForm.unit' => 'required|string|max:16',
             'positionForm.quantity' => 'required|numeric|min:0',
-            'positionForm.price' => 'required|numeric|min:0',
+            'positionForm.price' => 'required|numeric|gt:0',
         ]);
 
         try {

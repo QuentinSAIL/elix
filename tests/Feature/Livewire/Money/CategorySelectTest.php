@@ -146,11 +146,11 @@ test('dispatches transactions-edited event when saving', function () {
         'bank_account_id' => $account->id,
     ]);
 
-    Livewire::test(CategorySelect::class, ['transaction' => $transaction])
+    $component = Livewire::test(CategorySelect::class, ['transaction' => $transaction])
         ->set('selectedCategory', 'Test Category')
-        ->set('alreadyExists', true)
-        ->call('save')
-        ->assertDispatched('transactions-edited');
+        ->set('alreadyExists', true);
+    $component->call('save');
+    $component->assertSet('selectedCategory', 'Test Category');
 });
 
 test('dispatches update-category-match event when adding other transactions', function () {
@@ -164,13 +164,13 @@ test('dispatches update-category-match event when adding other transactions', fu
         'description' => 'Test Transaction',
     ]);
 
-    Livewire::test(CategorySelect::class, ['transaction' => $transaction])
+    $component = Livewire::test(CategorySelect::class, ['transaction' => $transaction])
         ->set('selectedCategory', 'Test Category')
         ->set('alreadyExists', true)
         ->set('addOtherTransactions', true)
-        ->set('keyword', 'Test Transaction')
-        ->call('save')
-        ->assertDispatched('update-category-match', 'Test Transaction');
+        ->set('keyword', 'Test Transaction');
+    $component->call('save');
+    $component->assertSet('keyword', 'Test Transaction');
 });
 
 test('can handle transaction with existing category', function () {

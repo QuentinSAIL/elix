@@ -66,7 +66,7 @@ class CategorySelect extends Component
         try {
             $this->validate($rules);
         } catch (ValidationException $e) {
-            Toaster::error(__('The category content is invalid.'));
+            Toaster::error(__('Le contenu de la categorie est invalide.'));
 
             return;
         }
@@ -106,7 +106,7 @@ class CategorySelect extends Component
         if ($this->transaction) {
             Flux::modals()->close('category-form-'.$this->transaction->id);
         }
-        Toaster::success(__('Category saved successfully'));
+        Toaster::success('Category saved successfully');
     }
 
     public function render()

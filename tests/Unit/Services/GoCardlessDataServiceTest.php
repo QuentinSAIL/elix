@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test as test;
 
 /**
  * @covers \App\Services\GoCardlessDataService
@@ -262,7 +263,13 @@ class GoCardlessDataServiceTest extends TestCase
     public function update_account_transactions_applies_money_category_match()
     {
         $bankAccount = BankAccount::factory()->create(['user_id' => $this->user->id, 'gocardless_account_id' => 'acc123']);
-        $category = MoneyCategoryMatch::factory()->create(['user_id' => $this->user->id, 'match_string' => 'Groceries'])->category;
+        $userCategory = \App\Models\MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+        $categoryModel = MoneyCategoryMatch::factory()->create([
+            'user_id' => $this->user->id,
+            'money_category_id' => $userCategory->id,
+            'keyword' => 'groceries',
+        ]);
+        $category = $userCategory;
 
         Http::fake([
             '*/token/new/' => Http::response(['access' => 'test_token'], 200),
@@ -272,7 +279,7 @@ class GoCardlessDataServiceTest extends TestCase
                         [
                             'internalTransactionId' => 'tx_match',
                             'transactionAmount' => ['amount' => -50.0, 'currency' => 'EUR'],
-                            'remittanceInformationUnstructuredArray' => ['Groceries'],
+                            'remittanceInformationUnstructuredArray' => ['GROCERIES'],
                             'bookingDate' => '2024-01-01',
                         ],
                     ],
@@ -448,6 +455,46 @@ class GoCardlessDataServiceTest extends TestCase
         $this->expectExceptionMessage('Error creating user agreement: {"created":false,"detail":"Agreement error"}');
 
         $this->service->addNewBankAccount('inst_id', 365, 90, 'logo_url');
+    }
+
+    #[test]
+    public function requisition_returns_null_when_not_created()
+    {
+        Http::fake([
+            '*/token/new/' => Http::response(['access' => 'test_token'], 200),
+            '*/requisitions/' => Http::response(['created' => false], 200),
+        ]);
+
+        $result = $this->service->requisition('inst_id', 'agreement_id', now()->addDays(90), 365, 'logo_url');
+
+        $this->assertNull($result);
+    }
+
+    #[test]
+    public function update_account_transactions_returns_success_when_no_booked_key()
+    {
+        $bankAccount = BankAccount::factory()->create(['user_id' => $this->user->id, 'gocardless_account_id' => 'accX']);
+
+        Http::fake([
+            '*/token/new/' => Http::response(['access' => 'test_token'], 200),
+            '*/accounts/accX/transactions/' => Http::response(['transactions' => []], 200),
+        ]);
+
+        $result = $this->service->updateAccountTransactions('accX');
+        $this->assertEquals('success', $result['status']);
+        $this->assertStringContainsString('No new transactions', $result['message']);
+    }
+
+    #[test]
+    public function get_accounts_from_ref_returns_null_when_results_missing()
+    {
+        Http::fake([
+            '*/token/new/' => Http::response(['access' => 'test_token'], 200),
+            '*/requisitions/?limit=100&offset=0' => Http::response([], 200),
+        ]);
+
+        $accounts = $this->service->getAccountsFromRef('anything');
+        $this->assertNull($accounts);
     }
 
     #[test]
