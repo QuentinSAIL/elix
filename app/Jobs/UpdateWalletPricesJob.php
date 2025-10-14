@@ -31,7 +31,7 @@ class UpdateWalletPricesJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::info('Starting background wallet price update job');
+        Log::info(__('Starting background wallet price update job'));
 
         $positions = WalletPosition::whereNotNull('ticker')->get();
         $updated = 0;
@@ -46,11 +46,11 @@ class UpdateWalletPricesJob implements ShouldQueue
                 }
             } catch (\Exception $e) {
                 $failed++;
-                Log::warning("Failed to update price for {$position->name} ({$position->ticker}): ".$e->getMessage());
+                Log::warning(__('Failed to update price for :name (:ticker): :error', ['name' => $position->name, 'ticker' => $position->ticker, 'error' => $e->getMessage()]));
             }
         }
 
-        Log::info("Price update job completed: {$updated} updated, {$failed} failed");
+        Log::info(__('Price update job completed: :updated updated, :failed failed', ['updated' => $updated, 'failed' => $failed]));
     }
 
     /**
@@ -58,6 +58,6 @@ class UpdateWalletPricesJob implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error('Wallet price update job failed: '.$exception->getMessage());
+        Log::error(__('Wallet price update job failed: :error', ['error' => $exception->getMessage()]));
     }
 }

@@ -111,7 +111,7 @@ class BankTransactionIndex extends Component
     public function searchAndApplyCategory(string $keyword): void
     {
         $transactionEdited = MoneyCategoryMatch::searchAndApplyMatchCategory($keyword);
-        Toaster::success("Catégorie appliquée à toutes les transactions correspondantes ($transactionEdited)");
+        Toaster::success(__('Category applied to all matching transactions (:count)', ['count' => $transactionEdited]));
 
         $this->getTransactionsProperty();
     }

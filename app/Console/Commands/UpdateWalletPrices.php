@@ -20,7 +20,7 @@ class UpdateWalletPrices extends Command
     public function handle(): int
     {
         if ($this->option('background')) {
-            $this->info('Dispatching wallet price update job to background...');
+            $this->info(__('Dispatching wallet price update job to background'));
             UpdateWalletPricesJob::dispatch();
             $this->info('✅ Price update job dispatched successfully!');
 
@@ -28,16 +28,16 @@ class UpdateWalletPrices extends Command
         }
 
         if ($this->option('clear-cache')) {
-            $this->info('Clearing price cache...');
+            $this->info(__('Clearing price cache'));
             $this->clearPriceCache();
         }
 
-        $this->info('Updating wallet position prices...');
+        $this->info(__('Updating wallet position prices'));
 
         $positions = WalletPosition::whereNotNull('ticker')->get();
 
         if ($positions->isEmpty()) {
-            $this->info('No positions with tickers found.');
+            $this->info(__('No positions with tickers found'));
 
             return 0;
         }
@@ -66,7 +66,7 @@ class UpdateWalletPrices extends Command
                 }
             } catch (\Exception $e) {
                 $failed++;
-                $this->warn("Failed to update price for {$position->name} ({$position->ticker}): ".$e->getMessage());
+                $this->warn(__('Failed to update price for :name (:ticker): :error', ['name' => $position->name, 'ticker' => $position->ticker, 'error' => $e->getMessage()]));
             }
 
             $progressBar->advance();
@@ -83,7 +83,7 @@ class UpdateWalletPrices extends Command
             $this->warn("❌ Failed: {$failed} positions");
         }
 
-        $this->info('Price update completed!');
+        $this->info(__('Price update completed'));
 
         return 0;
     }
@@ -107,15 +107,15 @@ class UpdateWalletPrices extends Command
                 $keys = Redis::keys('*price_*');
                 if (! empty($keys)) {
                     Redis::del($keys);
-                    $this->info('Cleared '.count($keys).' price cache entries.');
+                    $this->info(__('Cleared :count price cache entries', ['count' => count($keys)]));
                 }
             } else {
                 // For other cache drivers, clear all cache
                 Cache::flush();
-                $this->info('Cleared all cache entries (non-Redis driver).');
+                $this->info(__('Cleared all cache entries (non-Redis driver)'));
             }
         } catch (\Exception $e) {
-            $this->warn('Could not clear price cache: '.$e->getMessage());
+            $this->warn(__('Could not clear price cache: :error', ['error' => $e->getMessage()]));
         }
     }
 }

@@ -28,9 +28,9 @@ class Dashboard extends Component
         if ($panel) {
             $panel->delete();
             $this->moneyDashboardPanels = $this->moneyDashboard->panels()->get();
-            Toaster::success('Panel deleted successfully.');
+            Toaster::success(__('Panel deleted successfully'));
         } else {
-            Toaster::error('Panel not found.');
+            Toaster::error(__('Panel not found'));
         }
     }
 

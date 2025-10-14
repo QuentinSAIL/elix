@@ -37,9 +37,9 @@ class BankAccountIndex extends Component
         $account = $this->accounts->find($accountId);
         if ($account) {
             $account->update(['name' => $name]);
-            Toaster::success('Compte bancaire mis à jour avec succès.');
+            Toaster::success(__('Bank account updated successfully'));
         } else {
-            Toaster::error('Compte bancaire introuvable.');
+            Toaster::error(__('Bank account not found'));
         }
     }
 
@@ -56,9 +56,9 @@ class BankAccountIndex extends Component
             $account->delete();
             $this->accounts = (new \Illuminate\Database\Eloquent\Collection($this->user->bankAccounts->all()));
             Flux::modals()->close('delete-account-'.$account->id);
-            Toaster::success('Compte bancaire supprimé avec succès.');
+            Toaster::success(__('Bank account deleted successfully'));
         } else {
-            Toaster::error('Compte bancaire introuvable.');
+            Toaster::error(__('Bank account not found'));
         }
     }
 
@@ -78,7 +78,7 @@ class BankAccountIndex extends Component
 
             $accountDetails = $goCardlessDataService->getAccountDetails($accountId);
             if (isset($accountDetails['status_code']) && $accountDetails['status_code'] !== 200) {
-                Toaster::error('Error fetching account details from GoCardless.');
+                Toaster::error(__('Error fetching account details from GoCardless'));
 
                 return;
             }
@@ -119,13 +119,13 @@ class BankAccountIndex extends Component
         $account = $this->accounts->find($accountId);
 
         if (! $account) {
-            Toaster::error('Compte bancaire introuvable.');
+            Toaster::error(__('Bank account not found'));
 
             return;
         }
 
         if (! $account->gocardless_account_id || ! $account->institution_id || ! $account->agreement_id) {
-            Toaster::error('Impossible de renouveler l\'autorisation pour ce compte.');
+            Toaster::error(__('Unable to renew authorization for this account'));
 
             return;
         }
@@ -138,7 +138,7 @@ class BankAccountIndex extends Component
             $bank = collect($banks)->firstWhere('id', $account->institution_id);
 
             if (! $bank) {
-                Toaster::error('Impossible de récupérer les informations de la banque.');
+                Toaster::error(__('Unable to retrieve bank information'));
 
                 return;
             }
@@ -153,9 +153,9 @@ class BankAccountIndex extends Component
                 $account->logo
             );
 
-            Toaster::success('Redirection vers votre banque pour renouveler l\'autorisation.');
+            Toaster::success(__('Redirecting to your bank to renew authorization'));
         } catch (\Exception $e) {
-            Toaster::error('Erreur lors du renouvellement de l\'autorisation: '.$e->getMessage());
+            Toaster::error(__('Error during authorization renewal').': '.$e->getMessage());
         }
     }
 

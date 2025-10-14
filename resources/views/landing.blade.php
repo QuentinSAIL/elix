@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Elix - Gestion financière intelligente</title>
+    <title>{{ __('Elix - Intelligent financial management') }}</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -22,9 +22,9 @@
                 </div>
                 <!-- Navigation Links -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#features" class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 dark:hover:text-primarydark-500 transition-colors">Fonctionnalités</a>
-                    <a href="#modules" class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 dark:hover:text-primarydark-500 transition-colors">Modules</a>
-                    <a href="#pricing" class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 dark:hover:text-primarydark-500 transition-colors">Tarifs</a>
+                    <a href="#features" class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 dark:hover:text-primarydark-500 transition-colors">{{ __('Features') }}</a>
+                    <a href="#modules" class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 dark:hover:text-primarydark-500 transition-colors">{{ __('Modules') }}</a>
+                    <a href="#pricing" class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 dark:hover:text-primarydark-500 transition-colors">{{ __('Pricing') }}</a>
                 </div>
 
                 <!-- CTA Button -->
@@ -41,7 +41,7 @@
                         </svg>
                     </button>
 
-                    <a href="{{ route('login') }}" class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 dark:hover:text-primarydark-500 transition-colors">Connexion</a>
+                    <a href="{{ route('login') }}" class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 dark:hover:text-primarydark-500 transition-colors">{{ __('Login') }}</a>
                     <a href="{{ route('register') }}" class="bg-primary-500 dark:bg-primarydark-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 dark:hover:bg-primarydark-600 transition-colors">
                         Commencer
                     </a>
@@ -55,7 +55,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <h1 class="text-5xl md:text-6xl font-parkinsans font-bold text-primary-900 dark:text-primarydark-500 mb-6">
-                    Maîtrisez vos finances avec <span class="text-primary-500 dark:text-primarydark-500">Elix</span>
+                    {{ __('Master your finances with Elix') }}
                 </h1>
                 <p class="text-xl text-zinc-600 dark:text-zinc-300 mb-8 max-w-3xl mx-auto">
                     La plateforme modulaire et communautaire pour gérer vos finances, organiser vos routines et prendre des notes.
@@ -93,14 +93,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Comptes Bancaires</h3>
+                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ __('Bank Accounts') }}</h3>
                     <p class="text-zinc-600 dark:text-zinc-300 mb-4">
                         Connectez vos comptes bancaires via GoCardless pour un suivi automatique et sécurisé de vos transactions.
                     </p>
                     <ul class="text-sm text-zinc-500 dark:text-zinc-400 space-y-2">
-                        <li>• Synchronisation automatique</li>
-                        <li>• Support multi-banques</li>
-                        <li>• Sécurité bancaire</li>
+                        <li>• {{ __('Automatic synchronization') }}</li>
+                        <li>• {{ __('Multi-bank support') }}</li>
+                        <li>• {{ __('Banking security') }}</li>
                     </ul>
                 </div>
 
@@ -111,14 +111,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Transactions Intelligentes</h3>
+                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ __('Smart Transactions') }}</h3>
                     <p class="text-zinc-600 dark:text-zinc-300 mb-4">
                         Catégorisez automatiquement vos transactions et analysez vos habitudes de dépenses avec des filtres avancés.
                     </p>
                     <ul class="text-sm text-zinc-500 dark:text-zinc-400 space-y-2">
-                        <li>• Catégorisation automatique</li>
-                        <li>• Recherche avancée</li>
-                        <li>• Filtres par période</li>
+                        <li>• {{ __('Automatic categorization') }}</li>
+                        <li>• {{ __('Advanced search') }}</li>
+                        <li>• {{ __('Period filters') }}</li>
                     </ul>
                 </div>
 
@@ -129,14 +129,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Tableaux de Bord</h3>
+                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ __('Dashboards') }}</h3>
                     <p class="text-zinc-600 dark:text-zinc-300 mb-4">
                         Visualisez vos finances avec des graphiques personnalisables et des métriques clés pour prendre les bonnes décisions.
                     </p>
                     <ul class="text-sm text-zinc-500 dark:text-zinc-400 space-y-2">
-                        <li>• Graphiques interactifs</li>
-                        <li>• Métriques personnalisées</li>
-                        <li>• Analyses temporelles</li>
+                        <li>• {{ __('Interactive charts') }}</li>
+                        <li>• {{ __('Custom metrics') }}</li>
+                        <li>• {{ __('Temporal analysis') }}</li>
                     </ul>
                 </div>
 
@@ -147,14 +147,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Gestion de Budget</h3>
+                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ __('Budget Management') }}</h3>
                     <p class="text-zinc-600 dark:text-zinc-300 mb-4">
                         Définissez des budgets par catégorie et suivez vos dépenses pour rester maître de vos finances.
                     </p>
                     <ul class="text-sm text-zinc-500 dark:text-zinc-400 space-y-2">
-                        <li>• Budgets par catégorie</li>
-                        <li>• Alertes de dépassement</li>
-                        <li>• Suivi mensuel</li>
+                        <li>• {{ __('Category budgets') }}</li>
+                        <li>• {{ __('Overspending alerts') }}</li>
+                        <li>• {{ __('Monthly tracking') }}</li>
                     </ul>
                 </div>
 
@@ -165,14 +165,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Portefeuilles</h3>
+                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ __('Portfolios') }}</h3>
                     <p class="text-zinc-600 dark:text-zinc-300 mb-4">
                         Gérez vos investissements et portefeuilles avec un suivi en temps réel des performances.
                     </p>
                     <ul class="text-sm text-zinc-500 dark:text-zinc-400 space-y-2">
-                        <li>• Suivi des positions</li>
-                        <li>• Calcul des performances</li>
-                        <li>• Multi-devises</li>
+                        <li>• {{ __('Position tracking') }}</li>
+                        <li>• {{ __('Performance calculation') }}</li>
+                        <li>• {{ __('Multi-currency') }}</li>
                     </ul>
                 </div>
 
@@ -183,14 +183,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Catégories</h3>
+                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ __('Categories') }}</h3>
                     <p class="text-zinc-600 dark:text-zinc-300 mb-4">
                         Organisez vos transactions avec des catégories personnalisables et des règles de correspondance automatique.
                     </p>
                     <ul class="text-sm text-zinc-500 dark:text-zinc-400 space-y-2">
-                        <li>• Catégories personnalisées</li>
-                        <li>• Règles automatiques</li>
-                        <li>• Couleurs et icônes</li>
+                        <li>• {{ __('Custom categories') }}</li>
+                        <li>• {{ __('Automatic rules') }}</li>
+                        <li>• {{ __('Colors and icons') }}</li>
                     </ul>
                 </div>
             </div>

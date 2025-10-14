@@ -71,7 +71,7 @@ test('can save existing category', function () {
         'money_category_id' => $category->id,
     ]);
 
-    Toaster::assertDispatched('Category saved successfully');
+    Toaster::assertDispatched(__('Category saved successfully'));
 });
 
 test('can create new category', function () {
@@ -95,7 +95,7 @@ test('can create new category', function () {
         'description' => 'New Category Description',
     ]);
 
-    Toaster::assertDispatched('Category saved successfully');
+    Toaster::assertDispatched(__('Category saved successfully'));
 });
 
 test('validates required fields when saving', function () {
@@ -133,7 +133,7 @@ test('can add category match for other transactions', function () {
         'keyword' => 'Test Transaction',
     ]);
 
-    Toaster::assertDispatched('Category saved successfully');
+    Toaster::assertDispatched(__('Category saved successfully'));
 });
 
 test('dispatches transactions-edited event when saving', function () {

@@ -59,7 +59,7 @@ test('can update account name', function () {
     Livewire::test(BankAccountIndex::class)
         ->call('updateAccountName', $bankAccount->id, 'New Name');
 
-    Toaster::assertDispatched('Compte bancaire mis à jour avec succès.');
+    Toaster::assertDispatched(__('Bank account updated successfully'));
 
     $bankAccount->refresh();
     $this->assertEquals('New Name', $bankAccount->name);
@@ -78,7 +78,7 @@ test('shows error when updating non-existent account', function () {
     Livewire::test(BankAccountIndex::class)
         ->call('updateAccountName', '00000000-0000-0000-0000-000000000000', 'New Name');
 
-    Toaster::assertDispatched('Compte bancaire introuvable.');
+    Toaster::assertDispatched(__('Bank account not found'));
 });
 
 test('can delete account', function () {
@@ -96,7 +96,7 @@ test('can delete account', function () {
     Livewire::test(BankAccountIndex::class)
         ->call('delete', $bankAccount->id);
 
-    Toaster::assertDispatched('Compte bancaire supprimé avec succès.');
+    Toaster::assertDispatched(__('Bank account deleted successfully'));
 
     $this->assertDatabaseMissing('bank_accounts', ['id' => $bankAccount->id]);
 });
@@ -114,7 +114,7 @@ test('shows error when deleting non-existent account', function () {
     Livewire::test(BankAccountIndex::class)
         ->call('delete', '00000000-0000-0000-0000-000000000000');
 
-    Toaster::assertDispatched('Compte bancaire introuvable.');
+    Toaster::assertDispatched(__('Bank account not found'));
 });
 
 test('can delete account with gocardless account id', function () {
@@ -138,7 +138,7 @@ test('can delete account with gocardless account id', function () {
     Livewire::test(BankAccountIndex::class)
         ->call('delete', $bankAccount->id);
 
-    Toaster::assertDispatched('Compte bancaire supprimé avec succès.');
+    Toaster::assertDispatched(__('Bank account deleted successfully'));
 
     $this->assertDatabaseMissing('bank_accounts', ['id' => $bankAccount->id]);
 });
@@ -210,7 +210,7 @@ test('handles error when updating gocardless account', function () {
     Livewire::test(BankAccountIndex::class, ['ref' => 'test-ref'])
         ->call('updateGoCardlessAccount');
 
-    Toaster::assertDispatched('Error fetching account details from GoCardless.');
+    Toaster::assertDispatched(__('Error fetching account details from GoCardless'));
 });
 
 test('can check if account needs renewal', function () {
@@ -342,7 +342,7 @@ test('can renew authorization successfully', function () {
     Livewire::test(BankAccountIndex::class)
         ->call('renewAuthorization', $bankAccount->id);
 
-    Toaster::assertDispatched('Redirection vers votre banque pour renouveler l\'autorisation.');
+    Toaster::assertDispatched(__('Redirecting to your bank to renew authorization'));
 });
 
 test('renew authorization fails when account not found', function () {
@@ -358,7 +358,7 @@ test('renew authorization fails when account not found', function () {
     Livewire::test(BankAccountIndex::class)
         ->call('renewAuthorization', '00000000-0000-0000-0000-000000000000');
 
-    Toaster::assertDispatched('Compte bancaire introuvable.');
+    Toaster::assertDispatched(__('Bank account not found'));
 });
 
 test('renew authorization fails when missing required fields', function () {
@@ -380,7 +380,7 @@ test('renew authorization fails when missing required fields', function () {
     Livewire::test(BankAccountIndex::class)
         ->call('renewAuthorization', $bankAccount->id);
 
-    Toaster::assertDispatched('Impossible de renouveler l\'autorisation pour ce compte.');
+    Toaster::assertDispatched(__('Unable to renew authorization for this account'));
 });
 
 test('renew authorization handles bank not found', function () {
@@ -404,7 +404,7 @@ test('renew authorization handles bank not found', function () {
     Livewire::test(BankAccountIndex::class)
         ->call('renewAuthorization', $bankAccount->id);
 
-    Toaster::assertDispatched('Impossible de récupérer les informations de la banque.');
+    Toaster::assertDispatched(__('Unable to retrieve bank information'));
 });
 
 test('renew authorization uses fallback max access days', function () {
@@ -445,5 +445,5 @@ test('renew authorization uses fallback max access days', function () {
     Livewire::test(BankAccountIndex::class)
         ->call('renewAuthorization', $bankAccount->id);
 
-    Toaster::assertDispatched('Redirection vers votre banque pour renouveler l\'autorisation.');
+    Toaster::assertDispatched(__('Redirecting to your bank to renew authorization'));
 });

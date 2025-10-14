@@ -87,7 +87,7 @@ class UpdateWalletPricesCommandTest extends TestCase
     public function test_command_handles_no_positions(): void
     {
         $this->artisan('wallets:update-prices')
-            ->expectsOutput('No positions with tickers found.')
+            ->expectsOutput(__('No positions with tickers found'))
             ->assertExitCode(0);
     }
 }

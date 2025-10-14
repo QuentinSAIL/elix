@@ -103,7 +103,7 @@ class UpdateWalletPricesTest extends TestCase
         Bus::fake();
 
         $this->artisan(UpdateWalletPrices::class, ['--background' => true])
-            ->expectsOutput('Dispatching wallet price update job to background...')
+            ->expectsOutput(__('Dispatching wallet price update job to background'))
             ->expectsOutput('✅ Price update job dispatched successfully!')
             ->assertExitCode(0);
 
@@ -120,8 +120,8 @@ class UpdateWalletPricesTest extends TestCase
         $this->assertTrue(Cache::has('other_key'));
 
         $this->artisan(UpdateWalletPrices::class, ['--clear-cache' => true])
-            ->expectsOutput('Clearing price cache...')
-            ->expectsOutput('Cleared all cache entries (non-Redis driver).')
+            ->expectsOutput(__('Clearing price cache'))
+            ->expectsOutput(__('Cleared all cache entries (non-Redis driver)'))
             ->assertExitCode(0);
 
         $this->assertFalse(Cache::has('price_ABC'));
@@ -148,7 +148,7 @@ class UpdateWalletPricesTest extends TestCase
         ]);
 
         $this->artisan(UpdateWalletPrices::class)
-            ->expectsOutput('Updating wallet position prices...')
+            ->expectsOutput(__('Updating wallet position prices'))
             ->expectsOutput('✅ Updated: 1 positions')
             ->expectsOutput('⏭️ Skipped: 1 positions (recently updated)');
     }
@@ -166,7 +166,7 @@ class UpdateWalletPricesTest extends TestCase
         ]);
 
         $this->artisan(UpdateWalletPrices::class, ['--force' => true])
-            ->expectsOutput('Updating wallet position prices...')
+            ->expectsOutput(__('Updating wallet position prices'))
             ->expectsOutput('✅ Updated: 1 positions')
             ->assertExitCode(0);
     }

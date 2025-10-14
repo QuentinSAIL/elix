@@ -60,7 +60,7 @@ test('can delete panel', function () {
         'id' => $panel->id,
     ]);
 
-    Toaster::assertDispatched('Panel deleted successfully.');
+    Toaster::assertDispatched(__('Panel deleted successfully'));
 });
 
 test('shows error when deleting non-existent panel', function () {
@@ -71,7 +71,7 @@ test('shows error when deleting non-existent panel', function () {
     Livewire::test(Dashboard::class)
         ->call('deletePanel', '00000000-0000-0000-0000-000000000000');
 
-    Toaster::assertDispatched('Panel not found.');
+    Toaster::assertDispatched(__('Panel not found'));
 });
 
 test('refreshes panels after deletion', function () {
@@ -100,5 +100,5 @@ test('refreshes panels after deletion', function () {
     $this->assertDatabaseMissing('money_dashboard_panels', ['id' => $panel1->id]);
     $this->assertDatabaseHas('money_dashboard_panels', ['id' => $panel2->id]);
 
-    Toaster::assertDispatched('Panel deleted successfully.');
+    Toaster::assertDispatched(__('Panel deleted successfully'));
 });
