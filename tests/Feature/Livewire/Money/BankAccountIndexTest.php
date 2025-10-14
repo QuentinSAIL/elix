@@ -212,3 +212,22 @@ test('handles error when updating gocardless account', function () {
 
     Toaster::assertDispatched('Error fetching account details from GoCardless.');
 });
+
+test('can check if account needs renewal', function () {
+    Http::fake([
+        'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
+            'access' => 'test-access-token',
+        ], 200),
+        'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
+    ]);
+
+    $bankAccount = BankAccount::factory()->for($this->user)->create([
+        'gocardless_account_id' => 'test-account-id',
+        'reference' => 'test-reference',
+    ]);
+
+    $component = Livewire::test(BankAccountIndex::class);
+    $needsRenewal = $component->instance()->needsRenewal($bankAccount, 8);
+
+    $this->assertIsBool($needsRenewal);
+});

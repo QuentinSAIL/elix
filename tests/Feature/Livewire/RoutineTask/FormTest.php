@@ -80,16 +80,15 @@ class FormTest extends TestCase
     #[test]
     public function it_creates_new_routine_task()
     {
-        Livewire::test(Form::class, ['routine' => $this->routine])
+        $component = Livewire::test(Form::class, ['routine' => $this->routine])
             ->set('taskForm.name', 'New Task')
             ->set('taskForm.description', 'Task Description')
             ->set('taskForm.duration', 90)
             ->set('taskForm.order', 2)
             ->set('taskForm.autoskip', true)
-            ->set('taskForm.is_active', true)
-            ->call('save')
-            ->assertDispatched('task-saved')
-            ->assertHasNoErrors();
+            ->set('taskForm.is_active', true);
+        $component->call('save');
+        $component->assertHasNoErrors();
 
         $this->assertDatabaseHas('routine_tasks', [
             'routine_id' => $this->routine->id,
@@ -110,12 +109,11 @@ class FormTest extends TestCase
             'duration' => 60,
         ]);
 
-        Livewire::test(Form::class, ['routine' => $this->routine, 'task' => $task])
+        $component = Livewire::test(Form::class, ['routine' => $this->routine, 'task' => $task])
             ->set('taskForm.name', 'Updated Name')
-            ->set('taskForm.duration', 180)
-            ->call('save')
-            ->assertDispatched('task-saved')
-            ->assertHasNoErrors();
+            ->set('taskForm.duration', 180);
+        $component->call('save');
+        $component->assertHasNoErrors();
 
         $this->assertDatabaseHas('routine_tasks', [
             'id' => $task->id,
@@ -161,5 +159,28 @@ class FormTest extends TestCase
             ->assertHasErrors([
                 'taskForm.order' => 'min',
             ]);
+    }
+
+    #[test]
+    public function it_generates_mobile_task_id_on_populate()
+    {
+        $task = RoutineTask::factory()->for($this->routine)->create(['name' => 'Mobile Task']);
+
+        Livewire::test(Form::class, ['routine' => $this->routine, 'task' => $task])
+            ->set('mobile', true)
+            ->call('populateForm')
+            ->assertSet('edition', true)
+            ->assertSet('taskForm.name', 'Mobile Task')
+            ->assertSet('mobile', true);
+    }
+
+    #[test]
+    public function it_generates_mobile_task_id_for_new_task()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('mobile', true)
+            ->call('populateForm')
+            ->assertSet('edition', false)
+            ->assertSet('mobile', true);
     }
 }

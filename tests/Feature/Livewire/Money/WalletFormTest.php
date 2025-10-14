@@ -159,4 +159,23 @@ class WalletFormTest extends TestCase
             ->call('cancelEditPosition')
             ->assertSet('editingPosition', null);
     }
+
+    public function test_can_populate_form_for_existing_wallet()
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->for($user)->create([
+            'name' => 'Test Wallet',
+            'unit' => 'USD',
+            'mode' => 'single',
+            'balance' => 1000,
+        ]);
+        $this->actingAs($user);
+
+        Livewire::test(WalletForm::class, ['wallet' => $wallet])
+            ->call('populateForm')
+            ->assertSet('walletForm.name', 'Test Wallet')
+            ->assertSet('walletForm.unit', 'USD')
+            ->assertSet('walletForm.mode', 'single')
+            ->assertSet('walletForm.balance', '1000');
+    }
 }

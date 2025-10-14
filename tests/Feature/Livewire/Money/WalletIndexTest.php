@@ -70,4 +70,16 @@ class WalletIndexTest extends TestCase
         Livewire::test(WalletIndex::class)
             ->assertSet('userCurrency', 'USD');
     }
+
+    public function test_get_total_portfolio_value()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        Wallet::factory()->for($user)->count(2)->create(['balance' => 1000]);
+
+        $component = Livewire::test(WalletIndex::class);
+        $totalValue = $component->instance()->getTotalPortfolioValue();
+
+        $this->assertIsFloat($totalValue);
+    }
 }
