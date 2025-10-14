@@ -1,129 +1,291 @@
 <?php
 
+namespace Tests\Feature\Livewire\RoutineTask;
+
 use App\Livewire\RoutineTask\Form;
 use App\Models\Routine;
 use App\Models\RoutineTask;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+/**
+ * @covers \App\Livewire\RoutineTask\Form
+ */
+class FormTest extends TestCase
+{
+    use RefreshDatabase;
 
-beforeEach(function () {
-    $this->user = User::factory()->create();
-    $this->actingAs($this->user);
-    // Truncate the routine_tasks table to ensure a clean state
-    DB::table('routine_tasks')->truncate();
-    RoutineTask::withoutGlobalScope('userRoutine');
-});
+    protected User $user;
 
-test('routine task form component can be rendered', function () {
-    $routine = Routine::factory()->for($this->user)->create();
+    protected Routine $routine;
 
-    Livewire::test(Form::class, ['routine' => $routine])
-        ->assertStatus(200);
-});
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
+        $this->actingAs($this->user);
+        $this->routine = Routine::factory()->create(['user_id' => $this->user->id]);
+    }
 
-test('can reset form', function () {
-    $routine = Routine::factory()->for($this->user)->create();
+    #[test]
+    public function routine_task_form_component_can_be_rendered()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->assertStatus(200);
+    }
 
-    Livewire::test(Form::class, ['routine' => $routine])
-        ->call('resetForm')
-        ->assertSet('taskForm.name', '')
-        ->assertSet('taskForm.description', '')
-        ->assertSet('taskForm.duration', 60)
-        ->assertSet('taskForm.order', 1)
-        ->assertSet('taskForm.autoskip', true)
-        ->assertSet('taskForm.is_active', true);
-});
+    #[test]
+    public function it_populates_form_for_new_task()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->assertSet('edition', false)
+            ->assertSet('taskForm.name', '')
+            ->assertSet('taskForm.duration', 60)
+            ->assertSet('taskForm.order', 1);
+    }
 
-test('can populate form for new task', function () {
-    $routine = Routine::factory()->for($this->user)->create();
+    #[test]
+    public function it_populates_form_for_existing_task()
+    {
+        $task = RoutineTask::factory()->for($this->routine)->create([
+            'name' => 'Existing Task',
+            'duration' => 120,
+            'order' => 5,
+            'autoskip' => false,
+            'is_active' => false,
+        ]);
 
-    Livewire::test(Form::class, ['routine' => $routine])
-        ->call('populateForm')
-        ->assertSet('edition', false)
-        ->assertSet('taskForm.name', '')
-        ->assertSet('taskForm.duration', 60);
-});
+        Livewire::test(Form::class, ['routine' => $this->routine, 'task' => $task])
+            ->assertSet('edition', true)
+            ->assertSet('taskForm.name', 'Existing Task')
+            ->assertSet('taskForm.duration', 120)
+            ->assertSet('taskForm.order', 5)
+            ->assertSet('taskForm.autoskip', false)
+            ->assertSet('taskForm.is_active', false);
+    }
 
-test('can populate form for existing task', function () {
-    $routine = Routine::factory()->for($this->user)->create();
-    $task = RoutineTask::factory()->for($routine)->create([
-        'name' => 'Test Task',
-        'description' => 'Test Description',
-        'duration' => 120,
-        'order' => 1,
-        'autoskip' => false,
-        'is_active' => true,
-    ]);
+    #[test]
+    public function it_resets_form()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Test Name')
+            ->set('taskForm.duration', 123)
+            ->call('resetForm')
+            ->assertSet('taskForm.name', '')
+            ->assertSet('taskForm.duration', 60);
+    }
 
-    Livewire::test(Form::class, ['routine' => $routine, 'task' => $task])
-        ->call('populateForm')
-        ->assertSet('edition', true)
-        ->assertSet('taskForm.name', 'Test Task')
-        ->assertSet('taskForm.description', 'Test Description')
-        ->assertSet('taskForm.duration', 120);
-});
+    #[test]
+    public function it_creates_new_routine_task()
+    {
+        $component = Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'New Task')
+            ->set('taskForm.description', 'Task Description')
+            ->set('taskForm.duration', 90)
+            ->set('taskForm.order', 2)
+            ->set('taskForm.autoskip', true)
+            ->set('taskForm.is_active', true);
+        $component->call('save');
+        $component->assertHasNoErrors();
 
-test('can save new task', function () {
-    $routine = Routine::factory()->for($this->user)->create();
+        $this->assertDatabaseHas('routine_tasks', [
+            'routine_id' => $this->routine->id,
+            'name' => 'New Task',
+            'description' => 'Task Description',
+            'duration' => 90,
+            'order' => 2,
+            'autoskip' => true,
+            'is_active' => true,
+        ]);
+    }
 
-    Livewire::test(Form::class, ['routine' => $routine])
-        ->set('taskForm.name', 'New Task')
-        ->set('taskForm.description', 'New Description')
-        ->set('duration', 90)
-        ->set('taskForm.is_active', true)
-        ->call('save');
+    #[test]
+    public function it_updates_existing_routine_task()
+    {
+        $task = RoutineTask::factory()->for($this->routine)->create([
+            'name' => 'Old Name',
+            'duration' => 60,
+        ]);
 
-    $this->assertDatabaseHas('routine_tasks', [
-        'name' => 'New Task',
-        'description' => 'New Description',
-        'duration' => 90,
-    ]);
-});
+        $component = Livewire::test(Form::class, ['routine' => $this->routine, 'task' => $task])
+            ->set('taskForm.name', 'Updated Name')
+            ->set('taskForm.duration', 180);
+        $component->call('save');
+        $component->assertHasNoErrors();
 
-test('validates required fields', function () {
-    $routine = Routine::factory()->for($this->user)->create();
+        $this->assertDatabaseHas('routine_tasks', [
+            'id' => $task->id,
+            'name' => 'Updated Name',
+            'duration' => 180,
+        ]);
+    }
 
-    Livewire::test(Form::class, ['routine' => $routine])
-        ->set('taskForm.name', '')
-        ->call('save')
-        ->assertHasErrors(['taskForm.name' => 'required']);
-});
+    #[test]
+    public function it_validates_required_fields()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', '')
+            ->set('taskForm.duration', '')
+            ->set('taskForm.order', '')
+            ->call('save')
+            ->assertHasErrors([
+                'taskForm.name' => 'required',
+                'taskForm.duration' => 'required',
+                'taskForm.order' => 'required',
+            ]);
+    }
 
-test('validates duration minimum', function () {
-    $routine = Routine::factory()->for($this->user)->create();
+    #[test]
+    public function it_validates_duration_minimum()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Test')
+            ->set('taskForm.duration', 0)
+            ->call('save')
+            ->assertHasErrors([
+                'taskForm.duration' => 'min',
+            ]);
+    }
 
-    Livewire::test(Form::class, ['routine' => $routine])
-        ->set('duration', 0)
-        ->call('save')
-        ->assertHasErrors(['taskForm.duration' => 'min']);
-});
+    #[test]
+    public function it_validates_order_minimum()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Test')
+            ->set('taskForm.order', 0)
+            ->call('save')
+            ->assertHasErrors([
+                'taskForm.order' => 'min',
+            ]);
+    }
 
-test('validates order minimum', function () {
-    $routine = Routine::factory()->for($this->user)->create();
+    #[test]
+    public function it_generates_mobile_task_id_on_populate()
+    {
+        $task = RoutineTask::factory()->for($this->routine)->create(['name' => 'Mobile Task']);
 
-    $component = Livewire::test(Form::class, ['routine' => $routine]);
-    $component->set('taskForm.order', 0);
-    $component->call('save');
-    $this->assertTrue($component->errors()->has('taskForm.order'));
-});
+        Livewire::test(Form::class, ['routine' => $this->routine, 'task' => $task])
+            ->set('mobile', true)
+            ->call('populateForm')
+            ->assertSet('edition', true)
+            ->assertSet('taskForm.name', 'Mobile Task')
+            ->assertSet('mobile', true);
+    }
 
-test('sets default order for new task', function () {
-    $routine = Routine::factory()->for($this->user)->create();
-    $existingTask = RoutineTask::factory()->for($routine)->create(['order' => 5]);
+    #[test]
+    public function it_generates_mobile_task_id_for_new_task()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('mobile', true)
+            ->call('populateForm')
+            ->assertSet('edition', false)
+            ->assertSet('mobile', true);
+    }
 
-    $component = Livewire::test(Form::class, ['routine' => $routine]);
-    $component->call('resetForm');
-    $component->assertSet('taskForm.order', 1);
-});
+    #[test]
+    public function it_saves_task_with_mobile_flag()
+    {
+        $component = Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Mobile Task')
+            ->set('mobile', true);
+        $component->call('save');
+        $component->assertHasNoErrors();
+        $this->assertDatabaseHas('routine_tasks', [
+            'routine_id' => $this->routine->id,
+            'name' => 'Mobile Task',
+            'mobile_task_id' => 1,
+        ]);
+    }
 
-test('sets order to 1 for first task', function () {
-    $routine = Routine::factory()->for($this->user)->create();
+    #[test]
+    public function it_saves_task_without_mobile_flag()
+    {
+        $component = Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Non-Mobile Task');
+        $component->call('save');
+        $component->assertHasNoErrors();
+        $this->assertDatabaseHas('routine_tasks', [
+            'routine_id' => $this->routine->id,
+            'name' => 'Non-Mobile Task',
+            'mobile_task_id' => null,
+        ]);
+    }
 
-    $component = Livewire::test(Form::class, ['routine' => $routine]);
-    $component->call('resetForm');
-    $component->assertSet('taskForm.order', 1);
-});
+    #[test]
+    public function it_handles_task_updated_event()
+    {
+        $task = RoutineTask::factory()->for($this->routine)->create(['name' => 'Test Task']);
+
+        Livewire::test(Form::class, ['routine' => $this->routine, 'task' => $task])
+            ->dispatch('task-updated')
+            ->assertSet('edition', true)
+            ->assertSet('taskForm.name', 'Test Task');
+    }
+
+    #[test]
+    public function it_validates_string_fields()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', str_repeat('a', 256)) // Too long
+            ->set('taskForm.description', str_repeat('a', 256)) // Too long
+            ->call('save')
+            ->assertHasErrors([
+                'taskForm.name' => 'max',
+                'taskForm.description' => 'max',
+            ]);
+    }
+
+    #[test]
+    public function it_validates_integer_fields()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Test')
+            ->set('taskForm.duration', 'not-a-number')
+            ->set('taskForm.order', 'not-a-number')
+            ->call('save')
+            ->assertHasErrors([
+                'taskForm.duration' => 'integer',
+                'taskForm.order' => 'integer',
+            ]);
+    }
+
+    #[test]
+    public function it_validates_boolean_fields()
+    {
+        Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Test')
+            ->set('taskForm.autoskip', 'not-boolean')
+            ->set('taskForm.is_active', 'not-boolean')
+            ->call('save')
+            ->assertHasErrors([
+                'taskForm.autoskip' => 'boolean',
+                'taskForm.is_active' => 'boolean',
+            ]);
+    }
+
+    #[test]
+    public function it_dispatches_task_saved_event()
+    {
+        $component = Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Test Task');
+
+        $component->call('save');
+
+        $component->assertDispatched('task-saved');
+    }
+
+    #[test]
+    public function it_resets_form_after_save()
+    {
+        $component = Livewire::test(Form::class, ['routine' => $this->routine])
+            ->set('taskForm.name', 'Test Task')
+            ->set('taskForm.description', 'Test Description');
+
+        $component->call('save');
+
+        $component->assertSet('taskForm.name', '')
+            ->assertSet('taskForm.description', '');
+    }
+}

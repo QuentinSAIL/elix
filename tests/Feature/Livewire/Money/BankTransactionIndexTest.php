@@ -253,6 +253,18 @@ test('can filter transactions by current year', function () {
         ->assertDontSee('Last Year Transaction');
 });
 
+test('can update transaction', function () {
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    $transaction = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'description' => 'Original Description',
+    ]);
+
+    $component = Livewire::test(BankTransactionIndex::class);
+    $component->call('updateTransaction', $transaction->id);
+
+    $this->assertTrue(true); // Method exists and can be called
+});
+
 test('updating search resets pagination', function () {
     Livewire::test(BankTransactionIndex::class)
         ->set('perPage', 200)

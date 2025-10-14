@@ -50,10 +50,10 @@ class CategorySelect extends Component
         $category = $this->user->moneyCategories()->where('name', $value)->first();
         if (! $category) {
             $this->alreadyExists = false;
-            Toaster::error('Category not found');
+            Toaster::error(__('Category not found'));
         } else {
             $this->alreadyExists = true;
-            Toaster::success('Category found');
+            Toaster::success(__('Category found'));
         }
     }
 
@@ -66,7 +66,7 @@ class CategorySelect extends Component
         try {
             $this->validate($rules);
         } catch (ValidationException $e) {
-            Toaster::error('Le contenu de la categorie est invalide.');
+            Toaster::error(__('Le contenu de la categorie est invalide.'));
 
             return;
         }
@@ -82,6 +82,10 @@ class CategorySelect extends Component
 
         if ($category) {
             $this->transaction->category()->associate($category)->save();
+            $this->transaction->refresh();
+
+            // Émettre l'événement pour mettre à jour cette transaction spécifique
+            $this->dispatch('transaction-categorized', $this->transaction->id);
         }
 
         if ($this->addOtherTransactions) {
@@ -102,7 +106,7 @@ class CategorySelect extends Component
         if ($this->transaction) {
             Flux::modals()->close('category-form-'.$this->transaction->id);
         }
-        Toaster::success('Category saved successfully');
+        Toaster::success(__('Category saved successfully'));
     }
 
     public function render()

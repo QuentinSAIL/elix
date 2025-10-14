@@ -4,8 +4,10 @@ use App\Http\Middleware\UserHasValidGoCardlessKeys;
 use App\Http\Middleware\UserModule;
 use App\Livewire\Money\BankAccountIndex as AccountIndex;
 use App\Livewire\Money\BankTransactionIndex as TransactionIndex;
+use App\Livewire\Money\BudgetIndex;
 use App\Livewire\Money\CategoryIndex;
 use App\Livewire\Money\Dashboard;
+use App\Livewire\Money\WalletIndex;
 use App\Livewire\Note\Index as NoteIndex;
 use App\Livewire\Routine\Index as RoutineIndex;
 use App\Livewire\Settings\ApiKey;
@@ -16,8 +18,17 @@ use App\Livewire\Settings\Profile;
 use App\Services\GoCardlessDataService;
 use Illuminate\Support\Facades\Route;
 
+// Landing page accessible uniquement aux utilisateurs non connectés
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
+    return view('landing');
+})->name('landing');
+
 Route::middleware(['auth'])->group(function () {
-    Route::view('/', 'dashboard')->name('dashboard');
+    Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::middleware([UserModule::class])->group(function () {
         Route::get('routines', RoutineIndex::class)->name('routines.index');
         Route::get('notes', NoteIndex::class)->name('notes.index');
@@ -28,8 +39,10 @@ Route::middleware(['auth'])->group(function () {
                 })->name('money.index');
                 Route::get('dashboard', Dashboard::class)->name('money.dashboard');
                 Route::get('accounts', AccountIndex::class)->name('money.accounts');
+                Route::get('wallets', WalletIndex::class)->name('money.wallets');
                 Route::get('transactions', TransactionIndex::class)->name('money.transactions');
                 Route::get('categories', CategoryIndex::class)->name('money.categories');
+                Route::get('budget', BudgetIndex::class)->name('money.budget');
             });
             Route::get('/bank-accounts/callback', [GoCardlessDataService::class, 'handleCallback'])->name('bank-accounts.callback');
         });

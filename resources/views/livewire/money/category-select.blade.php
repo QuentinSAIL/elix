@@ -55,6 +55,7 @@
                         </div>
                     @endif
 
+
                     <flux:switch :label="__('Add other transactions to this category')"
                         wire:model.lazy="addOtherTransactions" />
 

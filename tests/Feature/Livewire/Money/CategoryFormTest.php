@@ -1,170 +1,397 @@
 <?php
 
+namespace Tests\Feature\Livewire\Money;
+
 use App\Livewire\Money\CategoryForm;
-use App\Models\BankAccount;
-use App\Models\BankTransactions;
 use App\Models\MoneyCategory;
 use App\Models\MoneyCategoryMatch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Masmerise\Toaster\Toaster;
+use Mockery;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+/**
+ * @covers \App\Livewire\Money\CategoryForm
+ */
+class CategoryFormTest extends TestCase
+{
+    use RefreshDatabase;
 
-beforeEach(function () {
-    $this->user = User::factory()->create();
-    $this->actingAs($this->user);
-});
+    protected User $user;
 
-test('category form component can be rendered', function () {
-    Livewire::test(CategoryForm::class)
-        ->assertStatus(200);
-});
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
+        $this->actingAs($this->user);
 
-test('can reset form', function () {
-    Livewire::test(CategoryForm::class)
-        ->call('resetForm')
-        ->assertSet('categoryForm.name', '')
-        ->assertSet('categoryForm.description', '')
-        ->assertSet('categoryForm.color', '#f66151')
-        ->assertSet('categoryForm.budget', 0)
-        ->assertSet('categoryForm.include_in_dashboard', true);
-});
+        // Default: don't mock static calls globally to avoid alias conflicts across test suites
+    }
 
-test('can populate form for new category', function () {
-    Livewire::test(CategoryForm::class)
-        ->call('populateForm')
-        ->assertSet('edition', false)
-        ->assertSet('categoryForm.name', '')
-        ->assertSet('categoryForm.color', '#f66151');
-});
+    public function category_form_component_can_be_rendered()
+    {
+        Livewire::test(CategoryForm::class)
+            ->assertStatus(200);
+    }
 
-test('can populate form for existing category', function () {
-    $category = MoneyCategory::factory()->for($this->user)->create([
-        'name' => 'Test Category',
-        'description' => 'Test Description',
-        'color' => '#ff0000',
-        'budget' => 100,
-        'include_in_dashboard' => true,
-    ]);
+    public function it_populates_form_for_new_category()
+    {
+        Livewire::test(CategoryForm::class)
+            ->assertSet('edition', false)
+            ->assertSet('categoryForm.name', '')
+            ->assertSet('categoryForm.budget', 0)
+            ->assertCount(1, 'categoryMatchForm');
+    }
 
-    Livewire::test(CategoryForm::class, ['category' => $category])
-        ->call('populateForm')
-        ->assertSet('edition', true)
-        ->assertSet('categoryForm.name', 'Test Category')
-        ->assertSet('categoryForm.description', 'Test Description');
-});
+    public function it_populates_form_for_existing_category()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+        MoneyCategoryMatch::factory()->count(2)->create(['money_category_id' => $category->id, 'user_id' => $this->user->id]);
 
-test('can add category match', function () {
-    Livewire::test(CategoryForm::class)
-        ->call('addCategoryMatch')
-        ->assertSet('categoryMatchForm.0.keyword', '');
-});
+        Livewire::test(CategoryForm::class, ['category' => $category])
+            ->assertSet('edition', true)
+            ->assertSet('categoryForm.name', $category->name)
+            ->assertCount(2, 'categoryMatchForm');
+    }
 
-test('can remove category match', function () {
-    $category = MoneyCategory::factory()->for($this->user)->create();
-    $match = MoneyCategoryMatch::factory()->create([
-        'money_category_id' => $category->id,
-        'user_id' => $this->user->id,
-        'keyword' => 'test1',
-    ]);
+    public function it_resets_form()
+    {
+        Livewire::test(CategoryForm::class)
+            ->set('categoryForm.name', 'Test Name')
+            ->set('categoryMatchForm', [['keyword' => 'test']])
+            ->call('resetForm')
+            ->assertSet('categoryForm.name', '')
+            ->assertCount(1, 'categoryMatchForm')
+            ->assertSet('categoryMatchForm.0.keyword', '');
+    }
 
-    Livewire::test(CategoryForm::class, ['category' => $category])
-        ->set('categoryMatchForm', [
-            ['id' => $match->id, 'category_id' => $category->id, 'keyword' => 'test1'],
-            ['id' => '2', 'category_id' => '1', 'keyword' => 'test2'],
-        ])
-        ->call('removeCategoryMatch', 0)
-        ->assertSet('categoryMatchForm.0.keyword', 'test2');
+    public function has_match_changes_property_returns_true_if_matches_changed()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+        MoneyCategoryMatch::factory()->create(['money_category_id' => $category->id, 'user_id' => $this->user->id, 'keyword' => 'old_keyword']);
 
-    $this->assertDatabaseMissing('money_category_matches', ['id' => $match->id]);
-});
+        $component = Livewire::test(CategoryForm::class, ['category' => $category])
+            ->set('categoryMatchForm.0.keyword', 'new_keyword');
 
-test('can save new category', function () {
-    Livewire::test(CategoryForm::class)
-        ->set('categoryForm', [
-            'name' => 'New Category',
-            'description' => 'New Description',
-            'color' => '#ff0000',
-            'budget' => 100,
-            'include_in_dashboard' => true,
-        ])
-        ->set('categoryMatchForm', [
-            ['id' => '', 'category_id' => '', 'keyword' => 'new'],
-        ])
-        ->call('save');
+        $this->assertTrue($component->get('hasMatchChanges'));
+    }
 
-    $this->assertDatabaseHas('money_categories', [
-        'name' => 'New Category',
-        'description' => 'New Description',
-    ]);
-});
+    public function has_match_changes_property_returns_false_if_no_changes()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+        MoneyCategoryMatch::factory()->create(['money_category_id' => $category->id, 'user_id' => $this->user->id, 'keyword' => 'existing_keyword']);
 
-test('can save existing category', function () {
-    $category = MoneyCategory::factory()->for($this->user)->create([
-        'name' => 'Old Name',
-    ]);
+        $component = Livewire::test(CategoryForm::class, ['category' => $category]);
 
-    Livewire::test(CategoryForm::class, ['category' => $category])
-        ->set('categoryForm.name', 'Updated Name')
-        ->set('categoryMatchForm', [
-            ['id' => '', 'category_id' => '', 'keyword' => 'new'],
-        ])
-        ->call('save');
+        $this->assertFalse($component->get('hasMatchChanges'));
+    }
 
-    $category->refresh();
-    $this->assertEquals('Updated Name', $category->name);
-});
+    public function it_adds_category_match_field()
+    {
+        Livewire::test(CategoryForm::class)
+            ->call('addCategoryMatch')
+            ->assertCount(2, 'categoryMatchForm');
+    }
 
-test('validates required fields', function () {
-    Livewire::test(CategoryForm::class)
-        ->set('categoryForm.name', '')
-        ->call('save')
-        ->assertHasErrors(['categoryForm.name' => 'required']);
-});
+    public function it_removes_category_match_field()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+        $match = MoneyCategoryMatch::factory()->create(['money_category_id' => $category->id, 'user_id' => $this->user->id]);
 
-test('can apply match to existing transactions', function () {
-    Toaster::fake();
-    $category = MoneyCategory::factory()->for($this->user)->create();
-    $bankAccount = BankAccount::factory()->for($this->user)->create();
-    BankTransactions::factory()->create([
-        'bank_account_id' => $bankAccount->id,
-        'description' => 'This is a test transaction',
-        'money_category_id' => null,
-    ]);
+        Livewire::test(CategoryForm::class, ['category' => $category])
+            ->call('removeCategoryMatch', 0)
+            ->assertCount(0, 'categoryMatchForm');
 
-    Livewire::test(CategoryForm::class, ['category' => $category])
-        ->set('categoryMatchForm', [
-            ['id' => '', 'category_id' => '', 'keyword' => 'test'],
-        ])
-        ->set('applyMatch', true)
-        ->set('applyMatchToAlreadyCategorized', true)
-        ->call('applyMatch')
-        ->assertDispatched('transactions-edited');
+        $this->assertDatabaseMissing('money_category_matches', ['id' => $match->id]);
+    }
 
-    // Toaster::assertSuccess('Category applied to all matching transactions (1)');
-});
+    public function it_creates_new_category_and_matches()
+    {
+        $component = Livewire::test(CategoryForm::class)
+            ->set('categoryForm.name', 'New Category')
+            ->set('categoryMatchForm.0.keyword', 'keyword1');
+        $component->call('save');
+        $component->assertDispatched('category-saved')
+            ->assertHasNoErrors();
 
-test('can detect match changes', function () {
-    $category = MoneyCategory::factory()->for($this->user)->create();
-    $match = MoneyCategoryMatch::factory()->create([
-        'money_category_id' => $category->id,
-        'user_id' => $this->user->id,
-        'keyword' => 'existing',
-    ]);
+        $this->assertDatabaseHas('money_categories', ['name' => 'New Category']);
+        $newCategory = MoneyCategory::where('name', 'New Category')->first();
+        $this->assertDatabaseHas('money_category_matches', ['money_category_id' => $newCategory->id, 'keyword' => 'keyword1']);
+    }
 
-    Livewire::test(CategoryForm::class, ['category' => $category])
-        ->set('categoryMatchForm', [
-            ['id' => $match->id, 'category_id' => $category->id, 'keyword' => 'new'],
-        ])
-        ->assertSet('hasMatchChanges', true);
-});
+    public function it_updates_existing_category_and_matches()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id, 'name' => 'Old Name']);
+        $match = MoneyCategoryMatch::factory()->create(['money_category_id' => $category->id, 'user_id' => $this->user->id, 'keyword' => 'old_keyword']);
 
-test('can handle category with no matches', function () {
-    $category = MoneyCategory::factory()->for($this->user)->create();
+        $component = Livewire::test(CategoryForm::class, ['category' => $category])
+            ->set('categoryForm.name', 'Updated Name')
+            ->set('categoryMatchForm.0.keyword', 'updated_keyword');
+        $component->call('save');
+        $component->assertHasNoErrors();
 
-    Livewire::test(CategoryForm::class, ['category' => $category])
-        ->call('populateForm')
-        ->assertSet('categoryMatchForm', [['id' => '', 'category_id' => '', 'keyword' => '']]);
-});
+        $this->assertDatabaseHas('money_categories', ['id' => $category->id, 'name' => 'Updated Name']);
+        $this->assertDatabaseHas('money_category_matches', ['id' => $match->id, 'keyword' => 'updated_keyword']);
+    }
+
+    public function test_deletes_removed_matches_on_update()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id, 'name' => 'Cat']);
+        $match1 = MoneyCategoryMatch::factory()->create(['money_category_id' => $category->id, 'user_id' => $this->user->id, 'keyword' => 'keep_me']);
+        $match2 = MoneyCategoryMatch::factory()->create(['money_category_id' => $category->id, 'user_id' => $this->user->id, 'keyword' => 'remove_me']);
+
+        $component = Livewire::test(CategoryForm::class, ['category' => $category])
+            ->set('categoryForm.name', 'Cat')
+            // Only keep the first match, drop the second
+            ->set('categoryMatchForm', [
+                ['id' => (string) $match1->id, 'category_id' => (string) $match1->id, 'keyword' => 'keep_me'],
+            ]);
+        $component->call('save');
+        $component->assertHasNoErrors();
+
+        $this->assertDatabaseHas('money_category_matches', ['id' => $match1->id, 'keyword' => 'keep_me']);
+        $this->assertDatabaseMissing('money_category_matches', ['id' => $match2->id]);
+    }
+
+    public function test_generates_mobile_category_id_on_populate()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id, 'name' => 'Mobile']);
+
+        Livewire::test(CategoryForm::class, ['category' => $category])
+            ->set('mobile', true)
+            ->call('populateForm')
+            ->assertSet('edition', true)
+            ->assertSet('categoryForm.name', 'Mobile')
+            ->assertSet('mobile', true);
+    }
+
+    public function test_apply_match_with_no_keywords_still_dispatches_with_zero_count()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id, 'name' => 'Empty']);
+
+        // No keywords present
+        Toaster::fake();
+        $component = Livewire::test(CategoryForm::class, ['category' => $category])
+            ->set('categoryMatchForm', [
+                ['id' => '', 'category_id' => '', 'keyword' => ''],
+            ])
+            ->set('applyMatch', true);
+        $component->call('applyMatch');
+
+        Toaster::assertDispatched('Category applied to all matching transactions (0)');
+    }
+
+    public function it_validates_required_fields_for_category_and_matches()
+    {
+        Livewire::test(CategoryForm::class)
+            ->set('categoryForm.name', '')
+            ->set('categoryMatchForm.0.keyword', '')
+            ->call('save')
+            ->assertHasErrors([
+                'categoryForm.name' => 'required',
+                'categoryMatchForm.0.keyword' => 'required',
+            ]);
+    }
+
+    public function it_handles_keyword_collisions()
+    {
+        $existingCategory = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+        MoneyCategoryMatch::factory()->create(['money_category_id' => $existingCategory->id, 'user_id' => $this->user->id, 'keyword' => 'colliding_keyword']);
+
+        Livewire::test(CategoryForm::class)
+            ->set('categoryForm.name', 'New Category')
+            ->set('categoryMatchForm.0.keyword', 'colliding_keyword')
+            ->call('save')
+            ->assertDispatched('toast', function ($name, $data) {
+                return $data['type'] === 'error' && str_contains($data['message'], 'Keyword "colliding_keyword" collides with existing "colliding_keyword".');
+            });
+    }
+
+    public function it_applies_match_to_transactions()
+    {
+        // Mock the static method searchAndApplyMatchCategory only for this test
+        try {
+            Mockery::mock('alias:App\\Models\\MoneyCategoryMatch')
+                ->shouldReceive('searchAndApplyMatchCategory')
+                ->andReturn(5);
+        } catch (\RuntimeException $e) {
+            // If alias already exists from another test, ignore
+        }
+        Livewire::test(CategoryForm::class)
+            ->set('categoryForm.name', 'New Category')
+            ->set('categoryMatchForm.0.keyword', 'keyword1')
+            ->call('save')
+            ->assertDispatched('toast', function ($name, $data) {
+                return $data['type'] === 'success' && str_contains($data['message'], 'Category applied to all matching transactions (5)');
+            })
+            ->assertDispatched('transactions-edited');
+    }
+
+    public function it_does_not_apply_match_if_apply_match_is_false()
+    {
+        // Ensure the mock is not called if applyMatch is false
+        try {
+            Mockery::mock('alias:App\\Models\\MoneyCategoryMatch')
+                ->shouldNotReceive('searchAndApplyMatchCategory');
+        } catch (\RuntimeException $e) {
+            // ignore alias conflicts
+        }
+
+        Livewire::test(CategoryForm::class)
+            ->set('categoryForm.name', 'New Category')
+            ->set('categoryMatchForm.0.keyword', 'keyword1')
+            ->set('applyMatch', false)
+            ->call('save');
+    }
+
+    public function it_handles_empty_keywords_in_match_form()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+
+        Livewire::test(CategoryForm::class, ['category' => $category])
+            ->set('categoryForm.name', 'Updated Category')
+            ->set('categoryMatchForm', [
+                ['id' => '', 'category_id' => '', 'keyword' => 'valid_keyword'],
+                ['id' => '', 'category_id' => '', 'keyword' => ''], // Empty keyword
+                ['id' => '', 'category_id' => '', 'keyword' => '   '], // Whitespace only
+            ])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        // Should only create match for valid keyword
+        $this->assertDatabaseHas('money_category_matches', [
+            'money_category_id' => $category->id,
+            'keyword' => 'valid_keyword',
+        ]);
+    }
+
+    public function it_handles_keyword_collisions_during_edition()
+    {
+        $existingCategory = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+        MoneyCategoryMatch::factory()->create([
+            'money_category_id' => $existingCategory->id,
+            'user_id' => $this->user->id,
+            'keyword' => 'colliding_keyword',
+        ]);
+
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+
+        Livewire::test(CategoryForm::class, ['category' => $category])
+            ->set('categoryForm.name', 'Updated Category')
+            ->set('categoryMatchForm.0.keyword', 'colliding_keyword')
+            ->call('save')
+            ->assertDispatched('toast', function ($name, $data) {
+                return $data['type'] === 'error' && str_contains($data['message'], 'colliding_keyword');
+            });
+    }
+
+    public function it_updates_existing_match_keywords()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+        $match = MoneyCategoryMatch::factory()->create([
+            'money_category_id' => $category->id,
+            'user_id' => $this->user->id,
+            'keyword' => 'old_keyword',
+        ]);
+
+        Livewire::test(CategoryForm::class, ['category' => $category])
+            ->set('categoryForm.name', 'Updated Category')
+            ->set('categoryMatchForm', [
+                ['id' => (string) $match->id, 'category_id' => (string) $match->id, 'keyword' => 'updated_keyword'],
+            ])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('money_category_matches', [
+            'id' => $match->id,
+            'keyword' => 'updated_keyword',
+        ]);
+    }
+
+    public function it_creates_new_matches_during_edition()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+        $existingMatch = MoneyCategoryMatch::factory()->create([
+            'money_category_id' => $category->id,
+            'user_id' => $this->user->id,
+            'keyword' => 'existing_keyword',
+        ]);
+
+        Livewire::test(CategoryForm::class, ['category' => $category])
+            ->set('categoryForm.name', 'Updated Category')
+            ->set('categoryMatchForm', [
+                ['id' => (string) $existingMatch->id, 'category_id' => (string) $existingMatch->id, 'keyword' => 'existing_keyword'],
+                ['id' => '', 'category_id' => '', 'keyword' => 'new_keyword'],
+            ])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('money_category_matches', [
+            'money_category_id' => $category->id,
+            'keyword' => 'new_keyword',
+        ]);
+    }
+
+    public function it_handles_apply_match_to_already_categorized()
+    {
+        try {
+            Mockery::mock('alias:App\\Models\\MoneyCategoryMatch')
+                ->shouldReceive('searchAndApplyMatchCategory')
+                ->with('test_keyword', true)
+                ->andReturn(3);
+        } catch (\RuntimeException $e) {
+            // ignore alias conflicts
+        }
+
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+
+        Livewire::test(CategoryForm::class, ['category' => $category])
+            ->set('categoryForm.name', 'Updated Category')
+            ->set('categoryMatchForm.0.keyword', 'test_keyword')
+            ->set('applyMatch', true)
+            ->set('applyMatchToAlreadyCategorized', true)
+            ->call('applyMatch');
+
+        Toaster::assertDispatched('Category applied to all matching transactions (3)');
+    }
+
+    public function it_handles_multiple_keyword_collisions()
+    {
+        $existingCategory = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+        MoneyCategoryMatch::factory()->create([
+            'money_category_id' => $existingCategory->id,
+            'user_id' => $this->user->id,
+            'keyword' => 'keyword1',
+        ]);
+        MoneyCategoryMatch::factory()->create([
+            'money_category_id' => $existingCategory->id,
+            'user_id' => $this->user->id,
+            'keyword' => 'keyword2',
+        ]);
+
+        Livewire::test(CategoryForm::class)
+            ->set('categoryForm.name', 'New Category')
+            ->set('categoryMatchForm', [
+                ['id' => '', 'category_id' => '', 'keyword' => 'keyword1'],
+                ['id' => '', 'category_id' => '', 'keyword' => 'keyword2'],
+            ])
+            ->call('save')
+            ->assertDispatched('toast', function ($name, $data) {
+                return $data['type'] === 'error' &&
+                       str_contains($data['message'], 'keyword1') &&
+                       str_contains($data['message'], 'keyword2');
+            });
+    }
+
+    public function it_handles_category_with_no_existing_matches()
+    {
+        $category = MoneyCategory::factory()->create(['user_id' => $this->user->id]);
+
+        Livewire::test(CategoryForm::class, ['category' => $category])
+            ->assertSet('edition', true)
+            ->assertCount(1, 'categoryMatchForm')
+            ->assertSet('categoryMatchForm.0.keyword', '');
+    }
+}

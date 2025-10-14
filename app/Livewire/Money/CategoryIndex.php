@@ -53,10 +53,10 @@ class CategoryIndex extends Component
         $cat = $this->user->moneyCategories()->find($categoryId);
         if ($cat) {
             $cat->update(['name' => $newName]);
-            Toaster::success('Nom mis à jour.');
+            Toaster::success(__('Name updated.'));
             $this->refreshList();
         } else {
-            Toaster::error('Catégorie introuvable.');
+            Toaster::error(__('Category not found.'));
         }
     }
 
@@ -65,10 +65,10 @@ class CategoryIndex extends Component
         $cat = $this->user->moneyCategories()->find($categoryId);
         if ($cat) {
             $cat->update(['budget' => $newBudget]);
-            Toaster::success('Budget mis à jour.');
+            Toaster::success(__('Budget updated.'));
             $this->refreshList();
         } else {
-            Toaster::error('Catégorie introuvable.');
+            Toaster::error(__('Category not found.'));
         }
     }
 
@@ -77,10 +77,10 @@ class CategoryIndex extends Component
         $cat = $this->user->moneyCategories()->find($categoryId);
         if ($cat) {
             $cat->update(['color' => $newColor]);
-            Toaster::success('Couleur mise à jour.');
+            Toaster::success(__('Color updated.'));
             $this->refreshList();
         } else {
-            Toaster::error('Catégorie introuvable.');
+            Toaster::error(__('Category not found.'));
         }
     }
 
@@ -88,11 +88,16 @@ class CategoryIndex extends Component
     {
         $cat = $this->user->moneyCategories()->find($categoryId);
         if ($cat) {
+            if ($cat->wallet) {
+                Toaster::error(__('Unable to delete a category linked to a wallet.'));
+
+                return;
+            }
             $cat->delete();
-            Toaster::success('Catégorie supprimée.');
+            Toaster::success(__('Category deleted.'));
             $this->refreshList();
         } else {
-            Toaster::error('Catégorie introuvable.');
+            Toaster::error(__('Category not found.'));
         }
     }
 
@@ -110,7 +115,7 @@ class CategoryIndex extends Component
             'color' => $this->newColor,
         ]);
 
-        Toaster::success('Catégorie ajoutée.');
+        Toaster::success(__('Category added.'));
         $this->newName = '';
         $this->newBudget = '';
         $this->newColor = '#cccccc';

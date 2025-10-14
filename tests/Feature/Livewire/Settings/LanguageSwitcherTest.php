@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 use Livewire\Livewire;
+use Masmerise\Toaster\Toaster;
 
 uses(RefreshDatabase::class);
 
@@ -37,27 +38,31 @@ test('can mount with session locale', function () {
 });
 
 test('can switch to supported language', function () {
+    Toaster::fake();
     $supportedLocales = config('app.supported_locales');
     $testLang = array_key_first($supportedLocales);
 
-    Livewire::test(LanguageSwitcher::class)
-        ->call('switchTo', $testLang);
+    $component = Livewire::test(LanguageSwitcher::class);
+    $component->call('switchTo', $testLang);
 
     $this->assertEquals($testLang, $this->user->preference()->first()->locale);
-
     $this->assertEquals($testLang, App::getLocale());
     $this->assertEquals($testLang, Session::get('locale'));
+
+    Toaster::assertDispatched('Language switched successfully to '.$supportedLocales[$testLang]);
 });
 
 test('cannot switch to unsupported language', function () {
+    Toaster::fake();
     $originalLocale = App::getLocale();
     $supportedLocales = ['en' => 'English', 'fr' => 'Français'];
 
-    Livewire::test(LanguageSwitcher::class, ['supportedLocales' => $supportedLocales])
-        ->call('switchTo', 'unsupported')
-        ->assertSet('locale', $originalLocale);
+    $component = Livewire::test(LanguageSwitcher::class, ['supportedLocales' => $supportedLocales]);
+    $component->call('switchTo', 'unsupported');
+    $component->assertSet('locale', $originalLocale);
 
     $this->assertEquals($originalLocale, App::getLocale());
+    Toaster::assertDispatched(__('Language not supported.'));
 });
 
 test('handles invalid locale in session', function () {

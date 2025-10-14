@@ -33,10 +33,27 @@
                     <span class="block text-sm text-grey">
                         {{ $account->owner_name }}
                     </span>
+                    @if($account->end_valid_access)
+                        <span class="block text-sm text-grey">
+                            {{ __('End of link: ') }}{{ \Carbon\Carbon::parse($account->end_valid_access)->format('d/m/Y') }}
+                        </span>
+                    @endif
                 </flux:text>
 
-                <!-- Bouton Supprimer -->
-                <div class="flex justify-end mt-4">
+                <!-- Boutons d'action -->
+                <div class="flex justify-between mt-4">
+                    @if($this->needsRenewal($account))
+                        <flux:button
+                            wire:click="renewAuthorization('{{ $account->id }}')"
+                            variant="outline"
+                            class="text-sm"
+                        >
+                            {{ __('Renew authorization') }}
+                        </flux:button>
+                    @else
+                        <div></div>
+                    @endif
+
                     <flux:modal.trigger name="delete-account-{{ $account->id }}">
                         <flux:button variant="danger">{{ __('Delete') }}</flux:button>
                     </flux:modal.trigger>

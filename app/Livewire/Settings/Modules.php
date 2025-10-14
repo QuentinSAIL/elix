@@ -26,7 +26,7 @@ class Modules extends Component
     {
         $this->user->modules()->sync($this->activeModules);
         $this->activeModules = $this->user->modules->pluck('id')->map(fn ($id) => (string) $id)->toArray();
-        Toaster::success('Modules updated successfully.');
+        Toaster::success(__('Modules updated successfully'));
 
         return redirect()->route('settings.modules');
     }

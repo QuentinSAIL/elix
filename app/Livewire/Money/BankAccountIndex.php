@@ -37,9 +37,9 @@ class BankAccountIndex extends Component
         $account = $this->accounts->find($accountId);
         if ($account) {
             $account->update(['name' => $name]);
-            Toaster::success('Compte bancaire mis à jour avec succès.');
+            Toaster::success(__('Bank account updated successfully'));
         } else {
-            Toaster::error('Compte bancaire introuvable.');
+            Toaster::error(__('Bank account not found'));
         }
     }
 
@@ -56,9 +56,9 @@ class BankAccountIndex extends Component
             $account->delete();
             $this->accounts = (new \Illuminate\Database\Eloquent\Collection($this->user->bankAccounts->all()));
             Flux::modals()->close('delete-account-'.$account->id);
-            Toaster::success('Compte bancaire supprimé avec succès.');
+            Toaster::success(__('Bank account deleted successfully'));
         } else {
-            Toaster::error('Compte bancaire introuvable.');
+            Toaster::error(__('Bank account not found'));
         }
     }
 
@@ -78,7 +78,7 @@ class BankAccountIndex extends Component
 
             $accountDetails = $goCardlessDataService->getAccountDetails($accountId);
             if (isset($accountDetails['status_code']) && $accountDetails['status_code'] !== 200) {
-                Toaster::error('Error fetching account details from GoCardless.');
+                Toaster::error(__('Error fetching account details from GoCardless'));
 
                 return;
             }
@@ -98,6 +98,64 @@ class BankAccountIndex extends Component
             $bankAccount->save();
 
             // return $bankAccount;
+        }
+    }
+
+    public function needsRenewal(\App\Models\BankAccount $account, int $weeksThreshold = 8): bool
+    {
+        if (! $account->end_valid_access) {
+            return false;
+        }
+
+        $endDate = \Carbon\Carbon::parse($account->end_valid_access);
+        $weeksRemaining = now()->diffInWeeks($endDate, false);
+
+        return $weeksRemaining <= $weeksThreshold && $weeksRemaining >= 0;
+    }
+
+    public function renewAuthorization(string|int $accountId): void
+    {
+        /** @var \App\Models\BankAccount|null $account */
+        $account = $this->accounts->find($accountId);
+
+        if (! $account) {
+            Toaster::error(__('Bank account not found'));
+
+            return;
+        }
+
+        if (! $account->gocardless_account_id || ! $account->institution_id || ! $account->agreement_id) {
+            Toaster::error(__('Unable to renew authorization for this account'));
+
+            return;
+        }
+
+        try {
+            $goCardlessDataService = new GoCardlessDataService;
+
+            // Récupérer les informations de la banque pour obtenir le max_access_valid_for_days
+            $banks = $goCardlessDataService->getBanks();
+            $bank = collect($banks)->firstWhere('id', $account->institution_id);
+
+            if (! $bank) {
+                Toaster::error(__('Unable to retrieve bank information'));
+
+                return;
+            }
+
+            $maxAccessValidForDays = $bank['max_access_valid_for_days'] ?? 90; // Fallback à 90 jours si non trouvé
+
+            // Créer un nouvel accord avec la même institution
+            $response = $goCardlessDataService->addNewBankAccount(
+                $account->institution_id,
+                $account->transaction_total_days,
+                $maxAccessValidForDays,
+                $account->logo
+            );
+
+            Toaster::success(__('Redirecting to your bank to renew authorization'));
+        } catch (\Exception $e) {
+            Toaster::error(__('Error during authorization renewal').': '.$e->getMessage());
         }
     }
 

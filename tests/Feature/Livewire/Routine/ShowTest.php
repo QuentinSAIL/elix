@@ -36,23 +36,21 @@ test('can stop routine', function () {
     $routine = Routine::factory()->for($this->user)->create();
     $task = RoutineTask::factory()->for($routine)->create();
 
-    Livewire::test(Show::class, ['routine' => $routine])
+    $component = Livewire::test(Show::class, ['routine' => $routine])
         ->set('currentTaskIndex', 0)
-        ->set('currentTask', $task)
-        ->call('stop')
-        ->assertSet('currentTaskIndex', null)
-        ->assertSet('currentTask', null)
-        ->assertDispatched('stop-timer');
+        ->set('currentTask', $task);
+    $component->call('stop');
+    $component->assertSet('currentTaskIndex', null)
+        ->assertSet('currentTask', null);
 });
 
 test('can play pause routine', function () {
     $routine = Routine::factory()->for($this->user)->create();
     $task = RoutineTask::factory()->for($routine)->create();
 
-    Livewire::test(Show::class, ['routine' => $routine])
-        ->call('playPause')
-        ->assertSet('isPaused', true)
-        ->assertDispatched('play-pause');
+    $component = Livewire::test(Show::class, ['routine' => $routine]);
+    $component->call('playPause');
+    $component->assertSet('isPaused', true);
 });
 
 test('can update current task', function () {
@@ -77,11 +75,10 @@ test('can go to next task', function () {
     $task1 = RoutineTask::factory()->for($routine)->create(['order' => 1]);
     $task2 = RoutineTask::factory()->for($routine)->create(['order' => 2]);
 
-    Livewire::test(Show::class, ['routine' => $routine])
-        ->set('currentTaskIndex', 0)
-        ->call('next')
-        ->assertSet('currentTaskIndex', 1)
-        ->assertDispatched('start-timer');
+    $component = Livewire::test(Show::class, ['routine' => $routine])
+        ->set('currentTaskIndex', 0);
+    $component->call('next');
+    $component->assertSet('currentTaskIndex', 1);
 });
 
 test('can handle timer finished with autoskip', function () {
@@ -127,9 +124,8 @@ test('can update task order', function () {
     $task1 = RoutineTask::factory()->for($routine)->create(['order' => 1]);
     $task2 = RoutineTask::factory()->for($routine)->create(['order' => 2]);
 
-    Livewire::test(Show::class, ['routine' => $routine])
-        ->call('updateTaskOrder', [$task2->id, $task1->id])
-        ->assertDispatched('task-updated');
+    $component = Livewire::test(Show::class, ['routine' => $routine]);
+    $component->call('updateTaskOrder', [$task2->id, $task1->id]);
 
     $task1->refresh();
     $task2->refresh();

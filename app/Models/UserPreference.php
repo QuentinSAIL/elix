@@ -17,6 +17,7 @@ class UserPreference extends Model
         'locale',
         'timezone',
         'theme_mode',
+        'currency',
     ];
 
     public function user(): BelongsTo

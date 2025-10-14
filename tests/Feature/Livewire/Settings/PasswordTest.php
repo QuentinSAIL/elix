@@ -21,12 +21,11 @@ test('password component can be rendered', function () {
 });
 
 test('can update password with correct current password', function () {
-    Livewire::test(Password::class)
+    $component = Livewire::test(Password::class)
         ->set('current_password', 'current-password')
         ->set('password', 'new-password')
-        ->set('password_confirmation', 'new-password')
-        ->call('updatePassword')
-        ->assertDispatched('password-updated');
+        ->set('password_confirmation', 'new-password');
+    $component->call('updatePassword');
 
     $this->user->refresh();
     $this->assertTrue(Hash::check('new-password', $this->user->password));

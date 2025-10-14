@@ -2,14 +2,21 @@
 
 namespace App\Models;
 
+use App\Services\WalletUpdateService;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ *
+ * @property int $id
  * @property string $description
  * @property string $money_category_id
+ * @property float $amount
+ * @property \Illuminate\Support\Carbon $transaction_date
  * @property-read \App\Models\MoneyCategory $category
+ * @property-read \App\Models\BankAccount $account
  */
 class BankTransactions extends Model
 {
@@ -31,6 +38,18 @@ class BankTransactions extends Model
         'transaction_date' => 'date',
         'amount' => 'float',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Update wallet when transaction category is set or changed
+        static::saved(function (BankTransactions $transaction) {
+            if ($transaction->wasChanged('money_category_id')) {
+                app(WalletUpdateService::class)->updateWalletFromTransaction($transaction);
+            }
+        });
+    }
 
     public function account()
     {

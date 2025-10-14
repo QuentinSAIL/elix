@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
  * @property Collection<int, \App\Models\Note> $notes
  * @property Collection<int, \App\Models\BankAccount> $bankAccounts
  * @property Collection<int, \App\Models\BankTransactions> $bankTransactions
+ * @property-read \App\Models\BankTransactions $bankTransaction
  * @property Collection<int, \App\Models\MoneyCategory> $moneyCategories
  * @property Collection<int, \App\Models\MoneyCategoryMatch> $moneyCategoryMatches
  * @property Collection<int, \App\Models\MoneyDashboard> $moneyDashboards
@@ -131,5 +132,10 @@ class User extends Authenticatable
     public function preference(): HasOne
     {
         return $this->hasOne(UserPreference::class);
+    }
+
+    public function wallets(): HasMany
+    {
+        return $this->hasMany(Wallet::class);
     }
 }

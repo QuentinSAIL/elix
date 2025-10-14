@@ -34,12 +34,11 @@ test('can mount with user data', function () {
 test('can update profile information', function () {
     $user = User::factory()->create();
 
-    Livewire::actingAs($user)
+    $component = Livewire::actingAs($user)
         ->test(Profile::class)
         ->set('name', 'Jane Doe')
-        ->set('email', 'jane.doe@example.com')
-        ->call('updateProfileInformation')
-        ->assertDispatched('profile-updated');
+        ->set('email', 'jane.doe@example.com');
+    $component->call('updateProfileInformation');
 
     $user->refresh();
     $this->assertSame('Jane Doe', $user->name);

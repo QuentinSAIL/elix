@@ -1,0 +1,121 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Jobs\UpdateWalletPricesJob;
+use App\Models\WalletPosition;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
+
+class UpdateWalletPrices extends Command
+{
+    protected $signature = 'wallets:update-prices
+                            {--force : Force update even if price was recently updated}
+                            {--background : Run update in background job}
+                            {--clear-cache : Clear price cache before updating}';
+
+    protected $description = 'Update current market prices for all wallet positions with tickers';
+
+    public function handle(): int
+    {
+        if ($this->option('background')) {
+            $this->info(__('Dispatching wallet price update job to background'));
+            UpdateWalletPricesJob::dispatch();
+            $this->info('✅ Price update job dispatched successfully!');
+
+            return 0;
+        }
+
+        if ($this->option('clear-cache')) {
+            $this->info(__('Clearing price cache'));
+            $this->clearPriceCache();
+        }
+
+        $this->info(__('Updating wallet position prices'));
+
+        $positions = WalletPosition::whereNotNull('ticker')->get();
+
+        if ($positions->isEmpty()) {
+            $this->info(__('No positions with tickers found'));
+
+            return 0;
+        }
+
+        $updated = 0;
+        $failed = 0;
+        $skipped = 0;
+
+        $progressBar = $this->output->createProgressBar($positions->count());
+        $progressBar->start();
+
+        foreach ($positions as $position) {
+            try {
+                // Skip if recently updated (unless force flag is used)
+                if (! $this->option('force') && $this->wasRecentlyUpdated($position)) {
+                    $skipped++;
+                    $progressBar->advance();
+
+                    continue;
+                }
+
+                if ($position->updateCurrentPrice()) {
+                    $updated++;
+                } else {
+                    $failed++;
+                }
+            } catch (\Exception $e) {
+                $failed++;
+                $this->warn(__('Failed to update price for :name (:ticker): :error', ['name' => $position->name, 'ticker' => $position->ticker, 'error' => $e->getMessage()]));
+            }
+
+            $progressBar->advance();
+        }
+
+        $progressBar->finish();
+        $this->newLine();
+
+        $this->info("✅ Updated: {$updated} positions");
+        if ($skipped > 0) {
+            $this->comment("⏭️ Skipped: {$skipped} positions (recently updated)");
+        }
+        if ($failed > 0) {
+            $this->warn("❌ Failed: {$failed} positions");
+        }
+
+        $this->info(__('Price update completed'));
+
+        return 0;
+    }
+
+    /**
+     * Check if position was recently updated (within last 10 minutes)
+     */
+    private function wasRecentlyUpdated(WalletPosition $position): bool
+    {
+        return $position->updated_at->isAfter(now()->subMinutes(10));
+    }
+
+    /**
+     * Clear all price-related cache entries
+     */
+    private function clearPriceCache(): void
+    {
+        try {
+            // Only works with Redis cache driver
+            if (Cache::getStore() instanceof \Illuminate\Cache\RedisStore) {
+                $keys = Redis::keys('*price_*');
+                if (! empty($keys)) {
+                    Redis::del($keys);
+                    $this->info(__('Cleared :count price cache entries', ['count' => count($keys)]));
+                }
+            } else {
+                // For other cache drivers, clear all cache
+                Cache::flush();
+                $this->info(__('Cleared all cache entries (non-Redis driver)'));
+            }
+        } catch (\Exception $e) {
+            $this->warn(__('Could not clear price cache: :error', ['error' => $e->getMessage()]));
+        }
+    }
+}
