@@ -13,7 +13,7 @@
             @endif
         </div>
         <flux:modal.trigger name="create-wallet">
-            <flux:button variant="primary" icon="plus" as="button">{{ __('New wallet') }}</flux:button>
+            <flux:button class="cursor-pointer" variant="primary" icon="plus" as="button">{{ __('New wallet') }}</flux:button>
         </flux:modal.trigger>
     </div>
 
@@ -31,7 +31,7 @@
             <flux:heading size="lg" class="mb-2">{{ __('No wallets yet') }}</flux:heading>
             <flux:text class="text-grey-inverse mb-6 text-center max-w-md">{{ __('Create your first wallet to start tracking your assets and balances') }}</flux:text>
             <flux:modal.trigger name="create-wallet">
-                <flux:button variant="primary" icon="plus" as="button">{{ __('Create your first wallet') }}</flux:button>
+                <flux:button class="cursor-pointer" variant="primary" icon="plus" as="button">{{ __('Create your first wallet') }}</flux:button>
             </flux:modal.trigger>
         </div>
     @else
@@ -64,10 +64,10 @@
                         <!-- Actions Menu -->
                         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <flux:modal.trigger name="edit-wallet-{{ $wallet->id }}">
-                                <flux:button size="sm" variant="ghost" icon="eye" as="button" title="{{ __('Edit wallet') }}" />
+                                <flux:button class="cursor-pointer" size="sm" variant="ghost" icon="eye" as="button" title="{{ __('Edit wallet') }}" />
                             </flux:modal.trigger>
                             <flux:modal.trigger name="delete-wallet-{{ $wallet->id }}">
-                                <flux:button size="sm" variant="ghost" icon="trash" as="button" title="{{ __('Delete wallet') }}" />
+                                <flux:button class="cursor-pointer" size="sm" variant="ghost" icon="trash" as="button" title="{{ __('Delete wallet') }}" />
                             </flux:modal.trigger>
                         </div>
                     </div>
@@ -78,8 +78,6 @@
                         <div class="text-2xl font-bold">{{ $this->getCurrencySymbol() }}{{ number_format($this->getWalletBalanceInCurrency($wallet), 2) }}</div>
                         @if($wallet->mode === 'multi' && $wallet->positions()->count() > 0)
                             <div class="text-xs text-grey-inverse mt-1">{{ __('Calculated from current market prices') }}</div>
-                        @elseif($wallet->mode === 'single')
-                            <div class="text-xs text-grey-inverse mt-1">{{ __('Original balance') }}: {{ rtrim(rtrim($wallet->getCurrentBalance(), '0'), '.') }} {{ $wallet->unit }}</div>
                         @endif
                     </div>
 
@@ -110,9 +108,6 @@
                         @else
                             <div class="text-center py-6">
                                 <div class="text-sm text-grey-inverse mb-3">{{ __('No positions yet') }}</div>
-                                <flux:modal.trigger name="wallet-positions-{{ $wallet->id }}">
-                                    <flux:button size="sm" variant="primary" icon="plus" as="button">{{ __('Add position') }}</flux:button>
-                                </flux:modal.trigger>
                             </div>
                         @endif
                     @else
@@ -152,8 +147,8 @@
                         <flux:text class="text-grey-inverse">{{ __('This action cannot be undone. All positions in this wallet will be permanently deleted.') }}</flux:text>
                     </div>
                     <div class="flex justify-end gap-3">
-                        <flux:button variant="ghost" @click="Flux.modals().close('delete-wallet-{{ $wallet->id }}')">{{ __('Cancel') }}</flux:button>
-                        <flux:button variant="danger" wire:click="delete('{{ $wallet->id }}')">{{ __('Delete wallet') }}</flux:button>
+                        <flux:button class="cursor-pointer" variant="ghost" @click="Flux.modals().close('delete-wallet-{{ $wallet->id }}')">{{ __('Cancel') }}</flux:button>
+                        <flux:button class="cursor-pointer" variant="danger" wire:click="delete('{{ $wallet->id }}')">{{ __('Delete wallet') }}</flux:button>
                     </div>
                 </div>
             </flux:modal>
