@@ -14,7 +14,6 @@ class PriceService
 
     private const EXCHANGE_CACHE_DURATION = 3600; // 1 hour for exchange rates
 
-
     /**
      * Location of the crypto mapping JSON file (symbol -> coingecko id)
      */

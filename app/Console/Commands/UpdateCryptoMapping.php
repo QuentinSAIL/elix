@@ -34,6 +34,7 @@ class UpdateCryptoMapping extends Command
 
             if (! $response->successful()) {
                 $this->error('Failed to fetch data from CoinGecko: HTTP '.$response->status());
+
                 return 1;
             }
 
@@ -84,6 +85,7 @@ class UpdateCryptoMapping extends Command
         } catch (\Throwable $e) {
             Log::error('crypto:update-mapping failed: '.$e->getMessage());
             $this->error('Unexpected error: '.$e->getMessage());
+
             return 1;
         }
     }

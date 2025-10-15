@@ -33,7 +33,7 @@ class PriceServiceWithMappingTest extends TestCase
             ], 200),
         ]);
 
-        $service = new PriceService();
+        $service = new PriceService;
         $price = $service->getPrice('HYPE', 'EUR');
 
         $this->assertSame(12.34, $price);

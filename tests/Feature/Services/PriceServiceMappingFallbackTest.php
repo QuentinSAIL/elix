@@ -32,7 +32,7 @@ class PriceServiceMappingFallbackTest extends TestCase
             'https://query1.finance.yahoo.com/*' => Http::response([], 404),
         ]);
 
-        $service = new PriceService();
+        $service = new PriceService;
         $price = $service->getPrice('BTC', 'EUR');
 
         $this->assertSame(123.45, $price);
