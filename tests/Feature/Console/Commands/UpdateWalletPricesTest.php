@@ -8,9 +8,9 @@ use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WalletPosition;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class UpdateWalletPricesTest extends TestCase
