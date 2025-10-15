@@ -343,6 +343,9 @@ class PriceServiceTest extends TestCase
 
     public function test_logs_price_fetch_success(): void
     {
+        // Allow other log levels without strict expectations
+        Log::shouldReceive('error')->zeroOrMoreTimes();
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('info')
             ->once()
             ->with('Price fetched for AAPL: 150.25 EUR');
@@ -360,6 +363,9 @@ class PriceServiceTest extends TestCase
 
     public function test_logs_price_fetch_failure(): void
     {
+        // Allow other log levels without strict expectations
+        Log::shouldReceive('error')->zeroOrMoreTimes();
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')
             ->once()
             ->with('No price found for ticker: INVALID');

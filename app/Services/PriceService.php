@@ -8,11 +8,16 @@ use Illuminate\Support\Facades\Log;
 
 class PriceService
 {
-    private const CACHE_DURATION = 900; // 15 minutes (reduced API calls)
+    private const CACHE_DURATION = 900; // 15 minutes
 
     private const API_TIMEOUT = 10;
 
     private const EXCHANGE_CACHE_DURATION = 3600; // 1 hour for exchange rates
+
+    /**
+     * Location of the crypto mapping JSON file (symbol -> coingecko id)
+     */
+    private const CRYPTO_MAPPING_FILE = 'data/crypto_map.json';
 
     /**
      * Get current price for a ticker symbol
@@ -23,10 +28,15 @@ class PriceService
 
         return Cache::remember($cacheKey, self::CACHE_DURATION, function () use ($ticker, $currency) {
             try {
-                // Try multiple free APIs
-                $price = $this->getPriceFromAlphaVantage($ticker, $currency)
-                    ?? $this->getPriceFromYahooFinance($ticker, $currency)
-                    ?? $this->getPriceFromCoinGecko($ticker, $currency);
+                if ($this->isCryptoTicker($ticker)) {
+                    $price = $this->getPriceFromCoinGecko($ticker, $currency)
+                        ?? $this->getPriceFromYahooFinance($ticker, $currency)
+                        ?? $this->getPriceFromAlphaVantage($ticker, $currency);
+                } else {
+                    $price = $this->getPriceFromAlphaVantage($ticker, $currency)
+                        ?? $this->getPriceFromYahooFinance($ticker, $currency)
+                        ?? $this->getPriceFromCoinGecko($ticker, $currency);
+                }
 
                 if ($price !== null) {
                     Log::info("Price fetched for {$ticker}: {$price} {$currency}");
@@ -141,18 +151,7 @@ class PriceService
     {
         try {
             // Map common crypto tickers to CoinGecko IDs
-            $cryptoMapping = [
-                'BTC' => 'bitcoin',
-                'ETH' => 'ethereum',
-                'ADA' => 'cardano',
-                'DOT' => 'polkadot',
-                'LINK' => 'chainlink',
-                'UNI' => 'uniswap',
-                'AAVE' => 'aave',
-                'COMP' => 'compound-governance-token',
-            ];
-
-            $coinId = $cryptoMapping[strtoupper($ticker)] ?? strtolower($ticker);
+            $coinId = $this->getCryptoIdForSymbol($ticker) ?? strtolower($ticker);
 
             $response = Http::timeout(self::API_TIMEOUT)
                 ->get('https://api.coingecko.com/api/v3/simple/price', [
@@ -171,6 +170,91 @@ class PriceService
         }
 
         return null;
+    }
+
+    /**
+     * Determine if a ticker is a cryptocurrency symbol.
+     * We use a curated mapping to avoid collisions with stock/ETF symbols.
+     */
+    private function isCryptoTicker(string $ticker): bool
+    {
+        $symbol = strtoupper($ticker);
+        $mapping = $this->loadCryptoMapping();
+        if (isset($mapping[$symbol])) {
+            return true;
+        }
+
+        // Also treat common stablecoins/majors as crypto even if not in mapping
+        // This is a conservative list to avoid false positives
+        $common = ['BTC', 'ETH', 'SOL', 'XRP', 'ADA', 'DOGE', 'DOT', 'LINK', 'UNI', 'MATIC', 'AVAX'];
+
+        return in_array($symbol, $common, true);
+    }
+
+    /**
+     * Return CoinGecko ID for a given symbol using file mapping with fallback
+     */
+    private function getCryptoIdForSymbol(string $ticker): ?string
+    {
+        $symbol = strtoupper($ticker);
+        $mapping = $this->loadCryptoMapping();
+
+        return $mapping[$symbol] ?? null;
+    }
+
+    /**
+     * Load crypto mapping from JSON file and cache it for an hour
+     */
+    private function loadCryptoMapping(): array
+    {
+        $cacheKey = 'crypto_mapping_v1';
+
+        return Cache::remember($cacheKey, self::EXCHANGE_CACHE_DURATION, function () {
+            try {
+                $filePath = resource_path(self::CRYPTO_MAPPING_FILE);
+                if (is_file($filePath)) {
+                    $content = file_get_contents($filePath);
+                    $data = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+
+                    // Normalize keys to uppercase
+                    $normalized = [];
+                    foreach ($data as $symbol => $id) {
+                        $normalized[strtoupper(trim($symbol))] = strtolower(trim($id));
+                    }
+
+                    // Merge defaults for safety
+                    foreach ($this->getDefaultCryptoMapping() as $sym => $id) {
+                        if (! isset($normalized[$sym])) {
+                            $normalized[$sym] = $id;
+                        }
+                    }
+
+                    return $normalized;
+                }
+            } catch (\Throwable $e) {
+                Log::debug('Failed to load crypto mapping: '.$e->getMessage());
+            }
+
+            // Fallback to defaults
+            return $this->getDefaultCryptoMapping();
+        });
+    }
+
+    /**
+     * Minimal, hardcoded fallback mapping in case JSON file is missing/unreadable
+     */
+    private function getDefaultCryptoMapping(): array
+    {
+        return [
+            'BTC' => 'bitcoin',
+            'ETH' => 'ethereum',
+            'ADA' => 'cardano',
+            'DOT' => 'polkadot',
+            'LINK' => 'chainlink',
+            'UNI' => 'uniswap',
+            'AAVE' => 'aave',
+            'COMP' => 'compound-governance-token',
+        ];
     }
 
     /**

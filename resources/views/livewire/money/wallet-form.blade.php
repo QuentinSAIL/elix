@@ -53,7 +53,7 @@
                                     placeholder="0.00"
                                 />
                             @else
-                                <div class="flex items-center justify-center h-12 px-4 rounded-lg bg-custom-accent/5 border border-custom-accent/20">
+                                <div class="flex items-center justify-center h-12 px-4 rounded-lg bg-custom-accent/5 border border-custom-accent/20 self-end">
                                     <flux:text class="text-grey-inverse">{{ __('Balance calculated from positions') }}</flux:text>
                                 </div>
                             @endif
@@ -120,7 +120,7 @@
                             type="button"
                             wire:click="save"
                             wire:keydown.enter="save"
-                            class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-custom-accent text-white text-sm font-medium hover:bg-custom-accent/90 transition"
+                            class="cursor-pointer inline-flex items-center justify-center px-4 py-2 rounded-lg bg-custom-accent text-white text-sm font-medium hover:bg-custom-accent/90 transition"
                         >
                             @if($edition)
                                 {{ __('Update wallet') }}
@@ -187,7 +187,7 @@
                                             <button
                                                 type="button"
                                                 wire:click="editPosition('{{ $pos->id }}')"
-                                                class="p-2 rounded-lg hover:bg-custom-accent/10 transition-colors"
+                                                class="cursor-pointer p-2 rounded-lg hover:bg-custom-accent/10 transition-colors"
                                                 title="{{ __('Edit position') }}"
                                             >
                                                 <flux:icon.pencil class="w-4 h-4 text-grey-inverse" />
@@ -195,7 +195,7 @@
                                             <button
                                                 type="button"
                                                 wire:click="deletePosition('{{ $pos->id }}')"
-                                                class="p-2 rounded-lg hover:bg-red-100 transition-colors"
+                                                class="cursor-pointer p-2 rounded-lg hover:bg-red-100 transition-colors"
                                                 title="{{ __('Delete position') }}"
                                             >
                                                 <flux:icon.trash class="w-4 h-4 text-red-600" />
@@ -263,7 +263,7 @@
                             <button
                                 type="button"
                                 wire:click="cancelEditPosition"
-                                class="px-4 py-2 rounded-lg border border-custom-accent/20 text-grey-inverse hover:bg-custom-accent/5 transition-colors"
+                                class="cursor-pointer px-4 py-2 rounded-lg border border-custom-accent/20 text-grey-inverse hover:bg-custom-accent/5 transition-colors"
                             >
                                 {{ __('Cancel') }}
                             </button>
@@ -271,7 +271,7 @@
                         <button
                             type="button"
                             wire:click="savePosition"
-                            class="px-4 py-2 rounded-lg bg-custom-accent text-white hover:bg-custom-accent/90 transition-colors"
+                            class="cursor-pointer px-4 py-2 rounded-lg bg-custom-accent text-white hover:bg-custom-accent/90 transition-colors"
                         >
                             @if($editingPosition)
                                 {{ __('Update position') }}
