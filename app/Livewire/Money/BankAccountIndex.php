@@ -29,6 +29,11 @@ class BankAccountIndex extends Component
         $this->user = Auth::user();
         $this->accounts = (new \Illuminate\Database\Eloquent\Collection($this->user->bankAccounts->all()));
         $this->updateGoCardlessAccount();
+
+        // Si il y a une erreur dans le callback, afficher un message
+        if ($this->error) {
+            Toaster::error(__('Authorization renewal was cancelled or failed. Please try again.'));
+        }
     }
 
     public function updateAccountName(string|int $accountId, string $name): void
@@ -94,14 +99,23 @@ class BankAccountIndex extends Component
             $bankAccount->currency = $accountDetails['account']['currency'];
             $bankAccount->owner_name = $accountDetails['account']['name'] ?? $accountDetails['account']['ownerName'];
             $bankAccount->cash_account_type = $accountDetails['account']['cashAccountType'];
-            // 'logo' =>
+
+            // Pour le renouvellement : mettre à jour la date limite seulement maintenant que le callback est réussi
+            if ($bankAccount->agreement_id) {
+                // Récupérer les détails de l'accord pour obtenir la nouvelle date limite
+                $agreementDetails = $goCardlessDataService->getAgreementDetails($bankAccount->agreement_id);
+                if (isset($agreementDetails['access_valid_for_days'])) {
+                    $bankAccount->end_valid_access = now()->addDays($agreementDetails['access_valid_for_days']);
+                }
+            }
+
             $bankAccount->save();
 
             // return $bankAccount;
         }
     }
 
-    public function needsRenewal(\App\Models\BankAccount $account, int $weeksThreshold = 8): bool
+    public function needsRenewal(\App\Models\BankAccount $account, int $weeksThreshold = 80): bool
     {
         if (! $account->end_valid_access) {
             return false;
@@ -145,12 +159,13 @@ class BankAccountIndex extends Component
 
             $maxAccessValidForDays = $bank['max_access_valid_for_days'] ?? 90; // Fallback à 90 jours si non trouvé
 
-            // Créer un nouvel accord avec la même institution
+            // Créer un nouvel accord avec la même institution pour le renouvellement
             $response = $goCardlessDataService->addNewBankAccount(
                 $account->institution_id,
                 $account->transaction_total_days,
                 $maxAccessValidForDays,
-                $account->logo
+                $account->logo,
+                $account->id // Passer l'ID du compte existant pour le renouvellement
             );
 
             Toaster::success(__('Redirecting to your bank to renew authorization'));

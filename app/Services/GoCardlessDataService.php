@@ -70,6 +70,37 @@ class GoCardlessDataService
         });
     }
 
+    public function getAgreementDetails($agreementId)
+    {
+        return Cache::remember("gocardless_agreement_details_{$agreementId}", 3600 * 20, function () use ($agreementId) {
+            $res = Http::withToken($this->accessToken())
+                ->get("{$this->baseUrl}/agreements/enduser/{$agreementId}/")
+                ->json();
+
+            return $res;
+        });
+    }
+
+    public function getAccountDetailsDirect($accountId)
+    {
+        // Récupération directe sans cache pour avoir les données les plus récentes
+        $res = Http::withToken($this->accessToken(false)) // Désactiver le cache du token aussi
+            ->get("{$this->baseUrl}/accounts/{$accountId}/details/")
+            ->json();
+
+        return $res;
+    }
+
+    public function getAgreementDetailsDirect($agreementId)
+    {
+        // Récupération directe sans cache pour avoir les données les plus récentes
+        $res = Http::withToken($this->accessToken(false)) // Désactiver le cache du token aussi
+            ->get("{$this->baseUrl}/agreements/enduser/{$agreementId}/")
+            ->json();
+
+        return $res;
+    }
+
     public function getAccountDetails($accountId)
     {
         return Cache::remember("gocardless_account_details_{$accountId}", 3600 * 20, function () use ($accountId) {
@@ -202,7 +233,9 @@ class GoCardlessDataService
         return $response;
     }
 
-    public function addNewBankAccount($institutionId, $maxHistoricalDays, $accessValidForDays, $logo = null)
+
+
+    public function addNewBankAccount($institutionId, $maxHistoricalDays, $accessValidForDays, $logo = null, $existingAccountId = null)
     {
         $response = Http::withToken($this->accessToken())->post("{$this->baseUrl}/agreements/enduser/", [
             'institution_id' => $institutionId,
@@ -214,13 +247,13 @@ class GoCardlessDataService
         $responseData = $response->json();
 
         if (isset($responseData['created']) && $responseData['created']) {
-            $this->requisition($institutionId, $responseData['id'], now()->addDays($responseData['access_valid_for_days']), $responseData['max_historical_days'], $logo);
+            $this->requisition($institutionId, $responseData['id'], now()->addDays($responseData['access_valid_for_days']), $responseData['max_historical_days'], $logo, 'fr', $existingAccountId);
         } else {
             throw new \Exception('Error creating user agreement: '.json_encode($responseData));
         }
     }
 
-    public function requisition($institutionId, $agreementId, $accesEndDate, $maxHistoricalDays, $logo, $country = 'fr')
+    public function requisition($institutionId, $agreementId, $accesEndDate, $maxHistoricalDays, $logo, $country = 'fr', $existingAccountId = null)
     {
         $reference = (string) Str::uuid();
         $response = Http::withToken($this->accessToken())->post("{$this->baseUrl}/requisitions/", [
@@ -232,22 +265,39 @@ class GoCardlessDataService
         ]);
 
         if ($response['created']) {
-            Auth::user()
-                ->bankAccounts()
-                ->updateOrCreate(
-                    [
-                        'gocardless_account_id' => null,
-                    ],
-                    [
-                        'name' => $institutionId,
-                        'end_valid_access' => $accesEndDate,
+            if ($existingAccountId) {
+                // Renouvellement : mettre à jour le compte existant SANS changer la date limite
+                // La date sera mise à jour seulement après le callback réussi
+                $account = Auth::user()->bankAccounts()->find($existingAccountId);
+                if ($account) {
+                    $account->update([
+                        // 'end_valid_access' => $accesEndDate, // Ne pas mettre à jour immédiatement
                         'institution_id' => $institutionId,
                         'agreement_id' => $agreementId,
                         'reference' => $reference,
                         'transaction_total_days' => $maxHistoricalDays,
                         'logo' => $logo,
-                    ]
-                );
+                    ]);
+                }
+            } else {
+                // Création : créer un nouveau compte
+                Auth::user()
+                    ->bankAccounts()
+                    ->updateOrCreate(
+                        [
+                            'gocardless_account_id' => null,
+                        ],
+                        [
+                            'name' => $institutionId,
+                            'end_valid_access' => $accesEndDate,
+                            'institution_id' => $institutionId,
+                            'agreement_id' => $agreementId,
+                            'reference' => $reference,
+                            'transaction_total_days' => $maxHistoricalDays,
+                            'logo' => $logo,
+                        ]
+                    );
+            }
 
             return redirect($response['link']);
         }

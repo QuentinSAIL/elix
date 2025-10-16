@@ -60,6 +60,7 @@ class BankAccount extends Model
 
     protected $casts = [
         'id' => 'string',
+        'end_valid_access' => 'date',
     ];
 
     protected static function boot(): void
