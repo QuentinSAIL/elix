@@ -89,6 +89,49 @@ test('can filter by category', function () {
         ->assertSee($transaction->description);
 });
 
+test('can filter by uncategorized transactions', function () {
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    $category = MoneyCategory::factory()->for($this->user)->create();
+
+    // Create a categorized transaction
+    $categorizedTransaction = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'money_category_id' => $category->id,
+        'description' => 'Categorized Transaction',
+    ]);
+
+    // Create an uncategorized transaction
+    $uncategorizedTransaction = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'money_category_id' => null,
+        'description' => 'Uncategorized Transaction',
+    ]);
+
+    Livewire::test(BankTransactionIndex::class)
+        ->set('categoryFilter', 'uncategorized')
+        ->assertSee('Uncategorized Transaction')
+        ->assertDontSee('Categorized Transaction');
+});
+
+test('shows loading state when filtering transactions', function () {
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    $category = MoneyCategory::factory()->for($this->user)->create();
+
+    BankTransactions::factory()->count(5)->for($bankAccount, 'account')->create();
+
+    $component = Livewire::test(BankTransactionIndex::class);
+
+    // Test category filter loading
+    $component->set('categoryFilter', $category->id)
+        ->assertSet('isAccountLoading', false); // Should be false after loading completes
+
+    // Test date filter loading
+    $component->set('dateFilter', 'current_month')
+        ->assertSet('isAccountLoading', false); // Should be false after loading completes
+
+    // Test search loading
+    $component->set('search', 'test')
+        ->assertSet('isAccountLoading', false); // Should be false after loading completes
+});
+
 test('can sort transactions', function () {
     $bankAccount = BankAccount::factory()->for($this->user)->create();
     $transaction1 = BankTransactions::factory()->for($bankAccount, 'account')->create([

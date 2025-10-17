@@ -174,22 +174,28 @@ class BankTransactionIndex extends Component
     /** Réinitialise la pagination lors de l'actualisation de la recherche */
     public function updatedSearch(): void
     {
+        $this->isAccountLoading = true;
         $this->resetPagination();
         $this->getTransactionsProperty();
+        $this->isAccountLoading = false;
     }
 
     /** Réinitialise la pagination lors du changement de filtre de catégorie */
     public function updatedCategoryFilter(): void
     {
+        $this->isAccountLoading = true;
         $this->resetPagination();
         $this->getTransactionsProperty();
+        $this->isAccountLoading = false;
     }
 
     /** Réinitialise la pagination lors du changement de filtre de date */
     public function updatedDateFilter(): void
     {
+        $this->isAccountLoading = true;
         $this->resetPagination();
         $this->getTransactionsProperty();
+        $this->isAccountLoading = false;
     }
 
     /**
@@ -208,9 +214,10 @@ class BankTransactionIndex extends Component
             $this->sortField = $field;
             $this->sortDirection = 'asc';
         }
-
+        $this->isAccountLoading = true;
         $this->resetPagination();
         $this->getTransactionsProperty();
+        $this->isAccountLoading = false;
     }
 
     /**
@@ -277,7 +284,11 @@ class BankTransactionIndex extends Component
 
         // Filtre de catégorie : attention aux valeurs "0"/0
         if ($this->categoryFilter !== '' && $this->categoryFilter !== null) {
-            $query->where('money_category_id', $this->categoryFilter);
+            if ($this->categoryFilter === 'uncategorized') {
+                $query->whereNull('money_category_id');
+            } else {
+                $query->where('money_category_id', $this->categoryFilter);
+            }
         }
 
         // Filtre de date : passer sur des bornes (meilleure utilisation des index)
