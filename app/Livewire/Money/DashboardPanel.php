@@ -36,12 +36,15 @@ class DashboardPanel extends Component
     {
         $this->user = Auth::user();
         $this->title = $this->panel->title ?? __('Dashboard');
-        if (in_array($this->panel->period_type, ['actual_month', 'previous_month', 'two_months_ago', 'three_months_ago'])) {
-            $this->title .= ' ('.($this->panel->determinePeriode()['startDate']->translatedFormat('F') ?? '').')';
+        if ($this->panel && in_array($this->panel->period_type, ['actual_month', 'previous_month', 'two_months_ago', 'three_months_ago'])) {
+            $periode = $this->panel->determinePeriode();
+            if (isset($periode['startDate'])) {
+                $this->title .= ' ('.$periode['startDate']->translatedFormat('F').')';
+            }
         }
 
-        $this->categories = $this->panel->categories()->get()->pluck('id')->toArray();
-        $this->bankAccounts = $this->panel->bankAccounts()->get()->pluck('id')->toArray();
+        $this->categories = $this->panel->categories ? $this->panel->categories()->get()->pluck('id')->toArray() : [];
+        $this->bankAccounts = $this->panel->bankAccounts ? $this->panel->bankAccounts()->get()->pluck('id')->toArray() : [];
         $this->assignDateRange();
         $this->transactions = $this->getTransactions();
         $this->prepareChartData();
@@ -151,6 +154,17 @@ class DashboardPanel extends Component
     public function edit()
     {
         $this->dispatch('edit-panel', $this->panel->id);
+    }
+
+    /**
+     * Format amount intelligently - remove cents for amounts over 100€
+     */
+    public function formatAmount($amount)
+    {
+        if (abs($amount) >= 100) {
+            return number_format($amount, 0);
+        }
+        return number_format($amount, 2);
     }
 
     public function render()

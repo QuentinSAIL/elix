@@ -37,8 +37,8 @@ class DashboardPanelForm extends Component
     {
         $this->user = Auth::user();
         $this->edition = $this->panel ? true : false;
-        $this->bankAccounts = $this->user->bankAccounts()->get()->pluck('name', 'id')->toArray();
-        $this->categories = $this->user->moneyCategories()->get()->pluck('name', 'id')->toArray();
+        $this->bankAccounts = $this->user->bankAccounts()->get();
+        $this->categories = $this->user->moneyCategories()->get();
         $this->populateForm();
     }
 
@@ -49,16 +49,23 @@ class DashboardPanelForm extends Component
         $this->accountsId = [];
         $this->categoriesId = [];
         $this->periodType = '';
+
+        // Close the modal
+        if ($this->edition && $this->panel) {
+            Flux::modals()->close('panel-form-'.$this->panel->id);
+        } else {
+            Flux::modals()->close('panel-form-create');
+        }
     }
 
     public function populateForm()
     {
-        if ($this->edition) {
-            $this->title = $this->panel->title;
-            $this->type = $this->panel->type;
-            $this->accountsId = $this->panel->bankAccounts->pluck('id')->toArray();
-            $this->categoriesId = $this->panel->categories->pluck('id')->toArray();
-            $this->periodType = $this->panel->period_type;
+        if ($this->edition && $this->panel) {
+            $this->title = $this->panel->title ?? '';
+            $this->type = $this->panel->type ?? '';
+            $this->accountsId = $this->panel->bankAccounts ? $this->panel->bankAccounts->pluck('id')->toArray() : [];
+            $this->categoriesId = $this->panel->categories ? $this->panel->categories->pluck('id')->toArray() : [];
+            $this->periodType = $this->panel->period_type ?? '';
         } else {
             $this->resetForm();
         }
@@ -85,7 +92,7 @@ class DashboardPanelForm extends Component
         }
 
         // Get the next order number for new panels
-        $order = $this->panel ? $this->panel->order : ($this->moneyDashboard->panels()->max('order') ?? 0) + 1;
+        $order = $this->panel ? ($this->panel->order ?? 0) : ($this->moneyDashboard->panels()->max('order') ?? 0) + 1;
 
         $panel = MoneyDashboardPanel::updateOrCreate(
             [
@@ -99,11 +106,15 @@ class DashboardPanelForm extends Component
                 'order' => $order,
             ],
         );
-        $panel->bankAccounts()->sync($this->accountsId);
-        $panel->categories()->sync($this->categoriesId);
+
+        // Sync relationships safely
+        if ($panel) {
+            $panel->bankAccounts()->sync($this->accountsId ?? []);
+            $panel->categories()->sync($this->categoriesId ?? []);
+        }
 
         $this->populateForm();
-        if ($this->edition) {
+        if ($this->edition && $this->panel) {
             Toaster::success(__('Panel edited successfully.'));
             Flux::modals()->close('panel-form-'.$this->panel->id);
         } else {
