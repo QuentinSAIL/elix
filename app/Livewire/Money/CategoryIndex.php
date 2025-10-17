@@ -24,6 +24,9 @@ class CategoryIndex extends Component
 
     public $sortDirection = 'desc';
 
+    /** Champs autorisés pour le tri (sécurité) */
+    protected array $allowedSorts = ['budget', 'name', 'color', 'created_at'];
+
     public function mount()
     {
         $this->user = Auth::user();
@@ -32,13 +35,26 @@ class CategoryIndex extends Component
 
     public function refreshList()
     {
-        $query = $this->user->moneyCategories();
-        $query = $query->orderBy($this->sortField, $this->sortDirection);
+        $query = $this->user->moneyCategories()->withoutGlobalScope('created_at');
+
+        // Gestion spéciale pour le tri par budget
+        if ($this->sortField === 'budget') {
+            // Pour le budget, on traite NULL comme 0 et on trie numériquement
+            $query = $query->orderByRaw("COALESCE(budget, 0) {$this->sortDirection}");
+        } else {
+            $query = $query->orderBy($this->sortField, $this->sortDirection);
+        }
+
         $this->categories = $query->get();
     }
 
     public function sortBy(string $field)
     {
+        if (!in_array($field, $this->allowedSorts, true)) {
+            // Sécurité : si colonne non autorisée, on ignore
+            return;
+        }
+
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
