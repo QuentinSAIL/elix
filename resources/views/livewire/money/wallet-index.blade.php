@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-800">
+<div class="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-800" wire:key="wallet-index-main">
     <!-- Header Section -->
     <div class="bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm border-b border-zinc-200/50 dark:border-zinc-700/50 sticky top-0 z-10">
         <div class="max-w-7xl mx-auto px-6 py-8">
@@ -11,9 +11,14 @@
                             <div class="inline-flex items-center px-4 py-2 rounded-xl bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border border-primary-200/50 dark:border-primary-700/50">
                                 <flux:icon.banknotes class="w-5 h-5 text-primary-600 dark:text-primary-400 mr-2" />
                                 <span class="text-sm font-semibold text-primary-700 dark:text-primary-300">
-                                    {{ __('Total Portfolio Value') }}: {{ $this->getCurrencySymbol() }}{{ number_format($this->getTotalPortfolioValue(), 2) }}
+                                    {{ __('Total Portfolio Value') }}: {{ number_format($this->getTotalPortfolioValue(), 2) }}{{ $this->getCurrencySymbol() }}
                                 </span>
                             </div>
+                            @if($this->hasMultipleCurrencies())
+                                <div class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                                    {{ __('Converted to your preferred currency') }} ({{ $this->userCurrency }})
+                                </div>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -36,7 +41,7 @@
     <div class="max-w-7xl mx-auto px-6 py-12">
         <!-- Create Wallet Modal -->
         <flux:modal name="create-wallet" class="!w-1/2 !max-w-none mx-auto">
-            <livewire:money.wallet-form />
+            <livewire:money.wallet-form wire:key="wallet-form-create" />
         </flux:modal>
 
         @if ($wallets->isEmpty())
@@ -104,7 +109,7 @@
                             <div class="text-center py-6">
                                 <div class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">{{ __('Balance') }}</div>
                                 <div class="text-3xl font-bold bg-gradient-to-r from-primary-500 to-primary-600 dark:from-primarydark-500 dark:to-primarydark-400 bg-clip-text text-transparent mb-2 whitespace-nowrap">
-                                    {{ $this->getCurrencySymbol() }}{{ number_format($this->getWalletBalanceInCurrency($wallet), 2) }}
+                                    {{ number_format($this->getWalletBalanceInCurrency($wallet), 2) }}{{ $this->getCurrencySymbol() }}
                                 </div>
                                 @if($wallet->mode === 'multi' && $wallet->positions()->count() > 0)
                                     <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ __('Calculated from current market prices') }}</div>
@@ -133,7 +138,7 @@
                                                             {{ rtrim(rtrim($pos->quantity, '0'), '.') }} {{ $pos->unit }}
                                                         </div>
                                                         <div class="text-xs text-zinc-500 dark:text-zinc-400">
-                                                            {{ $this->getCurrencySymbol() }}{{ number_format($pos->getCurrentMarketValue($this->userCurrency), 2) }}
+                                                            {{ number_format($pos->getCurrentMarketValue($this->userCurrency), 2) }}{{ $this->getCurrencySymbol() }}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -167,12 +172,12 @@
             <!-- Render modals outside the grid so they don't become grid items -->
             @foreach ($wallets as $wallet)
                 <!-- Edit Wallet Modal -->
-                <flux:modal name="edit-wallet-{{ $wallet->id }}" class="!w-1/2 !max-w-none mx-auto">
-                    <livewire:money.wallet-form :wallet="$wallet" />
+                <flux:modal name="edit-wallet-{{ $wallet->id }}" class="!w-1/2 !max-w-none mx-auto" wire:key="edit-modal-{{ $wallet->id }}">
+                    <livewire:money.wallet-form :wallet="$wallet" wire:key="wallet-form-edit-{{ $wallet->id }}" />
                 </flux:modal>
 
                 <!-- Delete Confirmation Modal -->
-                <flux:modal name="delete-wallet-{{ $wallet->id }}" class="w-5/6">
+                <flux:modal name="delete-wallet-{{ $wallet->id }}" class="w-5/6" wire:key="delete-modal-{{ $wallet->id }}">
                     <div class="space-y-6">
                         <div class="text-center">
                             <div class="w-12 h-12 rounded-full bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/20 dark:to-red-800/20 flex items-center justify-center mx-auto mb-4">

@@ -448,7 +448,7 @@
   "Add Position": "Ajouter une position",
   "No positions": "Aucune position",
   "Get started by adding your first position.": "Commencez en ajoutant votre première position.",
-  "Total Portfolio Value": "Valeur totale du portefeuille",
+  "Total Portfolio Value": "Valeur totale des portefeuilles",
   "Original balance": "Solde original",
   "End of link: ": "Fin de la liaison : ",
   "Renew authorization": "Renouveler l'autorisation",
@@ -633,5 +633,5 @@
     "Price Inconsistency Detected": "Incohérence de prix détectée",
     "The following tickers have different prices across positions:": "Les tickers suivants ont des prix différents entre les positions :",
     "Top positions by value": "Top positions par valeur",
-    "Recent positions": "Positions récentes"
+    "Converted to your preferred currency": "Converti vers votre devise préférée"
 }

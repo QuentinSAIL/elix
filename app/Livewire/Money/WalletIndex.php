@@ -79,8 +79,24 @@ class WalletIndex extends Component
     public function getWalletBalanceInCurrency(\App\Models\Wallet $wallet): float
     {
         if ($wallet->mode === 'single') {
-            // For single mode, assume the balance is already in user's currency
-            return (float) $wallet->getCurrentBalance();
+            // For single mode, convert the balance from wallet currency to user currency
+            $walletBalance = (float) $wallet->getCurrentBalance();
+
+            // If wallet currency is the same as user currency, no conversion needed
+            if ($wallet->unit === $this->userCurrency) {
+                return $walletBalance;
+            }
+
+            // Convert from wallet currency to user currency
+            $priceService = app(PriceService::class);
+            $exchangeRate = $priceService->getExchangeRate($wallet->unit, $this->userCurrency);
+
+            if ($exchangeRate !== null) {
+                return $walletBalance * $exchangeRate;
+            }
+
+            // Fallback: return the original balance if conversion fails
+            return $walletBalance;
         }
 
         // For multi mode, calculate from positions using the same logic as getCurrentMarketValue
@@ -143,5 +159,19 @@ class WalletIndex extends Component
                 return $position->getCurrentMarketValue($this->userCurrency);
             })
             ->take($limit);
+    }
+
+    /**
+     * Check if there are wallets with different currencies than user's preferred currency
+     */
+    public function hasMultipleCurrencies(): bool
+    {
+        foreach ($this->wallets as $wallet) {
+            if ($wallet->unit !== $this->userCurrency) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

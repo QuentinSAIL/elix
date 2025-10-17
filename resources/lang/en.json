@@ -440,7 +440,7 @@
   "Add Position": "Add Position",
   "No positions": "No positions",
   "Get started by adding your first position.": "Get started by adding your first position.",
-  "Total Portfolio Value": "Total Portfolio Value",
+  "Total Portfolio Value": "Total Portfolios Values",
   "Original balance": "Original balance",
   "Category saved successfully": "Category saved successfully",
   "Bank account updated successfully": "Bank account updated successfully",
@@ -624,5 +624,5 @@
     "Price Inconsistency Detected": "Price Inconsistency Detected",
     "The following tickers have different prices across positions:": "The following tickers have different prices across positions:",
     "Top positions by value": "Top positions by value",
-    "Recent positions": "Recent positions"
+    "Converted to your preferred currency": "Converted to your preferred currency"
 }
