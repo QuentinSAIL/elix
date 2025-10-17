@@ -1,12 +1,12 @@
 
 
 [1;37;40mCode Coverage Report:        [0m
-[1;37;40m  2025-10-16 21:49:04        [0m
+[1;37;40m  2025-10-17 18:52:16        [0m
 [1;37;40m                             [0m
 [1;37;40m Summary:                    [0m
-[30;43m  Classes: 57.97% (40/69)    [0m
-[30;43m  Methods: 79.75% (260/326)  [0m
-[30;43m  Lines:   87.49% (2162/2471)[0m
+[30;43m  Classes: 55.07% (38/69)    [0m
+[30;43m  Methods: 79.39% (262/330)  [0m
+[30;43m  Lines:   86.04% (2194/2550)[0m
 
 App\Console\Commands\TestPriceService
   [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% ( 19/ 19)[0m
@@ -59,11 +59,11 @@ App\Livewire\Money\CategoryIndex
 App\Livewire\Money\CategorySelect
   [30;42mMethods: 100.00% ( 4/ 4)[0m   [30;42mLines: 100.00% ( 44/ 44)[0m
 App\Livewire\Money\Dashboard
-  [30;42mMethods: 100.00% ( 3/ 3)[0m   [30;42mLines: 100.00% ( 10/ 10)[0m
+  [30;43mMethods:  60.00% ( 3/ 5)[0m   [37;41mLines:  22.73% ( 10/ 44)[0m
 App\Livewire\Money\DashboardPanel
-  [30;43mMethods:  66.67% ( 4/ 6)[0m   [30;42mLines:  95.65% ( 44/ 46)[0m
+  [30;43mMethods:  87.50% ( 7/ 8)[0m   [30;43mLines:  89.41% ( 76/ 85)[0m
 App\Livewire\Money\DashboardPanelForm
-  [30;42mMethods: 100.00% ( 5/ 5)[0m   [30;42mLines: 100.00% ( 51/ 51)[0m
+  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  98.25% ( 56/ 57)[0m
 App\Livewire\Money\WalletForm
   [30;43mMethods:  55.56% ( 5/ 9)[0m   [30;43mLines:  89.23% (116/130)[0m
 App\Livewire\Money\WalletIndex
@@ -77,7 +77,7 @@ App\Livewire\Note\Show
 App\Livewire\RoutineTask\Form
   [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;43mLines:  53.06% ( 26/ 49)[0m
 App\Livewire\Routine\Form
-  [30;43mMethods:  62.50% ( 5/ 8)[0m   [30;42mLines:  92.17% (106/115)[0m
+  [30;43mMethods:  62.50% ( 5/ 8)[0m   [30;42mLines:  93.91% (108/115)[0m
 App\Livewire\Routine\Index
   [30;42mMethods: 100.00% ( 5/ 5)[0m   [30;42mLines: 100.00% ( 19/ 19)[0m
 App\Livewire\Routine\Show
@@ -117,7 +117,7 @@ App\Models\MoneyCategoryMatch
 App\Models\MoneyDashboard
   [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  2/  2)[0m
 App\Models\MoneyDashboardPanel
-  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;43mLines:  78.26% ( 54/ 69)[0m
+  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;43mLines:  68.12% ( 47/ 69)[0m
 App\Models\Note
   [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  5/  5)[0m
 App\Models\Routine

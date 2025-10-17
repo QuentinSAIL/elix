@@ -52,6 +52,9 @@ class DashboardPanel extends Component
 
     public function prepareChartData()
     {
+        // Reset colors array
+        $this->colors = [];
+
         $filteredTransactions = $this->transactions->filter(function ($transaction) {
             if (! $this->displayUncategorized && ! $transaction->category) {
                 return false;
@@ -149,6 +152,11 @@ class DashboardPanel extends Component
             'accounts' => $this->bankAccounts,
             'categories' => $this->categories,
         ]);
+    }
+
+    public function updatedDisplayUncategorized()
+    {
+        $this->prepareChartData();
     }
 
     public function edit()

@@ -1,3 +1,6 @@
 {
-    "HYPE": "hyperliquid"
+    "BTC": "bitcoin",
+    "ETH": "ethereum",
+    "SOL": "solana",
+    "XBT": "bitcoin"
 }

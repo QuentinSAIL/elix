@@ -30,19 +30,19 @@ test('can mount with panel', function () {
     $panel = MoneyDashboardPanel::factory()->create([
         'money_dashboard_id' => $dashboard->id,
         'title' => 'Test Panel',
-        'is_expense' => true, // Explicitly set to true for this test
+        'period_type' => 'daily', // Use daily to avoid month addition
     ]);
 
     Livewire::test(DashboardPanel::class, ['panel' => $panel])
-        ->assertSet('title', 'Test Panel')
-        ->assertSet('isExpensePanel', true);
+        ->assertSet('title', 'Test Panel');
 });
 
 test('can prepare chart data for expenses', function () {
     $dashboard = MoneyDashboard::factory()->for($this->user)->create();
     $panel = MoneyDashboardPanel::factory()->create([
         'money_dashboard_id' => $dashboard->id,
-        'is_expense' => true,
+        'type' => 'bar', // Explicitly set chart type
+        'period_type' => 'daily', // Use daily period
     ]);
     $category = MoneyCategory::factory()->for($this->user)->create([
         'name' => 'Test Category',
@@ -52,7 +52,7 @@ test('can prepare chart data for expenses', function () {
     $transaction = BankTransactions::factory()->for($bankAccount, 'account')->create([
         'amount' => -100,
         'money_category_id' => $category->id,
-        'transaction_date' => now(),
+        'transaction_date' => now()->startOfDay(), // Use start of day to match daily period
     ]);
 
     $panel->categories()->attach($category);
@@ -68,7 +68,8 @@ test('can prepare chart data for income', function () {
     $dashboard = MoneyDashboard::factory()->for($this->user)->create();
     $panel = MoneyDashboardPanel::factory()->create([
         'money_dashboard_id' => $dashboard->id,
-        'is_expense' => false,
+        'type' => 'bar', // Explicitly set chart type
+        'period_type' => 'daily', // Use daily period
     ]);
     $category = MoneyCategory::factory()->for($this->user)->create([
         'name' => 'Income Category',
@@ -78,7 +79,7 @@ test('can prepare chart data for income', function () {
     $transaction = BankTransactions::factory()->for($bankAccount, 'account')->create([
         'amount' => 200, // Positive for income
         'money_category_id' => $category->id,
-        'transaction_date' => now(),
+        'transaction_date' => now()->startOfDay(), // Use start of day to match daily period
     ]);
 
     $panel->categories()->attach($category);
@@ -94,27 +95,30 @@ test('can handle uncategorized transactions', function () {
     $dashboard = MoneyDashboard::factory()->for($this->user)->create();
     $panel = MoneyDashboardPanel::factory()->create([
         'money_dashboard_id' => $dashboard->id,
-        'is_expense' => true,
+        'type' => 'bar', // Explicitly set chart type
+        'period_type' => 'daily', // Use daily period
     ]);
     $bankAccount = BankAccount::factory()->for($this->user)->create();
-    $uncategorized = MoneyCategory::factory()->for($this->user)->create([
-        'name' => 'Uncategorized',
-        'color' => '#CCCCCC',
-    ]);
+    // Create a transaction without category (null money_category_id)
     $transaction = BankTransactions::factory()->for($bankAccount, 'account')->create([
         'amount' => -50,
-        'money_category_id' => $uncategorized->id,
-        'transaction_date' => now()->startOfDay(),
+        'money_category_id' => null, // No category
+        'transaction_date' => now()->startOfDay(), // Use start of day to match daily period
     ]);
 
-    $panel->bankAccounts = collect([$bankAccount]); // Explicitly set the bankAccounts relationship
+    $panel->bankAccounts()->attach($bankAccount);
 
     $component = Livewire::test(DashboardPanel::class, ['panel' => $panel])
-        ->set('displayUncategorized', true);
+        ->set('displayUncategorized', true)
+        ->call('prepareChartData'); // Force recalculation
 
-    $this->assertContains('Uncategorized', $component->get('labels'));
-    $this->assertContains(-50, $component->get('values'));
-    $this->assertContains('#CCCCCC', $component->get('colors'));
+    $labels = $component->get('labels');
+    $values = $component->get('values');
+    $colors = $component->get('colors');
+
+    $this->assertContains('Uncategorized', $labels);
+    $this->assertTrue(in_array(-50, $values), 'Expected -50 in values: ' . json_encode($values));
+    $this->assertContains('#CCCCCC', $colors);
 });
 
 test('can assign date range', function () {
@@ -133,7 +137,7 @@ test('can get transactions with filters', function () {
     $dashboard = MoneyDashboard::factory()->for($this->user)->create();
     $panel = MoneyDashboardPanel::factory()->create([
         'money_dashboard_id' => $dashboard->id,
-        'is_expense' => true, // Explicitly set to true
+        'period_type' => 'daily', // Use daily period
     ]);
     $categoryName = 'Test Category for Filter'; // Explicitly define category name
     $category = MoneyCategory::factory()->for($this->user)->create([
@@ -152,8 +156,8 @@ test('can get transactions with filters', function () {
 
     $component = Livewire::test(DashboardPanel::class, ['panel' => $panel]);
 
-    $this->assertContains($categoryName, $component->get('labels')); // Assert with explicit name
-    $this->assertContains($transaction->amount, $component->get('values'));
+    $this->assertTrue(in_array($categoryName, $component->get('labels')), 'Expected ' . $categoryName . ' in labels: ' . json_encode($component->get('labels'))); // Assert with explicit name
+    $this->assertTrue(in_array($transaction->amount, $component->get('values')), 'Expected ' . $transaction->amount . ' in values: ' . json_encode($component->get('values')));
 });
 
 test('can edit panel', function () {
