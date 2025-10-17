@@ -1,21 +1,23 @@
 
 
 [1;37;40mCode Coverage Report:        [0m
-[1;37;40m  2025-10-17 18:52:16        [0m
+[1;37;40m  2025-10-17 20:18:20        [0m
 [1;37;40m                             [0m
 [1;37;40m Summary:                    [0m
-[30;43m  Classes: 55.07% (38/69)    [0m
-[30;43m  Methods: 79.39% (262/330)  [0m
-[30;43m  Lines:   86.04% (2194/2550)[0m
+[30;43m  Classes: 56.52% (39/69)    [0m
+[30;43m  Methods: 80.30% (265/330)  [0m
+[30;42m  Lines:   90.14% (2304/2556)[0m
 
 App\Console\Commands\TestPriceService
   [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% ( 19/ 19)[0m
 App\Console\Commands\TestTransactionPerformance
   [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  98.51% ( 66/ 67)[0m
+App\Console\Commands\UpdateBankAccountsData
+  [37;41mMethods:   0.00% ( 0/ 1)[0m   [37;41mLines:  43.28% ( 29/ 67)[0m
 App\Console\Commands\UpdateCryptoMapping
-  [37;41mMethods:   0.00% ( 0/ 1)[0m   [30;43mLines:  73.91% ( 34/ 46)[0m
+  [37;41mMethods:   0.00% ( 0/ 1)[0m   [30;43mLines:  82.61% ( 38/ 46)[0m
 App\Console\Commands\UpdateWalletPrices
-  [37;41mMethods:  33.33% ( 1/ 3)[0m   [30;43mLines:  79.59% ( 39/ 49)[0m
+  [37;41mMethods:  33.33% ( 1/ 3)[0m   [30;43mLines:  85.71% ( 42/ 49)[0m
 App\Console\Commands\UpdateWalletsFromTransactions
   [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% ( 12/ 12)[0m
 App\Http\Controllers\Auth\VerifyEmailController
@@ -29,7 +31,7 @@ App\Http\Middleware\UserHasValidGoCardlessKeys
 App\Http\Middleware\UserModule
   [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  8/  8)[0m
 App\Jobs\UpdateWalletPricesJob
-  [37;41mMethods:  33.33% ( 1/ 3)[0m   [30;43mLines:  71.43% ( 10/ 14)[0m
+  [30;43mMethods:  66.67% ( 2/ 3)[0m   [30;43mLines:  78.57% ( 11/ 14)[0m
 App\Livewire\Actions\Logout
   [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  3/  3)[0m
 App\Livewire\Auth\ConfirmPassword
@@ -59,17 +61,17 @@ App\Livewire\Money\CategoryIndex
 App\Livewire\Money\CategorySelect
   [30;42mMethods: 100.00% ( 4/ 4)[0m   [30;42mLines: 100.00% ( 44/ 44)[0m
 App\Livewire\Money\Dashboard
-  [30;43mMethods:  60.00% ( 3/ 5)[0m   [37;41mLines:  22.73% ( 10/ 44)[0m
+  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  97.73% ( 43/ 44)[0m
 App\Livewire\Money\DashboardPanel
-  [30;43mMethods:  87.50% ( 7/ 8)[0m   [30;43mLines:  89.41% ( 76/ 85)[0m
+  [30;43mMethods:  87.50% ( 7/ 8)[0m   [30;43mLines:  87.91% ( 80/ 91)[0m
 App\Livewire\Money\DashboardPanelForm
   [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  98.25% ( 56/ 57)[0m
 App\Livewire\Money\WalletForm
   [30;43mMethods:  55.56% ( 5/ 9)[0m   [30;43mLines:  89.23% (116/130)[0m
 App\Livewire\Money\WalletIndex
-  [30;43mMethods:  75.00% ( 6/ 8)[0m   [30;43mLines:  72.00% ( 36/ 50)[0m
+  [30;43mMethods:  87.50% ( 7/ 8)[0m   [30;42mLines:  96.00% ( 48/ 50)[0m
 App\Livewire\Money\WalletPositions
-  [30;43mMethods:  63.64% ( 7/11)[0m   [30;42mLines:  90.32% ( 84/ 93)[0m
+  [30;43mMethods:  54.55% ( 6/11)[0m   [30;43mLines:  89.25% ( 83/ 93)[0m
 App\Livewire\Note\Index
   [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  95.24% ( 20/ 21)[0m
 App\Livewire\Note\Show
@@ -117,7 +119,7 @@ App\Models\MoneyCategoryMatch
 App\Models\MoneyDashboard
   [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  2/  2)[0m
 App\Models\MoneyDashboardPanel
-  [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;43mLines:  68.12% ( 47/ 69)[0m
+  [30;42mMethods: 100.00% ( 5/ 5)[0m   [30;42mLines: 100.00% ( 69/ 69)[0m
 App\Models\Note
   [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  5/  5)[0m
 App\Models\Routine
@@ -135,7 +137,7 @@ App\Models\WalletPosition
 App\Providers\AppServiceProvider
   [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% ( 15/ 15)[0m
 App\Services\GoCardlessDataService
-  [30;43mMethods:  76.47% (13/17)[0m   [30;42mLines:  91.26% (167/183)[0m
+  [30;43mMethods:  76.47% (13/17)[0m   [30;42mLines:  92.90% (170/183)[0m
 App\Services\PriceService
   [30;43mMethods:  55.56% (10/18)[0m   [30;43mLines:  89.02% (146/164)[0m
 App\Services\TransactionCacheService

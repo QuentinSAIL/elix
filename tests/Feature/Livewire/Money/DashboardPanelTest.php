@@ -137,6 +137,7 @@ test('can get transactions with filters', function () {
     $dashboard = MoneyDashboard::factory()->for($this->user)->create();
     $panel = MoneyDashboardPanel::factory()->create([
         'money_dashboard_id' => $dashboard->id,
+        'type' => 'bar', // Explicitly set chart type to bar for category grouping
         'period_type' => 'daily', // Use daily period
     ]);
     $categoryName = 'Test Category for Filter'; // Explicitly define category name

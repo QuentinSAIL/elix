@@ -39,7 +39,7 @@ class DashboardPanel extends Component
         if ($this->panel && in_array($this->panel->period_type, ['actual_month', 'previous_month', 'two_months_ago', 'three_months_ago'])) {
             $periode = $this->panel->determinePeriode();
             if (isset($periode['startDate'])) {
-                $this->title .= ' ('.$periode['startDate']->translatedFormat('F').')';
+                $this->title .= ' (' . $periode['startDate']->translatedFormat('F') . ')';
             }
         }
 
@@ -56,7 +56,7 @@ class DashboardPanel extends Component
         $this->colors = [];
 
         $filteredTransactions = $this->transactions->filter(function ($transaction) {
-            if (! $this->displayUncategorized && ! $transaction->category) {
+            if (!$this->displayUncategorized && !$transaction->category) {
                 return false;
             }
             return true;
@@ -82,11 +82,14 @@ class DashboardPanel extends Component
 
         // For trend type, we need daily data
         if ($this->panel->type === 'trend') {
-            $dailyData = $filteredTransactions->groupBy(function ($transaction) {
-                return \Carbon\Carbon::parse($transaction->transaction_date)->format('Y-m-d');
-            })->map(function ($group) {
-                return $group->sum('amount');
-            })->sortKeys();
+            $dailyData = $filteredTransactions
+                ->groupBy(function ($transaction) {
+                    return \Carbon\Carbon::parse($transaction->transaction_date)->format('Y-m-d');
+                })
+                ->map(function ($group) {
+                    return $group->sum('amount');
+                })
+                ->sortKeys();
 
             $this->labels = $dailyData->keys()->toArray();
             $this->values = $dailyData->values()->toArray();
@@ -96,13 +99,16 @@ class DashboardPanel extends Component
 
         // For category comparison type
         if ($this->panel->type === 'category_comparison') {
-            $categoryData = $filteredTransactions->groupBy(function ($transaction) {
-                return $transaction->category ? $transaction->category->name : 'Uncategorized';
-            })->map(function ($group) {
-                return $group->sum('amount');
-            })->sortByDesc(function ($amount) {
-                return abs($amount);
-            });
+            $categoryData = $filteredTransactions
+                ->groupBy(function ($transaction) {
+                    return $transaction->category ? $transaction->category->name : 'Uncategorized';
+                })
+                ->map(function ($group) {
+                    return $group->sum('amount');
+                })
+                ->sortByDesc(function ($amount) {
+                    return abs($amount);
+                });
 
             $this->labels = $categoryData->keys()->toArray();
             $this->values = $categoryData->values()->toArray();

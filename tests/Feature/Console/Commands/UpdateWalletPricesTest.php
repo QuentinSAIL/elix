@@ -170,4 +170,104 @@ class UpdateWalletPricesTest extends TestCase
             ->expectsOutput('✅ Updated: 1 positions')
             ->assertExitCode(0);
     }
+
+
+    public function test_command_handles_clear_cache_with_redis_driver(): void
+    {
+        // Mock Redis cache driver
+        $redisMock = $this->mock(\Illuminate\Cache\RedisStore::class);
+        $redisMock->shouldReceive('getStore')->andReturnSelf();
+
+        Cache::shouldReceive('getStore')->andReturn($redisMock);
+        Cache::shouldReceive('flush')->never();
+
+        $this->artisan(UpdateWalletPrices::class, ['--clear-cache' => true])
+            ->expectsOutput(__('Clearing price cache'))
+            ->assertExitCode(0);
+    }
+
+    public function test_command_handles_clear_cache_exception(): void
+    {
+        Cache::shouldReceive('getStore')->andThrow(new \Exception('Cache error'));
+
+        $this->artisan(UpdateWalletPrices::class, ['--clear-cache' => true])
+            ->expectsOutput(__('Clearing price cache'))
+            ->expectsOutput(__('Could not clear price cache: :error', ['error' => 'Cache error']))
+            ->assertExitCode(0);
+    }
+
+    public function test_command_handles_was_recently_updated_edge_case(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+
+        // Create position updated exactly 10 minutes ago (edge case)
+        WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'ticker' => 'AAPL',
+            'updated_at' => Carbon::now()->subMinutes(10),
+        ]);
+
+        $this->artisan(UpdateWalletPrices::class)
+            ->expectsOutput(__('Updating wallet position prices'))
+            ->expectsOutput('✅ Updated: 1 positions')
+            ->assertExitCode(0);
+    }
+
+
+    public function test_command_handles_was_recently_updated_just_over_threshold(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+
+        // Create position updated 11 minutes ago (should be updated)
+        WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'ticker' => 'AAPL',
+            'updated_at' => Carbon::now()->subMinutes(11),
+        ]);
+
+        $this->artisan(UpdateWalletPrices::class)
+            ->expectsOutput(__('Updating wallet position prices'))
+            ->expectsOutput('✅ Updated: 1 positions')
+            ->assertExitCode(0);
+    }
+
+    public function test_command_handles_was_recently_updated_current_time(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+
+        // Create position updated right now (should be skipped)
+        WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'ticker' => 'AAPL',
+            'updated_at' => Carbon::now(),
+        ]);
+
+        $this->artisan(UpdateWalletPrices::class)
+            ->expectsOutput(__('Updating wallet position prices'))
+            ->expectsOutput('✅ Updated: 0 positions')
+            ->expectsOutput('⏭️ Skipped: 1 positions (recently updated)')
+            ->assertExitCode(0);
+    }
+
+    public function test_command_handles_was_recently_updated_future_time(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+
+        // Create position updated in the future (should be skipped)
+        WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'ticker' => 'AAPL',
+            'updated_at' => Carbon::now()->addMinutes(5),
+        ]);
+
+        $this->artisan(UpdateWalletPrices::class)
+            ->expectsOutput(__('Updating wallet position prices'))
+            ->expectsOutput('✅ Updated: 0 positions')
+            ->expectsOutput('⏭️ Skipped: 1 positions (recently updated)')
+            ->assertExitCode(0);
+    }
 }
