@@ -68,12 +68,12 @@ class DashboardPanelForm extends Component
     {
         $rules = [
             'title' => 'required|string|max:255',
-            'type' => 'required|string|in:bar,doughnut,pie,line,table,number',
+            'type' => 'required|string|in:bar,doughnut,pie,line,table,number,gauge,trend,category_comparison',
             'accountsId' => 'array',
             'accountsId.*' => 'exists:bank_accounts,id',
             'categoriesId' => 'array',
             'categoriesId.*' => 'exists:money_categories,id',
-            'periodType' => 'required|string|in:daily,weekly,biweekly,monthly,quarterly,biannual,yearly,actual_month,previous_month,two_months_ago,three_months_ago',
+            'periodType' => 'required|string|in:daily,weekly,biweekly,monthly,quarterly,biannual,yearly,actual_month,previous_month,two_months_ago,three_months_ago,all',
         ];
 
         try {
@@ -84,6 +84,9 @@ class DashboardPanelForm extends Component
             return;
         }
 
+        // Get the next order number for new panels
+        $order = $this->panel ? $this->panel->order : ($this->moneyDashboard->panels()->max('order') ?? 0) + 1;
+
         $panel = MoneyDashboardPanel::updateOrCreate(
             [
                 'id' => $this->panel ? $this->panel->id : null,
@@ -93,6 +96,7 @@ class DashboardPanelForm extends Component
                 'title' => $this->title,
                 'type' => $this->type,
                 'period_type' => $this->periodType,
+                'order' => $order,
             ],
         );
         $panel->bankAccounts()->sync($this->accountsId);

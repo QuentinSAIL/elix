@@ -47,7 +47,10 @@
                             <option value="pie">{{ __('Pie') }}</option>
                             <option value="line">{{ __('Linear') }}</option>
                             <option value="table">{{ __('Table') }}</option>
-                            <option value="number">{{ __('Number') }}</option>
+                            <option value="number">{{ __('Total Amount') }}</option>
+                            <option value="gauge">{{ __('Income vs Expenses') }}</option>
+                            <option value="trend">{{ __('Daily Trend') }}</option>
+                            <option value="category_comparison">{{ __('Category Comparison') }}</option>
                         </flux:select>
                     </div>
                 </div>
