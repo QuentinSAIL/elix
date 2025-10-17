@@ -83,18 +83,15 @@ class WalletIndex extends Component
             return (float) $wallet->getCurrentBalance();
         }
 
-        // For multi mode, calculate from positions
-        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
+        // For multi mode, calculate from positions using the same logic as getCurrentMarketValue
+        $totalValue = 0;
         $positions = $wallet->positions;
-        $positionsArray = $positions->map(function (\App\Models\WalletPosition $position) {
-            return [
-                'ticker' => $position->ticker,
-                'quantity' => $position->quantity,
-                'price' => $position->price,
-            ];
-        })->toArray();
 
-        return app(PriceService::class)->calculatePositionsValueInCurrency($positionsArray, $this->userCurrency);
+        foreach ($positions as $position) {
+            $totalValue += $position->getCurrentMarketValue($this->userCurrency);
+        }
+
+        return $totalValue;
     }
 
     /**
@@ -130,8 +127,21 @@ class WalletIndex extends Component
         return $totalValue;
     }
 
-    public function render(): \Illuminate\Contracts\View\View
+    /**
+     * Get top positions by value for a wallet
+     */
+    public function getTopPositionsByValue(\App\Models\Wallet $wallet, int $limit = 3): \Illuminate\Database\Eloquent\Collection
     {
-        return view('livewire.money.wallet-index');
+        if ($wallet->mode !== 'multi') {
+            return collect();
+        }
+
+        return $wallet->positions()
+            ->with('wallet')
+            ->get()
+            ->sortByDesc(function($position) {
+                return $position->getCurrentMarketValue($this->userCurrency);
+            })
+            ->take($limit);
     }
 }

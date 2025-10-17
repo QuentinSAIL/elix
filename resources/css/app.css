@@ -159,7 +159,7 @@
     }
 
     .focus-ring-color {
-        @apply focus:ring-2 focus:ring-primary-500 dark:focus:ring-primarydark-500 border-color;
+        @apply focus:ring-2 focus:ring-primary-500 dark:focus:ring-primarydark-500;
     }
 
     .selected {

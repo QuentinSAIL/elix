@@ -1,12 +1,12 @@
 
 
 [1;37;40mCode Coverage Report:        [0m
-[1;37;40m  2025-10-17 20:41:04        [0m
+[1;37;40m  2025-10-17 21:23:20        [0m
 [1;37;40m                             [0m
 [1;37;40m Summary:                    [0m
 [30;43m  Classes: 57.97% (40/69)    [0m
 [30;43m  Methods: 81.52% (269/330)  [0m
-[30;42m  Lines:   92.54% (2369/2560)[0m
+[30;42m  Lines:   92.58% (2370/2560)[0m
 
 App\Console\Commands\TestPriceService
   [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% ( 19/ 19)[0m
@@ -63,7 +63,7 @@ App\Livewire\Money\CategorySelect
 App\Livewire\Money\Dashboard
   [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  97.73% ( 43/ 44)[0m
 App\Livewire\Money\DashboardPanel
-  [30;43mMethods:  87.50% ( 7/ 8)[0m   [30;43mLines:  80.22% ( 73/ 91)[0m
+  [30;43mMethods:  87.50% ( 7/ 8)[0m   [30;43mLines:  81.32% ( 74/ 91)[0m
 App\Livewire\Money\DashboardPanelForm
   [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  98.21% ( 55/ 56)[0m
 App\Livewire\Money\WalletForm

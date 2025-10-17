@@ -47,8 +47,10 @@ class WalletPositions extends Component
     {
         /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
         $positions = $this->wallet->positions()
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->sortByDesc(function($position) {
+                return $position->getCurrentMarketValue();
+            });
         $this->positions = $positions;
     }
 
@@ -140,6 +142,94 @@ class WalletPositions extends Component
     }
 
     /**
+     * Update prices for all positions with tickers
+     */
+    public function updatePrices(): void
+    {
+        $updated = 0;
+        $failed = 0;
+
+        // Group positions by ticker to synchronize prices
+        $positionsByTicker = [];
+        foreach ($this->positions as $position) {
+            if ($position->ticker) {
+                $ticker = strtoupper($position->ticker);
+                $positionsByTicker[$ticker][] = $position;
+            }
+        }
+
+        // Update prices for each ticker group
+        foreach ($positionsByTicker as $ticker => $positions) {
+            try {
+                // Get current price for this ticker
+                $currentPrice = $this->getCurrentPrice($positions[0]);
+
+                if ($currentPrice !== null) {
+                    // Update all positions with the same ticker
+                    foreach ($positions as $position) {
+                        $position->update(['price' => (string) $currentPrice]);
+                        $updated++;
+                    }
+                } else {
+                    $failed += count($positions);
+                }
+            } catch (\Exception $e) {
+                $failed += count($positions);
+            }
+        }
+
+        $this->refreshList();
+
+        if ($updated > 0) {
+            Toaster::success(__('Prices updated successfully for :count positions', ['count' => $updated]));
+        }
+
+        if ($failed > 0) {
+            Toaster::warning(__('Failed to update prices for :count positions', ['count' => $failed]));
+        }
+    }
+
+    /**
+     * Update price for a specific position and synchronize with other positions having the same ticker
+     */
+    public function updatePositionPrice(string $positionId): void
+    {
+        $position = $this->wallet->positions()->find($positionId);
+        if (!$position || !$position->ticker) {
+            Toaster::error(__('Position not found or no ticker available.'));
+            return;
+        }
+
+        try {
+            // Get current price for this ticker
+            $currentPrice = $this->getCurrentPrice($position);
+
+            if ($currentPrice !== null) {
+                // Update all positions with the same ticker
+                $ticker = strtoupper($position->ticker);
+                $updatedCount = 0;
+
+                foreach ($this->positions as $pos) {
+                    if ($pos->ticker && strtoupper($pos->ticker) === $ticker) {
+                        $pos->update(['price' => (string) $currentPrice]);
+                        $updatedCount++;
+                    }
+                }
+
+                Toaster::success(__('Price updated successfully for :count positions with ticker :ticker', [
+                    'count' => $updatedCount,
+                    'ticker' => $position->ticker
+                ]));
+                $this->refreshList();
+            } else {
+                Toaster::warning(__('Failed to update price for :name', ['name' => $position->name]));
+            }
+        } catch (\Exception $e) {
+            Toaster::error(__('Error updating price for :name', ['name' => $position->name]));
+        }
+    }
+
+    /**
      * Get current price for a position in user's preferred currency
      */
     public function getCurrentPrice(WalletPosition $position): ?float
@@ -148,7 +238,27 @@ class WalletPositions extends Component
             return null;
         }
 
-        return app(PriceService::class)->getPriceInCurrency($position->ticker, $this->userCurrency, 'USD');
+        $priceService = app(PriceService::class);
+
+        // For cryptocurrencies, try to get price directly in user's currency first
+        if ($this->isCryptoTicker($position->ticker)) {
+            $price = $priceService->getPrice($position->ticker, $this->userCurrency);
+            if ($price !== null) {
+                return $price;
+            }
+        }
+
+        // Fallback to conversion method
+        return $priceService->getPriceInCurrency($position->ticker, $this->userCurrency, 'USD');
+    }
+
+    /**
+     * Check if a ticker is a cryptocurrency
+     */
+    private function isCryptoTicker(string $ticker): bool
+    {
+        $cryptoList = ['BTC', 'ETH', 'SOL', 'XRP', 'ADA', 'DOGE', 'DOT', 'LINK', 'UNI', 'MATIC', 'AVAX', 'BNB', 'LTC', 'BCH'];
+        return in_array(strtoupper($ticker), $cryptoList, true);
     }
 
     /**

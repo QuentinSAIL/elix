@@ -50,7 +50,7 @@ class WalletPosition extends Model
     }
 
     /**
-     * Update the current market price for this position
+     * Update the current market price for this position and synchronize with other positions having the same ticker
      */
     public function updateCurrentPrice(): bool
     {
@@ -62,12 +62,39 @@ class WalletPosition extends Model
         $currentPrice = $priceService->getPrice($this->ticker, $this->wallet->unit);
 
         if ($currentPrice !== null) {
+            // Update this position
             $this->update(['price' => (string) $currentPrice]);
+
+            // Synchronize with other positions having the same ticker
+            $this->synchronizeTickerPrices($currentPrice);
 
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Synchronize prices for all positions with the same ticker
+     */
+    private function synchronizeTickerPrices(float $currentPrice): void
+    {
+        if (! $this->ticker) {
+            return;
+        }
+
+        $ticker = strtoupper($this->ticker);
+
+        // Find all positions with the same ticker in the same wallet
+        $sameTickerPositions = self::where('wallet_id', $this->wallet_id)
+            ->whereRaw('UPPER(ticker) = ?', [$ticker])
+            ->where('id', '!=', $this->id)
+            ->get();
+
+        // Update their prices
+        foreach ($sameTickerPositions as $position) {
+            $position->update(['price' => (string) $currentPrice]);
+        }
     }
 
     /**
@@ -104,5 +131,34 @@ class WalletPosition extends Model
     public function getFormattedValue(): string
     {
         return rtrim(rtrim((string) $this->getValue(), '0'), '.');
+    }
+
+    /**
+     * Get current market value for this position in user's preferred currency
+     */
+    public function getCurrentMarketValue(string $userCurrency = null): float
+    {
+        if ($this->ticker) {
+            $priceService = app(\App\Services\PriceService::class);
+
+            // Use provided currency or wallet currency or EUR as fallback
+            $currency = $userCurrency ?? ($this->wallet ? $this->wallet->unit : 'EUR');
+
+            // Try to get price directly in the target currency first
+            $currentPrice = $priceService->getPrice($this->ticker, $currency);
+
+            if ($currentPrice !== null) {
+                return (float) $this->quantity * $currentPrice;
+            }
+
+            // If direct price not available, try conversion from USD
+            $currentPrice = $priceService->getPriceInCurrency($this->ticker, $currency, 'USD');
+            if ($currentPrice !== null) {
+                return (float) $this->quantity * $currentPrice;
+            }
+        }
+
+        // Fallback to stored price
+        return (float) $this->quantity * (float) $this->price;
     }
 }

@@ -50,6 +50,10 @@ class WalletForm extends Component
         if ($this->wallet) {
             /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
             $positions = $this->wallet->positions()->get();
+            // Order positions by value (quantity * price), descending
+            $positions = $positions->sortByDesc(function ($position) {
+                return (float)$position->quantity * (float)$position->price;
+            })->values();
             $this->positions = $positions;
         }
     }
