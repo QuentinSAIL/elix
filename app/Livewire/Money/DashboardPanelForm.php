@@ -108,10 +108,8 @@ class DashboardPanelForm extends Component
         );
 
         // Sync relationships safely
-        if ($panel) {
-            $panel->bankAccounts()->sync($this->accountsId ?? []);
-            $panel->categories()->sync($this->categoriesId ?? []);
-        }
+        $panel->bankAccounts()->sync($this->accountsId ?? []);
+        $panel->categories()->sync($this->categoriesId ?? []);
 
         $this->populateForm();
         if ($this->edition && $this->panel) {

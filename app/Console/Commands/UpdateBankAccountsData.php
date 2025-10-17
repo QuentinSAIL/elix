@@ -56,7 +56,14 @@ class UpdateBankAccountsData extends Command
 
             try {
                 // Authentifier l'utilisateur du compte pour le service GoCardless
-                Auth::login($account->user);
+                if (!$account->user) {
+                    $this->error("❌ Utilisateur non trouvé pour le compte {$account->name}");
+                    $errorCount++;
+                    continue;
+                }
+                /** @var \App\Models\User $user */
+                $user = $account->user;
+                Auth::login($user);
                 $goCardlessService = new GoCardlessDataService();
 
                 // Récupérer les détails du compte directement depuis GoCardless (sans cache)
