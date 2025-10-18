@@ -3,6 +3,7 @@
 namespace App\Livewire\Money;
 
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
 
@@ -33,14 +34,14 @@ class CategoryIndex extends Component
         $this->refreshList();
     }
 
+    #[On('category-saved')]
     public function refreshList()
     {
         $query = $this->user->moneyCategories()->withoutGlobalScope('created_at');
 
-        // Gestion spéciale pour le tri par budget
         if ($this->sortField === 'budget') {
-            // Pour le budget, on traite NULL comme 0 et on trie numériquement
-            $query = $query->orderByRaw("COALESCE(budget, 0) {$this->sortDirection}");
+            $query = $query->orderByRaw("COALESCE(budget, 0) {$this->sortDirection}")
+                       ->orderBy('name', 'asc');
         } else {
             $query = $query->orderBy($this->sortField, $this->sortDirection);
         }
