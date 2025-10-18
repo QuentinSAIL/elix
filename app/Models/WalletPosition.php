@@ -136,13 +136,19 @@ class WalletPosition extends Model
     /**
      * Get current market value for this position in user's preferred currency
      */
-    public function getCurrentMarketValue(string $userCurrency = null): float
+    public function getCurrentMarketValue(?string $userCurrency = null): float
     {
         if ($this->ticker) {
             $priceService = app(\App\Services\PriceService::class);
 
             // Use provided currency or wallet currency or EUR as fallback
-            $currency = $userCurrency ?? ($this->wallet ? $this->wallet->unit : 'EUR');
+            if ($userCurrency !== null) {
+                $currency = $userCurrency;
+            } elseif ($this->wallet !== null) {
+                $currency = $this->wallet->unit;
+            } else {
+                $currency = 'EUR';
+            }
 
             // Try to get price directly in the target currency first
             $currentPrice = $priceService->getPrice($this->ticker, $currency);

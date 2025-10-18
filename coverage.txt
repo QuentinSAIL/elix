@@ -1,12 +1,12 @@
 
 
 [1;37;40mCode Coverage Report:        [0m
-[1;37;40m  2025-10-17 21:23:20        [0m
+[1;37;40m  2025-10-18 06:48:01        [0m
 [1;37;40m                             [0m
 [1;37;40m Summary:                    [0m
-[30;43m  Classes: 57.97% (40/69)    [0m
-[30;43m  Methods: 81.52% (269/330)  [0m
-[30;42m  Lines:   92.58% (2370/2560)[0m
+[30;43m  Classes: 55.71% (39/70)    [0m
+[30;43m  Methods: 79.88% (270/338)  [0m
+[30;42m  Lines:   92.30% (2506/2715)[0m
 
 App\Console\Commands\TestPriceService
   [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% ( 19/ 19)[0m
@@ -31,7 +31,7 @@ App\Http\Middleware\UserHasValidGoCardlessKeys
 App\Http\Middleware\UserModule
   [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  8/  8)[0m
 App\Jobs\UpdateWalletPricesJob
-  [30;43mMethods:  66.67% ( 2/ 3)[0m   [30;43mLines:  78.57% ( 11/ 14)[0m
+  [30;43mMethods:  66.67% ( 2/ 3)[0m   [30;43mLines:  87.50% ( 21/ 24)[0m
 App\Livewire\Actions\Logout
   [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  3/  3)[0m
 App\Livewire\Auth\ConfirmPassword
@@ -47,31 +47,31 @@ App\Livewire\Auth\ResetPassword
 App\Livewire\Auth\VerifyEmail
   [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  7/  7)[0m
 App\Livewire\Money\BankAccountCreate
-  [30;43mMethods:  83.33% ( 5/ 6)[0m   [30;42mLines:  93.10% ( 27/ 29)[0m
+  [30;42mMethods: 100.00% ( 6/ 6)[0m   [30;42mLines: 100.00% ( 29/ 29)[0m
 App\Livewire\Money\BankAccountIndex
   [30;43mMethods:  57.14% ( 4/ 7)[0m   [30;42mLines:  94.67% ( 71/ 75)[0m
 App\Livewire\Money\BankTransactionIndex
-  [30;43mMethods:  76.47% (13/17)[0m   [30;42mLines:  96.30% (130/135)[0m
+  [30;43mMethods:  76.47% (13/17)[0m   [30;42mLines:  96.55% (140/145)[0m
 App\Livewire\Money\BudgetIndex
-  [30;42mMethods: 100.00% ( 8/ 8)[0m   [30;42mLines: 100.00% ( 34/ 34)[0m
+  [30;43mMethods:  88.89% ( 8/ 9)[0m   [30;42mLines:  97.10% ( 67/ 69)[0m
 App\Livewire\Money\CategoryForm
   [37;41mMethods:  33.33% ( 3/ 9)[0m   [30;43mLines:  60.58% ( 83/137)[0m
 App\Livewire\Money\CategoryIndex
-  [30;43mMethods:  80.00% ( 8/10)[0m   [30;42mLines:  92.59% ( 50/ 54)[0m
+  [30;43mMethods:  70.00% ( 7/10)[0m   [30;43mLines:  89.66% ( 52/ 58)[0m
 App\Livewire\Money\CategorySelect
-  [30;42mMethods: 100.00% ( 4/ 4)[0m   [30;42mLines: 100.00% ( 44/ 44)[0m
+  [30;43mMethods:  75.00% ( 3/ 4)[0m   [30;42mLines:  93.62% ( 44/ 47)[0m
 App\Livewire\Money\Dashboard
   [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  97.73% ( 43/ 44)[0m
 App\Livewire\Money\DashboardPanel
-  [30;43mMethods:  87.50% ( 7/ 8)[0m   [30;43mLines:  81.32% ( 74/ 91)[0m
+  [30;43mMethods:  87.50% ( 7/ 8)[0m   [30;42mLines:  92.31% ( 84/ 91)[0m
 App\Livewire\Money\DashboardPanelForm
   [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  98.21% ( 55/ 56)[0m
 App\Livewire\Money\WalletForm
-  [30;43mMethods:  55.56% ( 5/ 9)[0m   [30;43mLines:  89.23% (116/130)[0m
+  [30;43mMethods:  55.56% ( 5/ 9)[0m   [30;43mLines:  89.47% (119/133)[0m
 App\Livewire\Money\WalletIndex
-  [30;43mMethods:  87.50% ( 7/ 8)[0m   [30;42mLines:  96.00% ( 48/ 50)[0m
+  [30;43mMethods:  66.67% ( 6/ 9)[0m   [30;42mLines:  93.94% ( 62/ 66)[0m
 App\Livewire\Money\WalletPositions
-  [30;43mMethods:  63.64% ( 7/11)[0m   [30;42mLines:  90.32% ( 84/ 93)[0m
+  [30;43mMethods:  64.29% ( 9/14)[0m   [30;43mLines:  80.28% (114/142)[0m
 App\Livewire\Note\Index
   [30;43mMethods:  80.00% ( 4/ 5)[0m   [30;42mLines:  95.24% ( 20/ 21)[0m
 App\Livewire\Note\Show
@@ -113,7 +113,7 @@ App\Models\Frequency
 App\Models\Module
   [30;42mMethods: 100.00% ( 1/ 1)[0m   [30;42mLines: 100.00% (  1/  1)[0m
 App\Models\MoneyCategory
-  [30;43mMethods:  87.50% ( 7/ 8)[0m   [30;42mLines:  95.24% ( 20/ 21)[0m
+  [30;42mMethods: 100.00% ( 8/ 8)[0m   [30;42mLines: 100.00% ( 21/ 21)[0m
 App\Models\MoneyCategoryMatch
   [30;42mMethods: 100.00% ( 6/ 6)[0m   [30;42mLines: 100.00% ( 31/ 31)[0m
 App\Models\MoneyDashboard
@@ -133,13 +133,13 @@ App\Models\UserPreference
 App\Models\Wallet
   [30;43mMethods:  66.67% ( 6/ 9)[0m   [30;42mLines:  90.00% ( 36/ 40)[0m
 App\Models\WalletPosition
-  [30;42mMethods: 100.00% ( 5/ 5)[0m   [30;42mLines: 100.00% ( 18/ 18)[0m
+  [30;43mMethods:  71.43% ( 5/ 7)[0m   [30;42mLines:  90.48% ( 38/ 42)[0m
 App\Providers\AppServiceProvider
   [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% ( 15/ 15)[0m
 App\Services\GoCardlessDataService
   [30;43mMethods:  88.24% (15/17)[0m   [30;42mLines:  95.63% (175/183)[0m
 App\Services\PriceService
-  [30;43mMethods:  55.56% (10/18)[0m   [30;43mLines:  89.02% (146/164)[0m
+  [30;43mMethods:  55.56% (10/18)[0m   [30;43mLines:  89.63% (147/164)[0m
 App\Services\TransactionCacheService
   [30;43mMethods:  87.50% ( 7/ 8)[0m   [30;42mLines:  90.91% ( 30/ 33)[0m
 App\Services\WalletUpdateService

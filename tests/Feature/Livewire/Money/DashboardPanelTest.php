@@ -169,3 +169,186 @@ test('can edit panel', function () {
     $component->call('edit');
     $this->assertTrue(true); // event assertion relaxed due to environment
 });
+
+test('can prepare chart data for number type', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'type' => 'number',
+        'period_type' => 'all',
+    ]);
+    $category = MoneyCategory::factory()->for($this->user)->create();
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+
+    // Create transactions with categories so they are not filtered out
+    BankTransactions::factory()->create([
+        'bank_account_id' => $bankAccount->id,
+        'money_category_id' => $category->id,
+        'amount' => -100,
+        'transaction_date' => now()->startOfDay(),
+    ]);
+    BankTransactions::factory()->create([
+        'bank_account_id' => $bankAccount->id,
+        'money_category_id' => $category->id,
+        'amount' => -50,
+        'transaction_date' => now()->startOfDay(),
+    ]);
+
+    $panel->bankAccounts()->attach($bankAccount);
+
+    Livewire::test(DashboardPanel::class, ['panel' => $panel])
+        ->assertSet('labels', ['Total'])
+        ->assertSet('values', [-150])
+        ->assertSet('colors', ['#3B82F6']);
+});
+
+test('can prepare chart data for gauge type', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'type' => 'gauge',
+        'period_type' => 'all',
+    ]);
+    $category = MoneyCategory::factory()->for($this->user)->create();
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+
+    // Create transactions with categories so they are not filtered out
+    BankTransactions::factory()->create([
+        'bank_account_id' => $bankAccount->id,
+        'money_category_id' => $category->id,
+        'amount' => 200, // Income
+        'transaction_date' => now()->startOfDay(),
+    ]);
+    BankTransactions::factory()->create([
+        'bank_account_id' => $bankAccount->id,
+        'money_category_id' => $category->id,
+        'amount' => -100, // Expense
+        'transaction_date' => now()->startOfDay(),
+    ]);
+
+    $panel->bankAccounts()->attach($bankAccount);
+
+    Livewire::test(DashboardPanel::class, ['panel' => $panel])
+        ->assertSet('labels', ['Revenus', 'Dépenses'])
+        ->assertSet('values', [200, 100])
+        ->assertSet('colors', ['#10B981', '#EF4444']);
+});
+
+test('can prepare chart data for trend type', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'type' => 'trend',
+        'period_type' => 'daily',
+    ]);
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'amount' => -100,
+        'transaction_date' => now()->startOfDay(),
+    ]);
+    BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'amount' => -50,
+        'transaction_date' => now()->addDay()->startOfDay(),
+    ]);
+
+    $panel->bankAccounts()->attach($bankAccount);
+
+    $component = Livewire::test(DashboardPanel::class, ['panel' => $panel]);
+
+    $labels = $component->get('labels');
+    $values = $component->get('values');
+
+    $this->assertIsArray($labels);
+    $this->assertIsArray($values);
+    $this->assertCount(count($labels), $values);
+});
+
+test('can prepare chart data for pie type', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'type' => 'pie',
+        'period_type' => 'daily',
+    ]);
+    $category1 = MoneyCategory::factory()->for($this->user)->create([
+        'name' => 'Category 1',
+        'color' => '#ff0000',
+    ]);
+    $category2 = MoneyCategory::factory()->for($this->user)->create([
+        'name' => 'Category 2',
+        'color' => '#00ff00',
+    ]);
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'amount' => -100,
+        'money_category_id' => $category1->id,
+        'transaction_date' => now()->startOfDay(),
+    ]);
+    BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'amount' => -50,
+        'money_category_id' => $category2->id,
+        'transaction_date' => now()->startOfDay(),
+    ]);
+
+    $panel->categories()->attach([$category1->id, $category2->id]);
+    $panel->bankAccounts()->attach($bankAccount);
+
+    Livewire::test(DashboardPanel::class, ['panel' => $panel])
+        ->assertSet('labels', ['Category 1', 'Category 2'])
+        ->assertSet('values', [-100, -50])
+        ->assertSet('colors', ['#ff0000', '#00ff00']);
+});
+
+test('can handle transactions without date filters', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'type' => 'bar',
+        'period_type' => 'all', // No date filtering
+    ]);
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'amount' => -100,
+        'transaction_date' => now()->subYear(), // Old transaction
+    ]);
+
+    $panel->bankAccounts()->attach($bankAccount);
+
+    Livewire::test(DashboardPanel::class, ['panel' => $panel])
+        ->assertStatus(200);
+});
+
+test('can handle transactions without filters', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'type' => 'bar',
+        'period_type' => 'daily',
+    ]);
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'amount' => -100,
+        'transaction_date' => now()->startOfDay(),
+    ]);
+
+    // Don't attach any filters to the panel
+    Livewire::test(DashboardPanel::class, ['panel' => $panel])
+        ->assertStatus(200);
+});
+
+test('can handle empty transactions', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'type' => 'bar',
+        'period_type' => 'daily',
+    ]);
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+
+    $panel->bankAccounts()->attach($bankAccount);
+
+    Livewire::test(DashboardPanel::class, ['panel' => $panel])
+        ->assertSet('labels', [])
+        ->assertSet('values', [])
+        ->assertSet('colors', []);
+});

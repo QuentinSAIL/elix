@@ -47,11 +47,11 @@ class WalletPositions extends Component
     {
         /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
         $positions = $this->wallet->positions()
-            ->get()
-            ->sortByDesc(function($position) {
-                return $position->getCurrentMarketValue();
-            });
-        $this->positions = $positions;
+            ->get();
+
+        $this->positions = $positions->sortByDesc(function(\App\Models\WalletPosition $position) {
+            return $position->getCurrentMarketValue();
+        });
     }
 
     public function edit(string $positionId): void
@@ -194,6 +194,7 @@ class WalletPositions extends Component
      */
     public function updatePositionPrice(string $positionId): void
     {
+        /** @var \App\Models\WalletPosition|null $position */
         $position = $this->wallet->positions()->find($positionId);
         if (!$position || !$position->ticker) {
             Toaster::error(__('Position not found or no ticker available.'));

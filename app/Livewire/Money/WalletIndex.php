@@ -101,6 +101,7 @@ class WalletIndex extends Component
 
         // For multi mode, calculate from positions using the same logic as getCurrentMarketValue
         $totalValue = 0;
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
         $positions = $wallet->positions;
 
         foreach ($positions as $position) {
@@ -145,16 +146,21 @@ class WalletIndex extends Component
 
     /**
      * Get top positions by value for a wallet
+     *
+     * @return \Illuminate\Support\Collection<int, \App\Models\WalletPosition>
      */
-    public function getTopPositionsByValue(\App\Models\Wallet $wallet, int $limit = 3): \Illuminate\Database\Eloquent\Collection
+    public function getTopPositionsByValue(\App\Models\Wallet $wallet, int $limit = 3): \Illuminate\Support\Collection
     {
         if ($wallet->mode !== 'multi') {
             return collect();
         }
 
-        return $wallet->positions()
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
+        $positions = $wallet->positions()
             ->with('wallet')
-            ->get()
+            ->get();
+
+        return $positions
             ->sortByDesc(function($position) {
                 return $position->getCurrentMarketValue($this->userCurrency);
             })

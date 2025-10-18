@@ -117,7 +117,9 @@ class WalletIndexTest extends TestCase
         $wallet = Wallet::factory()->for($user)->create([
             'mode' => 'single',
             'balance' => 1000,
+            'unit' => 'EUR',
         ]);
+        $user->preference()->create(['currency' => 'EUR']);
         $this->actingAs($user);
 
         $component = Livewire::test(WalletIndex::class);
