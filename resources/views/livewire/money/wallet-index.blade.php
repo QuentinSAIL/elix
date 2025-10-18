@@ -24,10 +24,12 @@
                 </div>
                 <div class="flex items-center space-x-3">
                     @if(!$wallets->isEmpty())
-                        <div class="text-right">
-                            <div class="text-sm text-zinc-500 dark:text-zinc-400">{{ __('Total Wallets') }}</div>
-                            <div class="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{{ $wallets->count() }}</div>
-                        </div>
+                        {{-- <div class="text-right mr-8">
+                            <div class="inline-flex items-baseline space-x-2">
+                                <div class="text-sm text-zinc-500 dark:text-zinc-400">{{ __('Total Wallets') }}</div>
+                                <div class="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{{ $wallets->count() }}</div>
+                            </div>
+                        </div> --}}
                     @endif
                     <flux:modal.trigger name="create-wallet">
                         <flux:button class="cursor-pointer" variant="primary" icon="plus" as="button">{{ __('New wallet') }}</flux:button>

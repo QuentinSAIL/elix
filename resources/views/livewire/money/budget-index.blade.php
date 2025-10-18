@@ -12,7 +12,7 @@
         </div>
 
         <!-- Résumé du budget total (2/4) -->
-        <div class="lg:col-span-2">
+        <div class="lg:col-span-2 xl:mx-16">
             @if ($totalBudget > 0)
                 <div class="p-4 rounded-lg {{ $isOverspent ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800' : 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800' }}">
                     <div class="flex items-center justify-between">
@@ -27,10 +27,10 @@
                         </div>
                         <div class="text-right">
                             <div class="text-sm text-grey-inverse">
-                                {{ __('Budget with limits') }}: {{ number_format($totalBudget, 2, ',', ' ') }} €
+                                {{ __('Budget') }}: {{ number_format($totalBudget, 2, ',', ' ') }} €
                             </div>
                             <div class="text-sm text-grey-inverse">
-                                {{ __('Spent in budgeted categories') }}: {{ number_format($totalSpent, 2, ',', ' ') }} €
+                                {{ __('Spent') }}: {{ number_format(-$totalSpent, 2, ',', ' ') }} €
                             </div>
                             <div class="font-semibold {{ $isOverspent ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400' }}">
                                 @if ($isOverspent)

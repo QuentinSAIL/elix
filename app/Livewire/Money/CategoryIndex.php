@@ -81,7 +81,7 @@ class CategoryIndex extends Component
     {
         $cat = $this->user->moneyCategories()->find($categoryId);
         if ($cat) {
-            $cat->update(['budget' => $newBudget]);
+            $cat->update(['budget' => $newBudget ?: null]);
             Toaster::success(__('Budget updated.'));
             $this->refreshList();
         } else {
@@ -122,13 +122,12 @@ class CategoryIndex extends Component
     {
         $this->validate([
             'newName' => 'required|string|max:255',
-            'newBudget' => 'required|numeric|min:0',
             'newColor' => 'required|string',
         ]);
 
         $this->user->moneyCategories()->create([
             'name' => $this->newName,
-            'budget' => $this->newBudget,
+            'budget' => $this->newBudget ?: null,
             'color' => $this->newColor,
         ]);
 
