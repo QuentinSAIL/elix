@@ -281,6 +281,7 @@
                                     <option value="SHARE">{{ __('Share') }}</option>
                                     <option value="UNIT">{{ __('Unit') }}</option>
                                     <option value="TOKEN">{{ __('Token') }}</option>
+                                    <option value="CRYPTO">{{ __('Crypto') }}</option>
                                     <option value="ETF">{{ __('ETF') }}</option>
                                     <option value="BOND">{{ __('Bond') }}</option>
                                 </flux:select>

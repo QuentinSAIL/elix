@@ -60,50 +60,113 @@
             </div>
         @else
             <!-- Wallets Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
-                @foreach ($wallets as $wallet)
-                    <div class="group bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm rounded-2xl border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm hover:shadow-lg dark:hover:shadow-zinc-900/50 transition-all duration-300 overflow-hidden"
-                         wire:key="wallet-{{ $wallet->id }}">
-                        <!-- Wallet Header -->
-                        <div class="px-6 py-4 border-b border-zinc-100/50 dark:border-zinc-700/50 bg-gradient-to-r from-zinc-50/50 dark:from-zinc-800/50 to-transparent">
-                            <div class="flex items-center justify-between">
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-50 tracking-tight truncate">{{ $wallet->name }}</h3>
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 border border-primary-200/50 dark:border-primary-700/50">
-                                            {{ $wallet->unit }}
-                                        </span>
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $wallet->mode === 'single' ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 border border-green-200/50 dark:border-green-700/50' : 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50' }}">
-                                            {{ $wallet->mode === 'single' ? __('Single') : __('Multi') }}
-                                        </span>
-                                    </div>
-                                    @php($positionsCount = $wallet->positions()->count())
-                                    <div class="text-sm text-zinc-500 dark:text-zinc-400">
-                                        @if($wallet->mode === 'single')
-                                            {{ __('Simple wallet') }}
-                                        @else
-                                            {{ $positionsCount }} {{ $positionsCount === 1 ? __('position') : __('positions') }}
-                                        @endif
-                                    </div>
-                                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8"
+                 wire:ignore.self
+                 x-data="{
+                     wallets: @js($wallets->pluck('id')),
+                     sortable: null,
+                     isUpdating: false,
+                     init() {
+                         this.initSortable()
+                         Livewire.hook('message.processed', () => {
+                             if (!this.isUpdating) {
+                                 this.initSortable()
+                             }
+                         })
+                     },
+                     initSortable() {
+                         if (this.sortable) {
+                             this.sortable.destroy()
+                             this.sortable = null
+                         }
 
-                                <!-- Actions Menu -->
-                                <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    <flux:modal.trigger name="edit-wallet-{{ $wallet->id }}">
-                                        <button class="p-2 text-zinc-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200"
-                                                aria-label="{{ __('Edit wallet') }}">
-                                            <flux:icon.pencil variant="micro" />
+                         // Wait for DOM to be ready
+                         this.$nextTick(() => {
+                             this.sortable = new Sortable(this.$refs.walletsContainer, {
+                                 handle: '.drag-handle',
+                                 animation: 200,
+                                 ghostClass: 'opacity-50',
+                                 chosenClass: 'scale-105',
+                                 forceFallback: true,
+                                 onStart: () => {
+                                     this.isUpdating = true
+                                 },
+                                 onEnd: evt => {
+                                     if (evt.oldIndex !== evt.newIndex) {
+                                         // Update local array
+                                         const movedItem = this.wallets.splice(evt.oldIndex, 1)[0]
+                                         this.wallets.splice(evt.newIndex, 0, movedItem)
+
+                                         // Update server with debounce
+                                         clearTimeout(this.updateTimeout)
+                                         this.updateTimeout = setTimeout(() => {
+                                             this.$wire.updateWalletOrder(this.wallets).then(() => {
+                                                 this.isUpdating = false
+                                             }).catch(() => {
+                                                 this.isUpdating = false
+                                             })
+                                         }, 100)
+                                     } else {
+                                         this.isUpdating = false
+                                     }
+                                 }
+                             })
+                         })
+                     },
+                 }">
+
+                <!-- Wallets Container -->
+                <div x-ref="walletsContainer" class="contents">
+                    @foreach ($wallets as $wallet)
+                        <div class="group bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm rounded-2xl border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm hover:shadow-lg dark:hover:shadow-zinc-900/50 transition-all duration-300 overflow-hidden"
+                             wire:key="wallet-{{ $wallet->id }}"
+                             data-wallet-id="{{ $wallet->id }}">
+                            <!-- Wallet Header -->
+                            <div class="px-6 py-4 border-b border-zinc-100/50 dark:border-zinc-700/50 bg-gradient-to-r from-zinc-50/50 dark:from-zinc-800/50 to-transparent">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <button type="button" class="drag-handle cursor-move text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-400 transition-colors p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                                                aria-label="{{ __('Reorder wallet') }}">
+                                            <flux:icon.bars-4 variant="micro" aria-hidden="true" />
                                         </button>
-                                    </flux:modal.trigger>
-                                    <flux:modal.trigger name="delete-wallet-{{ $wallet->id }}">
-                                        <button class="p-2 text-zinc-400 dark:text-zinc-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
-                                                aria-label="{{ __('Delete wallet') }}">
-                                            <flux:icon.trash variant="micro" />
-                                        </button>
-                                    </flux:modal.trigger>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-50 tracking-tight truncate">{{ $wallet->name }}</h3>
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 border border-primary-200/50 dark:border-primary-700/50">
+                                                    {{ $wallet->unit }}
+                                                </span>
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $wallet->mode === 'single' ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 border border-green-200/50 dark:border-green-700/50' : 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50' }}">
+                                                    {{ $wallet->mode === 'single' ? __('Single') : __('Multi') }}
+                                                </span>
+                                            </div>
+                                            @php($positionsCount = $wallet->positions()->count())
+                                            <div class="text-sm text-zinc-500 dark:text-zinc-400">
+                                                @if($wallet->mode === 'single')
+                                                    {{ __('Simple wallet') }}
+                                                @else
+                                                    {{ $positionsCount }} {{ $positionsCount === 1 ? __('position') : __('positions') }}
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Actions Menu -->
+                                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <flux:modal.trigger name="edit-wallet-{{ $wallet->id }}">
+                                            <button class="p-2 text-zinc-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200"
+                                                    aria-label="{{ __('Edit wallet') }}">
+                                                <flux:icon.pencil variant="micro" />
+                                            </button>
+                                        </flux:modal.trigger>
+                                        <flux:modal.trigger name="delete-wallet-{{ $wallet->id }}">
+                                            <button class="p-2 text-zinc-400 dark:text-zinc-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
+                                                    aria-label="{{ __('Delete wallet') }}">
+                                                <flux:icon.trash variant="micro" />
+                                            </button>
+                                        </flux:modal.trigger>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
                         <!-- Wallet Content -->
                         <div class="p-6">
@@ -169,6 +232,7 @@
                         </div>
                     </div>
                 @endforeach
+                </div>
             </div>
 
             <!-- Render modals outside the grid so they don't become grid items -->

@@ -242,25 +242,17 @@ class WalletPositions extends Component
         $priceService = app(PriceService::class);
 
         // For cryptocurrencies, try to get price directly in user's currency first
-        if ($this->isCryptoTicker($position->ticker)) {
-            $price = $priceService->getPrice($position->ticker, $this->userCurrency);
+        if ($position->unit === 'TOKEN' || $position->unit === 'CRYPTO') {
+            $price = $priceService->getPrice($position->ticker, $this->userCurrency, $position->unit);
             if ($price !== null) {
                 return $price;
             }
         }
 
         // Fallback to conversion method
-        return $priceService->getPriceInCurrency($position->ticker, $this->userCurrency, 'USD');
+        return $priceService->getPriceInCurrency($position->ticker, $this->userCurrency, 'USD', $position->unit);
     }
 
-    /**
-     * Check if a ticker is a cryptocurrency
-     */
-    private function isCryptoTicker(string $ticker): bool
-    {
-        $cryptoList = ['BTC', 'ETH', 'SOL', 'XRP', 'ADA', 'DOGE', 'DOT', 'LINK', 'UNI', 'MATIC', 'AVAX', 'BNB', 'LTC', 'BCH'];
-        return in_array(strtoupper($ticker), $cryptoList, true);
-    }
 
     /**
      * Get current value for a position in user's preferred currency

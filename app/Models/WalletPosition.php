@@ -59,7 +59,7 @@ class WalletPosition extends Model
         }
 
         $priceService = app(\App\Services\PriceService::class);
-        $currentPrice = $priceService->getPrice($this->ticker, $this->wallet->unit);
+        $currentPrice = $priceService->getPrice($this->ticker, $this->wallet->unit, $this->unit);
 
         if ($currentPrice !== null) {
             // Update this position
@@ -104,7 +104,7 @@ class WalletPosition extends Model
     {
         if ($this->ticker) {
             $priceService = app(\App\Services\PriceService::class);
-            $currentPrice = $priceService->getPrice($this->ticker, $this->wallet->unit);
+            $currentPrice = $priceService->getPrice($this->ticker, $this->wallet->unit, $this->unit);
 
             if ($currentPrice !== null) {
                 // Update the stored price with the current market price
@@ -151,7 +151,7 @@ class WalletPosition extends Model
             }
 
             // Try to get price directly in the target currency first
-            $currentPrice = $priceService->getPrice($this->ticker, $currency);
+            $currentPrice = $priceService->getPrice($this->ticker, $currency, $this->unit);
 
             if ($currentPrice !== null) {
                 return (float) $this->quantity * $currentPrice;

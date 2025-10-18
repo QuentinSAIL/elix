@@ -39,9 +39,28 @@ class WalletIndex extends Component
         /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Wallet> $wallets */
         $wallets = $this->user->wallets()
             ->withCount('positions')
-            ->orderBy('created_at', 'desc')
+            ->ordered()
             ->get();
         $this->wallets = $wallets;
+    }
+
+    public function updateWalletOrder(array $walletIds): void
+    {
+        try {
+            foreach ($walletIds as $index => $walletId) {
+                /** @var \App\Models\Wallet|null $wallet */
+                $wallet = $this->user->wallets()->find($walletId);
+
+                if ($wallet) {
+                    $wallet->updateOrder($index + 1);
+                }
+            }
+
+            // Reload wallets to reflect the new order
+            $this->loadWallets();
+        } catch (\Exception $e) {
+            Toaster::error(__('Failed to update wallet order. Please try again.'));
+        }
     }
 
     public function delete(string|int $walletId): void
