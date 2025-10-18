@@ -284,6 +284,7 @@
                                     <option value="CRYPTO">{{ __('Crypto') }}</option>
                                     <option value="ETF">{{ __('ETF') }}</option>
                                     <option value="BOND">{{ __('Bond') }}</option>
+                                    <option value="REAL_ASSET">{{ __('Real Asset (e.g. real estate, car, watch)') }}</option>
                                 </flux:select>
                                 <flux:error name="positionForm.unit" />
                                 <flux:description>{{ __('Type of asset unit') }}</flux:description>

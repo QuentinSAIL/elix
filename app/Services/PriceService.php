@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\PriceAsset;
 use App\Models\WalletPosition;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -16,34 +17,33 @@ class PriceService
     private const MAX_API_CALLS_PER_MINUTE = 10; // Conservative limit
 
     /**
-     * Get current price for a ticker symbol with intelligent caching and BDD fallback
+     * Get current price for a ticker symbol with intelligent caching and database fallback
      */
     public function getPrice(string $ticker, string $currency = 'EUR', ?string $unitType = null): ?float
     {
         $normalizedTicker = strtoupper($ticker);
-        $cacheKey = "price_v3_{$normalizedTicker}_{$currency}";
+        $cacheKey = "price_v4_{$normalizedTicker}_{$currency}";
 
         // Check if we're rate limited for this ticker
         if ($this->isRateLimited($normalizedTicker)) {
-            Log::info("Rate limited for {$normalizedTicker}, using BDD fallback");
+            Log::info("Rate limited for {$normalizedTicker}, using database fallback");
             return $this->getPriceFromDatabase($normalizedTicker, $currency);
         }
 
         return Cache::remember($cacheKey, self::CACHE_DURATION, function () use ($normalizedTicker, $currency, $unitType) {
             try {
-                // First try to get from database (most recent price)
-                $dbPrice = $this->getPriceFromDatabase($normalizedTicker, $currency);
+                // First try to get from price_assets table
+                $priceAsset = PriceAsset::where('ticker', $normalizedTicker)->first();
 
-                // If we have a recent price in DB (less than 1 hour old), use it
-                if ($dbPrice !== null && $this->hasRecentPriceInDatabase($normalizedTicker)) {
-                    Log::info("Using recent DB price for {$normalizedTicker}: {$dbPrice} {$currency}");
-                    return $dbPrice;
+                if ($priceAsset && $priceAsset->isPriceRecent()) {
+                    Log::info("Using recent price from price_assets for {$normalizedTicker}: {$priceAsset->price} {$currency}");
+                    return (float) $priceAsset->price;
                 }
 
                 // Check API rate limits before making calls
                 if ($this->shouldSkipApiCall()) {
-                    Log::info("Skipping API call due to rate limits, using DB fallback for {$normalizedTicker}");
-                    return $dbPrice;
+                    Log::info("Skipping API call due to rate limits, using database fallback for {$normalizedTicker}");
+                    return $priceAsset ? (float) $priceAsset->price : null;
                 }
 
                 // Try to get fresh price from APIs
@@ -51,20 +51,51 @@ class PriceService
 
                 if ($price !== null) {
                     Log::info("Fresh price fetched for {$normalizedTicker}: {$price} {$currency}");
-                    // Update database with fresh price
-                    $this->updatePriceInDatabase($normalizedTicker, $price, $currency);
+
+                    // Update or create price asset
+                    $this->updateOrCreatePriceAsset($normalizedTicker, $price, $currency, $unitType);
+
                     return $price;
                 }
 
                 // Fallback to database price
-                Log::info("API failed, using DB fallback for {$normalizedTicker}");
-                return $dbPrice;
+                Log::info("API failed, using database fallback for {$normalizedTicker}");
+                return $priceAsset ? (float) $priceAsset->price : null;
 
             } catch (\Exception $e) {
                 Log::error("Error fetching price for {$normalizedTicker}: ".$e->getMessage());
                 return $this->getPriceFromDatabase($normalizedTicker, $currency);
             }
         });
+    }
+
+    /**
+     * Update or create a price asset entry
+     */
+    public function updateOrCreatePriceAsset(string $ticker, float $price, string $currency = 'EUR', ?string $unitType = null): PriceAsset
+    {
+        $normalizedTicker = strtoupper($ticker);
+        $assetType = $this->getAssetTypeFromUnitType($unitType);
+
+        $priceAsset = PriceAsset::findOrCreate($normalizedTicker, $assetType);
+        $priceAsset->updatePrice($price, $currency);
+
+        return $priceAsset;
+    }
+
+    /**
+     * Convert unitType to asset type for the price_assets table
+     */
+    private function getAssetTypeFromUnitType(?string $unitType): string
+    {
+        return match ($unitType) {
+            'CRYPTO', 'TOKEN' => 'CRYPTO',
+            'STOCK' => 'STOCK',
+            'COMMODITY' => 'COMMODITY',
+            'ETF' => 'ETF',
+            'BOND' => 'BOND',
+            default => 'OTHER',
+        };
     }
 
     /**
@@ -89,6 +120,13 @@ class PriceService
     private function getPriceFromDatabase(string $ticker, string $currency): ?float
     {
         try {
+            // First try price_assets table
+            $priceAsset = PriceAsset::where('ticker', $ticker)->first();
+            if ($priceAsset && $priceAsset->price !== null) {
+                return (float) $priceAsset->price;
+            }
+
+            // Fallback to wallet_positions table (legacy)
             $position = WalletPosition::whereRaw('UPPER(ticker) = ?', [strtoupper($ticker)])
                 ->whereNotNull('price')
                 ->orderBy('updated_at', 'desc')
@@ -98,37 +136,6 @@ class PriceService
         } catch (\Exception $e) {
             Log::debug("Database error for {$ticker}: " . $e->getMessage());
             return null;
-        }
-    }
-
-    /**
-     * Check if we have a recent price in database (less than 1 hour old)
-     */
-    private function hasRecentPriceInDatabase(string $ticker): bool
-    {
-        try {
-            $position = WalletPosition::whereRaw('UPPER(ticker) = ?', [strtoupper($ticker)])
-                ->whereNotNull('price')
-                ->where('updated_at', '>=', now()->subHour())
-                ->first();
-
-            return $position !== null;
-        } catch (\Exception $e) {
-            Log::debug("Database error checking recent price for {$ticker}: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Update price in database for all positions with this ticker
-     */
-    private function updatePriceInDatabase(string $ticker, float $price, string $currency): void
-    {
-        try {
-            WalletPosition::whereRaw('UPPER(ticker) = ?', [strtoupper($ticker)])
-                ->update(['price' => (string) $price]);
-        } catch (\Exception $e) {
-            Log::debug("Database error updating price for {$ticker}: " . $e->getMessage());
         }
     }
 
@@ -187,12 +194,29 @@ class PriceService
     /**
      * Fetch price from APIs with proper error handling and rate limiting
      */
-    private function fetchPriceFromApis(string $ticker, string $currency, ?string $unitType): ?float
+    public function fetchPriceFromApis(string $ticker, string $currency, ?string $unitType): ?float
     {
-        // Simple logic: crypto/token = CoinGecko, others = traditional APIs
+        // Simple logic: crypto/token = CoinGecko + Kraken fallback, others = traditional APIs
         if ($unitType === 'TOKEN' || $unitType === 'CRYPTO') {
             Log::info("Using crypto APIs for {$ticker} (type: {$unitType})");
-            return $this->getPriceFromCoinGecko($ticker, $currency);
+
+            // Try CoinGecko first
+            $price = $this->getPriceFromCoinGecko($ticker, $currency);
+            if ($price !== null) {
+                Log::info("Price fetched from CoinGecko for {$ticker}: {$price} {$currency}");
+                return $price;
+            }
+
+            // Fallback to Kraken if CoinGecko fails
+            // Log::info("CoinGecko failed for {$ticker}, trying Kraken...");
+            // $price = $this->getPriceFromKraken($ticker, $currency);
+            // if ($price !== null) {
+            //     Log::info("Price fetched from Kraken for {$ticker}: {$price} {$currency}");
+            //     return $price;
+            // }
+
+            Log::warning("All crypto APIs failed for {$ticker}");
+            return null;
         } else {
             Log::info("Using traditional finance APIs for {$ticker} (type: {$unitType})");
             // Try traditional APIs in order
@@ -352,6 +376,120 @@ class PriceService
     }
 
     /**
+     * Get price from Kraken (for cryptocurrencies)
+     */
+    private function getPriceFromKraken(string $ticker, string $currency): ?float
+    {
+        try {
+            // Kraken uses different pair formats
+            $krakenPair = $this->getKrakenPair($ticker, $currency);
+
+            if (!$krakenPair) {
+                Log::debug("Kraken: No pair mapping found for {$ticker}/{$currency}");
+                return null;
+            }
+
+            Log::info("Kraken: Requesting {$ticker} with pair {$krakenPair}");
+
+            $response = Http::timeout(self::API_TIMEOUT)
+                ->get('https://api.kraken.com/0/public/Ticker', [
+                    'pair' => $krakenPair,
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info("Kraken response for {$ticker}: " . json_encode($data));
+
+                // Kraken returns data in 'result' key
+                if (isset($data['result'][$krakenPair]['c'][0])) {
+                    $price = (float) $data['result'][$krakenPair]['c'][0]; // 'c' is the last trade closed price
+                    Log::info("Kraken: Found price for {$ticker}: {$price} {$currency}");
+                    return $price;
+                } else {
+                    Log::warning("Kraken: No price data found for {$ticker} (pair: {$krakenPair})");
+                }
+            } else {
+                $statusCode = $response->status();
+                Log::warning("Kraken: HTTP error for {$ticker}: {$statusCode}");
+
+                // Set rate limit if we get 429
+                if ($statusCode === 429) {
+                    $this->setRateLimit($ticker);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::debug("Kraken API error for {$ticker}: ".$e->getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Get Kraken pair format for ticker and currency
+     */
+    private function getKrakenPair(string $ticker, string $currency): ?string
+    {
+        $ticker = strtoupper($ticker);
+        $currency = strtoupper($currency);
+
+        // Kraken uses specific pair formats
+        $pairs = [
+            'BTC' => [
+                'EUR' => 'XXBTZEUR',
+                'USD' => 'XXBTZUSD',
+                'USDT' => 'XXBTZUSD', // Use USD as proxy
+            ],
+            'ETH' => [
+                'EUR' => 'XETHZEUR',
+                'USD' => 'XETHZUSD',
+                'USDT' => 'XETHZUSD', // Use USD as proxy
+            ],
+            'XMR' => [
+                'EUR' => 'XXMRZEUR',
+                'USD' => 'XXMRZUSD',
+                'USDT' => 'XXMRZUSD', // Use USD as proxy
+            ],
+            'LTC' => [
+                'EUR' => 'XLTCZEUR',
+                'USD' => 'XLTCZUSD',
+                'USDT' => 'XLTCZUSD', // Use USD as proxy
+            ],
+            'BCH' => [
+                'EUR' => 'BCHZEUR',
+                'USD' => 'BCHZUSD',
+                'USDT' => 'BCHZUSD', // Use USD as proxy
+            ],
+            'ADA' => [
+                'EUR' => 'ADA/EUR',
+                'USD' => 'ADA/USD',
+                'USDT' => 'ADA/USD', // Use USD as proxy
+            ],
+            'DOT' => [
+                'EUR' => 'DOT/EUR',
+                'USD' => 'DOT/USD',
+                'USDT' => 'DOT/USD', // Use USD as proxy
+            ],
+            'LINK' => [
+                'EUR' => 'LINK/EUR',
+                'USD' => 'LINK/USD',
+                'USDT' => 'LINK/USD', // Use USD as proxy
+            ],
+            'UNI' => [
+                'EUR' => 'UNI/EUR',
+                'USD' => 'UNI/USD',
+                'USDT' => 'UNI/USD', // Use USD as proxy
+            ],
+            'AAVE' => [
+                'EUR' => 'AAVE/EUR',
+                'USD' => 'AAVE/USD',
+                'USDT' => 'AAVE/USD', // Use USD as proxy
+            ],
+        ];
+
+        return $pairs[$ticker][$currency] ?? null;
+    }
+
+    /**
      * Get CoinGecko ID for a ticker
      */
     private function getCoinGeckoId(string $ticker): string
@@ -395,9 +533,6 @@ class PriceService
         return $mappings[$ticker] ?? strtolower($ticker);
     }
 
-
-
-
     /**
      * Clear price cache for a specific ticker
      */
@@ -405,7 +540,7 @@ class PriceService
     {
         try {
             $normalizedTicker = strtoupper($ticker);
-            $cacheKey = "price_v3_{$normalizedTicker}_{$currency}";
+            $cacheKey = "price_v4_{$normalizedTicker}_{$currency}";
             Cache::forget($cacheKey);
 
             // Also clear rate limit cache
@@ -441,8 +576,8 @@ class PriceService
 
         if ($price !== null) {
             Log::info("Force update successful for {$normalizedTicker}: {$price} {$currency}");
-            // Update database with fresh price
-            $this->updatePriceInDatabase($normalizedTicker, $price, $currency);
+            // Update price asset with fresh price
+            $this->updateOrCreatePriceAsset($normalizedTicker, $price, $currency, $unitType);
             return $price;
         }
 
@@ -458,10 +593,8 @@ class PriceService
         Log::info("Starting force update of all prices");
 
         try {
-            // Get all unique tickers from database
-            $uniqueTickers = WalletPosition::whereNotNull('ticker')
-                ->selectRaw('UPPER(ticker) as ticker')
-                ->distinct()
+            // Get all unique tickers from price_assets table
+            $uniqueTickers = PriceAsset::whereNotNull('ticker')
                 ->pluck('ticker')
                 ->toArray();
         } catch (\Exception $e) {
@@ -495,7 +628,7 @@ class PriceService
                 $price = $this->fetchPriceFromApis($ticker, 'EUR', null);
 
                 if ($price !== null) {
-                    $this->updatePriceInDatabase($ticker, $price, 'EUR');
+                    $this->updateOrCreatePriceAsset($ticker, $price, 'EUR', null);
                     $results['updated']++;
                     $results['tickers'][$ticker] = $price;
                     Log::info("Force updated price for {$ticker}: {$price} EUR");
@@ -506,7 +639,7 @@ class PriceService
                 }
 
                 // Small delay to avoid rate limiting
-                usleep(200000); // 200ms delay for force updates
+                usleep(2000000); // 2s delay for force updates
 
             } catch (\Exception $e) {
                 $results['failed']++;

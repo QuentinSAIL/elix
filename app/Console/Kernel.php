@@ -12,16 +12,23 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // Refresh wallet prices frequently (stocks + crypto)
-        $schedule->command('wallets:update-prices')
-            ->everyFifteenMinutes()
+        // Update price assets twice daily (9:00 and 18:00)
+        $schedule->command('prices:update-assets --limit=100')
+            ->dailyAt('09:00')
             ->withoutOverlapping()
             ->onOneServer()
             ->runInBackground();
 
-        // Refresh crypto mapping daily (non-blocking, best-effort)
-        $schedule->command('crypto:update-mapping --limit=300')
-            ->dailyAt('03:00')
+        $schedule->command('prices:update-assets --limit=100')
+            ->dailyAt('18:00')
+            ->withoutOverlapping()
+            ->onOneServer()
+            ->runInBackground();
+
+        // Keep the old command for backward compatibility during transition
+        $schedule->command('wallets:update-prices')
+            ->everyFifteenMinutes()
+            ->withoutOverlapping()
             ->onOneServer()
             ->runInBackground();
     }

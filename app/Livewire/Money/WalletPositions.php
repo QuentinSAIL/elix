@@ -106,7 +106,7 @@ class WalletPositions extends Component
                 ]);
                 Toaster::success(__('Position updated successfully.'));
             } else {
-                $this->wallet->positions()->create([
+                $position = $this->wallet->positions()->create([
                     'name' => trim($this->positionForm['name']),
                     'ticker' => $this->positionForm['ticker'] ? strtoupper(trim($this->positionForm['ticker'])) : null,
                     'unit' => strtoupper(trim($this->positionForm['unit'])),
@@ -114,6 +114,11 @@ class WalletPositions extends Component
                     'price' => (string) $this->positionForm['price'],
                 ]);
                 Toaster::success(__('Position created successfully.'));
+
+                // Si la position a un ticker, vérifier/créer dans price_assets et mettre à jour le prix
+                if ($position->ticker) {
+                    $this->handleTickerPriceUpdate($position);
+                }
             }
 
             $this->resetForm();
@@ -121,6 +126,60 @@ class WalletPositions extends Component
         } catch (\Exception $e) {
             Toaster::error(__('Failed to save position. Please try again.'));
         }
+    }
+
+    /**
+     * Handle ticker price update for new positions
+     */
+    private function handleTickerPriceUpdate(\App\Models\WalletPosition $position): void
+    {
+        try {
+            $priceService = app(\App\Services\PriceService::class);
+
+            // Vérifier si l'actif existe déjà dans price_assets
+            $priceAsset = \App\Models\PriceAsset::where('ticker', $position->ticker)->first();
+
+            if ($priceAsset && $priceAsset->isPriceRecent()) {
+                // Utiliser le prix récent de la base de données
+                $position->update(['price' => (string) $priceAsset->price]);
+                Toaster::info(__('Price updated from recent market data.'));
+            } else {
+                // Créer l'entrée dans price_assets si elle n'existe pas
+                if (!$priceAsset) {
+                    $assetType = $this->getAssetTypeFromUnitType($position->unit);
+                    $priceAsset = \App\Models\PriceAsset::findOrCreate($position->ticker, $assetType);
+                }
+
+                // Essayer de récupérer un prix frais depuis l'API et le sauvegarder
+                $currentPrice = $priceService->getPrice($position->ticker, $this->wallet->unit, $position->unit);
+
+                if ($currentPrice !== null) {
+                    $position->update(['price' => (string) $currentPrice]);
+                    Toaster::info(__('Price updated from market data.'));
+                } else {
+                    // Garder le prix manuel si l'API échoue
+                    Toaster::warning(__('Could not fetch current price. Using manual price.'));
+                }
+            }
+        } catch (\Exception $e) {
+            // En cas d'erreur, garder le prix manuel
+            Toaster::warning(__('Could not update price. Using manual price.'));
+        }
+    }
+
+    /**
+     * Convert unitType to asset type for the price_assets table
+     */
+    private function getAssetTypeFromUnitType(?string $unitType): string
+    {
+        return match ($unitType) {
+            'CRYPTO', 'TOKEN' => 'CRYPTO',
+            'STOCK' => 'STOCK',
+            'COMMODITY' => 'COMMODITY',
+            'ETF' => 'ETF',
+            'BOND' => 'BOND',
+            default => 'OTHER',
+        };
     }
 
     public function delete(string $positionId): void
@@ -232,6 +291,7 @@ class WalletPositions extends Component
 
     /**
      * Get current price for a position in user's preferred currency
+     * ALWAYS uses database prices first, never makes API calls
      */
     public function getCurrentPrice(WalletPosition $position): ?float
     {
@@ -239,18 +299,30 @@ class WalletPositions extends Component
             return null;
         }
 
-        $priceService = app(PriceService::class);
+        // First, try to get price from price_assets table
+        $priceAsset = \App\Models\PriceAsset::where('ticker', $position->ticker)->first();
 
-        // For cryptocurrencies, try to get price directly in user's currency first
-        if ($position->unit === 'TOKEN' || $position->unit === 'CRYPTO') {
-            $price = $priceService->getPrice($position->ticker, $this->userCurrency, $position->unit);
-            if ($price !== null) {
-                return $price;
+        if ($priceAsset && $priceAsset->price !== null) {
+            // Convert to user's currency if needed
+            if ($priceAsset->currency !== $this->userCurrency) {
+                $priceService = app(PriceService::class);
+                $convertedPrice = $priceService->convertCurrency(
+                    (float) $priceAsset->price,
+                    $priceAsset->currency,
+                    $this->userCurrency
+                );
+                return $convertedPrice;
             }
+
+            return (float) $priceAsset->price;
         }
 
-        // Fallback to conversion method
-        return $priceService->getPriceInCurrency($position->ticker, $this->userCurrency, 'USD', $position->unit);
+        // Fallback to stored price in position (manual price)
+        if ($position->price && (float) $position->price > 0) {
+            return (float) $position->price;
+        }
+
+        return null;
     }
 
 

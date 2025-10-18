@@ -86,6 +86,10 @@
 }
 
 @layer components {
+    .color {
+        @apply primary-900 dark:primarydark-500;
+    }
+
     .title-elix {
         @apply text-5xl font-parkinsans text-primary-900 dark:text-primarydark-500;
     }

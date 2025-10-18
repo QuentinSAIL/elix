@@ -8,9 +8,9 @@
                     <p class="text-zinc-600 dark:text-zinc-400 mt-2">{{ __('Manage your virtual wallets and track your assets') }}</p>
                     @if(!$wallets->isEmpty())
                         <div class="mt-3">
-                            <div class="inline-flex items-center px-4 py-2 rounded-xl bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border border-primary-200/50 dark:border-primary-700/50">
-                                <flux:icon.banknotes class="w-5 h-5 text-primary-600 dark:text-primary-400 mr-2" />
-                                <span class="text-sm font-semibold text-primary-700 dark:text-primary-300">
+                            <div class="inline-flex items-center px-4 py-2 rounded-xl bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primarydark-900/20 dark:to-primarydark-800/20 border border-primary-200/50 dark:border-primary-700/50">
+                                <flux:icon.banknotes class="w-5 h-5 text-color mr-2" />
+                                <span class="text-sm font-semibold">
                                     {{ __('Total Portfolio Value') }}: {{ number_format($this->getTotalPortfolioValue(), 2) }}{{ $this->getCurrencySymbol() }}
                                 </span>
                             </div>
@@ -125,19 +125,19 @@
                             <div class="px-6 py-4 border-b border-zinc-100/50 dark:border-zinc-700/50 bg-gradient-to-r from-zinc-50/50 dark:from-zinc-800/50 to-transparent">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-3">
-                                        <button type="button" class="drag-handle cursor-move text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-400 transition-colors p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                                        <button type="button" class="mr-8 drag-handle cursor-move text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-400 transition-colors p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-700"
                                                 aria-label="{{ __('Reorder wallet') }}">
                                             <flux:icon.bars-4 variant="micro" aria-hidden="true" />
                                         </button>
                                         <div class="min-w-0 flex-1">
                                             <div class="flex items-center gap-3 mb-2">
                                                 <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-50 tracking-tight truncate">{{ $wallet->name }}</h3>
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 border border-primary-200/50 dark:border-primary-700/50">
+                                                {{-- <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 border border-primary-200/50 dark:border-primary-700/50">
                                                     {{ $wallet->unit }}
-                                                </span>
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $wallet->mode === 'single' ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 border border-green-200/50 dark:border-green-700/50' : 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50' }}">
+                                                </span> --}}
+                                                {{-- <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $wallet->mode === 'single' ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 border border-green-200/50 dark:border-green-700/50' : 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50' }}">
                                                     {{ $wallet->mode === 'single' ? __('Single') : __('Multi') }}
-                                                </span>
+                                                </span> --}}
                                             </div>
                                             @php($positionsCount = $wallet->positions()->count())
                                             <div class="text-sm text-zinc-500 dark:text-zinc-400">

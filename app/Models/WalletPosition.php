@@ -134,37 +134,81 @@ class WalletPosition extends Model
     }
 
     /**
+     * Get stored value for this position (using stored price, no API calls)
+     */
+    public function getStoredValue(): float
+    {
+        return (float) $this->quantity * (float) $this->price;
+    }
+
+    /**
      * Get current market value for this position in user's preferred currency
+     * Uses stored price first, only makes API call if no stored price exists
+     * Prevents multiple simultaneous API calls for the same ticker
      */
     public function getCurrentMarketValue(?string $userCurrency = null): float
     {
+        // Use provided currency or wallet currency or EUR as fallback
+        if ($userCurrency !== null) {
+            $currency = $userCurrency;
+        } elseif ($this->wallet !== null) {
+            $currency = $this->wallet->unit;
+        } else {
+            $currency = 'EUR';
+        }
+
+        // First, try to use stored price if available
+        if ($this->price && (float) $this->price > 0) {
+            return (float) $this->quantity * (float) $this->price;
+        }
+
+        // If no stored price and we have a ticker, try to get from price_assets table
         if ($this->ticker) {
-            $priceService = app(\App\Services\PriceService::class);
+            $priceAsset = \App\Models\PriceAsset::where('ticker', $this->ticker)->first();
 
-            // Use provided currency or wallet currency or EUR as fallback
-            if ($userCurrency !== null) {
-                $currency = $userCurrency;
-            } elseif ($this->wallet !== null) {
-                $currency = $this->wallet->unit;
-            } else {
-                $currency = 'EUR';
+            if ($priceAsset && $priceAsset->price && $priceAsset->isPriceRecent()) {
+                // Update this position with the price from price_assets
+                $this->update(['price' => (string) $priceAsset->price]);
+                return (float) $this->quantity * (float) $priceAsset->price;
             }
 
-            // Try to get price directly in the target currency first
-            $currentPrice = $priceService->getPrice($this->ticker, $currency, $this->unit);
+            // Check if we're already fetching this ticker (prevent multiple simultaneous calls)
+            $fetchingKey = "fetching_price_{$this->ticker}";
+            $failedKey = "failed_price_{$this->ticker}";
 
-            if ($currentPrice !== null) {
-                return (float) $this->quantity * $currentPrice;
+            if (\Illuminate\Support\Facades\Cache::has($fetchingKey)) {
+                // Another process is already fetching this price, return 0 for now
+                return 0.0;
             }
 
-            // If direct price not available, try conversion from USD
-            $currentPrice = $priceService->getPriceInCurrency($this->ticker, $currency, 'USD');
-            if ($currentPrice !== null) {
-                return (float) $this->quantity * $currentPrice;
+            if (\Illuminate\Support\Facades\Cache::has($failedKey)) {
+                // This ticker failed recently, don't try again for a while
+                return 0.0;
+            }
+
+            // Set a temporary cache to prevent other processes from fetching the same ticker
+            \Illuminate\Support\Facades\Cache::put($fetchingKey, true, 30); // 30 seconds
+
+            try {
+                // If no recent price in price_assets, make API call and store it
+                $priceService = app(\App\Services\PriceService::class);
+                $currentPrice = $priceService->getPrice($this->ticker, $currency, $this->unit);
+
+                if ($currentPrice !== null) {
+                    // Update this position with the fresh price
+                    $this->update(['price' => (string) $currentPrice]);
+                    return (float) $this->quantity * $currentPrice;
+                } else {
+                    // Mark this ticker as failed for 1 hour to avoid repeated failed calls
+                    \Illuminate\Support\Facades\Cache::put($failedKey, true, 3600); // 1 hour
+                }
+            } finally {
+                // Always remove the fetching lock, even if an exception occurs
+                \Illuminate\Support\Facades\Cache::forget($fetchingKey);
             }
         }
 
-        // Fallback to stored price
-        return (float) $this->quantity * (float) $this->price;
+        // Final fallback: return 0 if no price available
+        return 0.0;
     }
 }

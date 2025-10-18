@@ -118,7 +118,7 @@ class WalletIndex extends Component
             return $walletBalance;
         }
 
-        // For multi mode, calculate from positions using the same logic as getCurrentMarketValue
+        // For multi mode, calculate from positions using getCurrentMarketValue (stored prices first, API only if needed)
         $totalValue = 0;
         /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
         $positions = $wallet->positions;
