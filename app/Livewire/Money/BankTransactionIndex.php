@@ -386,6 +386,32 @@ class BankTransactionIndex extends Component
     }
 
     /**
+     * Met à jour la description d'une transaction
+     */
+    public function updateTransactionDescription(string|int $transactionId, string $description): void
+    {
+        /** @var \App\Models\BankTransactions|null $transaction */
+        $transaction = \App\Models\BankTransactions::find($transactionId);
+
+        if ($transaction) {
+            $transaction->update(['description' => $description]);
+
+            // Mettre à jour la transaction dans la collection locale
+            $index = $this->transactions->search(function ($tx) use ($transactionId) {
+                return $tx->id === (int) $transactionId;
+            });
+
+            if ($index !== false) {
+                $this->transactions->put($index, $transaction->fresh(['category:id,name', 'account:id,name']));
+            }
+
+            Toaster::success(__('Transaction description updated successfully'));
+        } else {
+            Toaster::error(__('Transaction not found'));
+        }
+    }
+
+    /**
      * Met à jour les compteurs de transactions pour tous les comptes
      */
     protected function updateAccountCounts(): void

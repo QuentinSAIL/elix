@@ -607,5 +607,8 @@
     "Ex: Carrefour, Netflix, EDF": "Ex: Carrefour, Netflix, EDF",
     "Category applied to all matching transactions": "Category applied to all matching transactions",
     "Edit the category of your transaction": "Edit the category of your transaction",
-    "Le contenu de la categorie est invalide.": "The category content is invalid."
+    "Le contenu de la categorie est invalide.": "The category content is invalid.",
+    "Transaction description updated successfully": "Transaction description updated successfully",
+    "Transaction not found": "Transaction not found",
+    "Transaction description": "Transaction description"
 }

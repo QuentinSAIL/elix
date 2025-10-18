@@ -154,9 +154,13 @@
                                     </div>
                                 @endif
 
-                                <div class="text-sm font-medium mb-1">
-                                    {{ $tx->description }}
-                                </div>
+                                <input
+                                    type="text"
+                                    class="text-sm font-medium mb-1 input-none w-full bg-transparent focus:outline-none"
+                                    value="{{ $tx->description }}"
+                                    wire:change="updateTransactionDescription('{{ $tx->id }}', $event.target.value)"
+                                    aria-label="{{ __('Transaction description') }}"
+                                />
 
                                 <div class="text-xs text-grey-inverse mb-2">
                                     {{ $tx->transaction_date->format('d/m/Y') }}
@@ -493,7 +497,13 @@
                                     @endif
 
                                     <td class="px-4 py-3 text-sm">
-                                        {{ $tx->description }}
+                                        <input
+                                            type="text"
+                                            class="input-none w-full bg-transparent focus:outline-none"
+                                            value="{{ $tx->description }}"
+                                            wire:change="updateTransactionDescription('{{ $tx->id }}', $event.target.value)"
+                                            aria-label="{{ __('Transaction description') }}"
+                                        />
                                     </td>
 
                                     <td class="px-4 py-3 whitespace-nowrap text-xs text-center">
