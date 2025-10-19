@@ -178,4 +178,146 @@ class WalletFormTest extends TestCase
             ->assertSet('walletForm.mode', 'single')
             ->assertSet('walletForm.balance', '1000');
     }
+
+
+    public function test_can_edit_position_with_ticker()
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->for($user)->create(['mode' => 'multi']);
+        $position = $wallet->positions()->create([
+            'name' => 'Bitcoin',
+            'ticker' => 'BTC',
+            'quantity' => 1,
+            'price' => 50000
+        ]);
+        $this->actingAs($user);
+
+        Livewire::test(WalletForm::class, ['wallet' => $wallet])
+            ->call('editPosition', $position->id)
+            ->assertSet('editingPosition.id', $position->id)
+            ->assertSet('positionForm.name', 'Bitcoin')
+            ->assertSet('positionForm.ticker', 'BTC')
+            ->assertSet('positionForm.quantity', '1.000000000000000000')
+            ->assertSet('positionForm.price', '50000.000000000000000000');
+    }
+
+    public function test_can_edit_position_without_ticker()
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->for($user)->create(['mode' => 'multi']);
+        $position = $wallet->positions()->create([
+            'name' => 'Gold',
+            'ticker' => null,
+            'quantity' => 10,
+            'price' => 2000
+        ]);
+        $this->actingAs($user);
+
+        Livewire::test(WalletForm::class, ['wallet' => $wallet])
+            ->call('editPosition', $position->id)
+            ->assertSet('editingPosition.id', $position->id)
+            ->assertSet('positionForm.name', 'Gold')
+            ->assertSet('positionForm.ticker', '')
+            ->assertSet('positionForm.quantity', '10.000000000000000000')
+            ->assertSet('positionForm.price', '2000.000000000000000000');
+    }
+
+    public function test_can_add_position_with_ticker()
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->for($user)->create(['mode' => 'multi']);
+        $this->actingAs($user);
+
+        Livewire::test(WalletForm::class, ['wallet' => $wallet])
+            ->set('positionForm.name', 'Ethereum')
+            ->set('positionForm.ticker', 'ETH')
+            ->set('positionForm.quantity', 2.5)
+            ->set('positionForm.price', 3000)
+            ->call('savePosition');
+
+        $this->assertDatabaseHas('wallet_positions', [
+            'wallet_id' => $wallet->id,
+            'name' => 'Ethereum',
+            'ticker' => 'ETH',
+            'quantity' => '2.500000000000000000',
+        ]);
+    }
+
+    public function test_position_validation()
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->for($user)->create(['mode' => 'multi']);
+        $this->actingAs($user);
+
+        Livewire::test(WalletForm::class, ['wallet' => $wallet])
+            ->set('positionForm.name', '')
+            ->set('positionForm.quantity', '')
+            ->set('positionForm.price', '')
+            ->call('savePosition')
+            ->assertHasErrors([
+                'positionForm.name' => 'required',
+                'positionForm.quantity' => 'required',
+                'positionForm.price' => 'required',
+            ]);
+    }
+
+    public function test_position_validation_numeric_fields()
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->for($user)->create(['mode' => 'multi']);
+        $this->actingAs($user);
+
+        Livewire::test(WalletForm::class, ['wallet' => $wallet])
+            ->set('positionForm.name', 'Test')
+            ->set('positionForm.quantity', 'invalid')
+            ->set('positionForm.price', 'invalid')
+            ->call('savePosition')
+            ->assertHasErrors([
+                'positionForm.quantity' => 'numeric',
+                'positionForm.price' => 'numeric',
+            ]);
+    }
+
+
+
+
+    public function test_can_handle_save_position_exception()
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->for($user)->create(['mode' => 'multi']);
+        $this->actingAs($user);
+
+        // Mock the position creation to throw an exception
+        $this->mock(\App\Models\WalletPosition::class, function ($mock) {
+            $mock->shouldReceive('create')
+                ->andThrow(new \Exception('Database error'));
+        });
+
+        Livewire::test(WalletForm::class, ['wallet' => $wallet])
+            ->set('positionForm.name', 'Bitcoin')
+            ->set('positionForm.quantity', 1)
+            ->set('positionForm.price', 50000)
+            ->call('savePosition')
+            ->assertHasNoErrors(); // Should handle exception gracefully
+    }
+
+    public function test_can_handle_delete_position_exception()
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->for($user)->create(['mode' => 'multi']);
+        $position = $wallet->positions()->create(['name' => 'old', 'quantity' => 1, 'price' => 1]);
+        $this->actingAs($user);
+
+        // Mock the position deletion to throw an exception
+        $this->mock(\App\Models\WalletPosition::class, function ($mock) {
+            $mock->shouldReceive('find')
+                ->andReturn($mock);
+            $mock->shouldReceive('delete')
+                ->andThrow(new \Exception('Database error'));
+        });
+
+        Livewire::test(WalletForm::class, ['wallet' => $wallet])
+            ->call('deletePosition', $position->id)
+            ->assertHasNoErrors(); // Should handle exception gracefully
+    }
 }

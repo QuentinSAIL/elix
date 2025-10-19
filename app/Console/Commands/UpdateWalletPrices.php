@@ -112,7 +112,7 @@ class UpdateWalletPrices extends Command
     /**
      * Get unit type from position for API calls
      */
-    private function getUnitTypeFromPosition(WalletPosition $position): ?string
+    private function getUnitTypeFromPosition(WalletPosition $position): string
     {
         return match ($position->unit) {
             'CRYPTO', 'TOKEN' => 'CRYPTO',

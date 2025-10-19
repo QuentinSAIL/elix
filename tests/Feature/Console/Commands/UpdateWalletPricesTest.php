@@ -137,20 +137,36 @@ class UpdateWalletPricesTest extends TestCase
         WalletPosition::factory()->create([
             'wallet_id' => $wallet->id,
             'ticker' => 'AAPL',
-            'updated_at' => Carbon::now(),
+        ]);
+
+        // Create recent PriceAsset for AAPL
+        \App\Models\PriceAsset::create([
+            'ticker' => 'AAPL',
+            'type' => 'STOCK',
+            'price' => 100.0,
+            'currency' => 'EUR',
+            'last_updated' => now(),
         ]);
 
         // Older position should be updated
         WalletPosition::factory()->create([
             'wallet_id' => $wallet->id,
             'ticker' => 'MSFT',
-            'updated_at' => Carbon::now()->subMinutes(30),
+        ]);
+
+        // Create old PriceAsset for MSFT
+        \App\Models\PriceAsset::create([
+            'ticker' => 'MSFT',
+            'type' => 'STOCK',
+            'price' => 200.0,
+            'currency' => 'EUR',
+            'last_updated' => now()->subHours(13), // Older than 12 hours
         ]);
 
         $this->artisan(UpdateWalletPrices::class)
-            ->expectsOutput(__('Updating wallet position prices'))
-            ->expectsOutput('✅ Updated: 1 positions')
-            ->expectsOutput('⏭️ Skipped: 1 positions (recently updated)');
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 1 price assets')
+            ->expectsOutput('⏭️ Skipped: 1 tickers (recently updated)');
     }
 
     public function test_force_option_updates_even_recent_positions(): void
@@ -166,8 +182,8 @@ class UpdateWalletPricesTest extends TestCase
         ]);
 
         $this->artisan(UpdateWalletPrices::class, ['--force' => true])
-            ->expectsOutput(__('Updating wallet position prices'))
-            ->expectsOutput('✅ Updated: 1 positions')
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 1 price assets')
             ->assertExitCode(0);
     }
 
@@ -209,8 +225,8 @@ class UpdateWalletPricesTest extends TestCase
         ]);
 
         $this->artisan(UpdateWalletPrices::class)
-            ->expectsOutput(__('Updating wallet position prices'))
-            ->expectsOutput('✅ Updated: 1 positions')
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 1 price assets')
             ->assertExitCode(0);
     }
 
@@ -228,8 +244,8 @@ class UpdateWalletPricesTest extends TestCase
         ]);
 
         $this->artisan(UpdateWalletPrices::class)
-            ->expectsOutput(__('Updating wallet position prices'))
-            ->expectsOutput('✅ Updated: 1 positions')
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 1 price assets')
             ->assertExitCode(0);
     }
 
@@ -242,13 +258,21 @@ class UpdateWalletPricesTest extends TestCase
         WalletPosition::factory()->create([
             'wallet_id' => $wallet->id,
             'ticker' => 'AAPL',
-            'updated_at' => Carbon::now(),
+        ]);
+
+        // Create recent PriceAsset
+        \App\Models\PriceAsset::create([
+            'ticker' => 'AAPL',
+            'type' => 'STOCK',
+            'price' => 100.0,
+            'currency' => 'EUR',
+            'last_updated' => now(),
         ]);
 
         $this->artisan(UpdateWalletPrices::class)
-            ->expectsOutput(__('Updating wallet position prices'))
-            ->expectsOutput('✅ Updated: 0 positions')
-            ->expectsOutput('⏭️ Skipped: 1 positions (recently updated)')
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 0 price assets')
+            ->expectsOutput('⏭️ Skipped: 1 tickers (recently updated)')
             ->assertExitCode(0);
     }
 
@@ -261,13 +285,21 @@ class UpdateWalletPricesTest extends TestCase
         WalletPosition::factory()->create([
             'wallet_id' => $wallet->id,
             'ticker' => 'AAPL',
-            'updated_at' => Carbon::now()->addMinutes(5),
+        ]);
+
+        // Create recent PriceAsset (future time)
+        \App\Models\PriceAsset::create([
+            'ticker' => 'AAPL',
+            'type' => 'STOCK',
+            'price' => 100.0,
+            'currency' => 'EUR',
+            'last_updated' => now()->addMinutes(5),
         ]);
 
         $this->artisan(UpdateWalletPrices::class)
-            ->expectsOutput(__('Updating wallet position prices'))
-            ->expectsOutput('✅ Updated: 0 positions')
-            ->expectsOutput('⏭️ Skipped: 1 positions (recently updated)')
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 0 price assets')
+            ->expectsOutput('⏭️ Skipped: 1 tickers (recently updated)')
             ->assertExitCode(0);
     }
 }

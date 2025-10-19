@@ -106,6 +106,7 @@ class WalletPositions extends Component
                 ]);
                 Toaster::success(__('Position updated successfully.'));
             } else {
+                /** @var \App\Models\WalletPosition $position */
                 $position = $this->wallet->positions()->create([
                     'name' => trim($this->positionForm['name']),
                     'ticker' => $this->positionForm['ticker'] ? strtoupper(trim($this->positionForm['ticker'])) : null,

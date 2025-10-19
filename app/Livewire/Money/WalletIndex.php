@@ -39,7 +39,7 @@ class WalletIndex extends Component
         /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Wallet> $wallets */
         $wallets = $this->user->wallets()
             ->withCount('positions')
-            ->ordered()
+            ->orderBy('order')
             ->get();
         $this->wallets = $wallets;
     }
