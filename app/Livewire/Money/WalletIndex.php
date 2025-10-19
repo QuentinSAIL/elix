@@ -180,7 +180,7 @@ class WalletIndex extends Component
             ->get();
 
         return $positions
-            ->sortByDesc(function($position) {
+            ->sortByDesc(function ($position) {
                 return $position->getCurrentMarketValue($this->userCurrency);
             })
             ->take($limit);

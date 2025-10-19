@@ -248,4 +248,3 @@ class PriceAssetTest extends TestCase
         $this->assertArrayHasKey('OTHER', PriceAsset::TYPES);
     }
 }
-

@@ -185,7 +185,7 @@ class UpdateWalletPricesJobTest extends TestCase
         ]);
 
         // Mock the updateCurrentPrice method to throw an exception
-        $this->mock(\App\Models\WalletPosition::class, function ($mock) use ($position) {
+        $this->mock(\App\Models\WalletPosition::class, function ($mock) {
             $mock->shouldReceive('updateCurrentPrice')->andThrow(new \Exception('Price service error'));
         });
 
@@ -195,7 +195,6 @@ class UpdateWalletPricesJobTest extends TestCase
         // Job should complete without throwing exceptions
         $this->assertTrue(true);
     }
-
 
     public function test_job_handles_failed_method(): void
     {
@@ -232,5 +231,4 @@ class UpdateWalletPricesJobTest extends TestCase
         $job = new UpdateWalletPricesJob;
         $job->failed($exception);
     }
-
 }

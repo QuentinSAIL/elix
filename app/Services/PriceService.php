@@ -11,9 +11,13 @@ use Illuminate\Support\Facades\Log;
 class PriceService
 {
     private const CACHE_DURATION = 900; // 15 minutes
+
     private const API_TIMEOUT = 10;
+
     private const EXCHANGE_CACHE_DURATION = 3600; // 1 hour for exchange rates
+
     private const RATE_LIMIT_CACHE_DURATION = 300; // 5 minutes for rate limit cooldown
+
     private const MAX_API_CALLS_PER_MINUTE = 10; // Conservative limit
 
     /**
@@ -27,6 +31,7 @@ class PriceService
         // Check if we're rate limited for this ticker
         if ($this->isRateLimited($normalizedTicker)) {
             Log::info("Rate limited for {$normalizedTicker}, using database fallback");
+
             return $this->getPriceFromDatabase($normalizedTicker, $currency);
         }
 
@@ -37,12 +42,14 @@ class PriceService
 
                 if ($priceAsset && $priceAsset->isPriceRecent()) {
                     Log::info("Using recent price from price_assets for {$normalizedTicker}: {$priceAsset->price} {$currency}");
+
                     return (float) $priceAsset->price;
                 }
 
                 // Check API rate limits before making calls
                 if ($this->shouldSkipApiCall()) {
                     Log::info("Skipping API call due to rate limits, using database fallback for {$normalizedTicker}");
+
                     return $priceAsset ? (float) $priceAsset->price : null;
                 }
 
@@ -60,10 +67,12 @@ class PriceService
 
                 // Fallback to database price
                 Log::info("API failed, using database fallback for {$normalizedTicker}");
+
                 return $priceAsset ? (float) $priceAsset->price : null;
 
             } catch (\Exception $e) {
                 Log::error("Error fetching price for {$normalizedTicker}: ".$e->getMessage());
+
                 return $this->getPriceFromDatabase($normalizedTicker, $currency);
             }
         });
@@ -134,7 +143,8 @@ class PriceService
 
             return $position ? (float) $position->price : null;
         } catch (\Exception $e) {
-            Log::debug("Database error for {$ticker}: " . $e->getMessage());
+            Log::debug("Database error for {$ticker}: ".$e->getMessage());
+
             return null;
         }
     }
@@ -146,9 +156,11 @@ class PriceService
     {
         try {
             $rateLimitKey = "rate_limit_{$ticker}";
+
             return Cache::has($rateLimitKey);
         } catch (\Exception $e) {
-            Log::debug("Rate limit check error for {$ticker}: " . $e->getMessage());
+            Log::debug("Rate limit check error for {$ticker}: ".$e->getMessage());
+
             return false;
         }
     }
@@ -162,7 +174,7 @@ class PriceService
             $rateLimitKey = "rate_limit_{$ticker}";
             Cache::put($rateLimitKey, true, self::RATE_LIMIT_CACHE_DURATION);
         } catch (\Exception $e) {
-            Log::debug("Rate limit set error for {$ticker}: " . $e->getMessage());
+            Log::debug("Rate limit set error for {$ticker}: ".$e->getMessage());
         }
     }
 
@@ -184,9 +196,11 @@ class PriceService
 
             // Increment counter
             Cache::put($minuteKey, $callsThisMinute + 1, 60);
+
             return false;
         } catch (\Exception $e) {
-            Log::debug("API call limit check error: " . $e->getMessage());
+            Log::debug('API call limit check error: '.$e->getMessage());
+
             return false;
         }
     }
@@ -204,6 +218,7 @@ class PriceService
             $price = $this->getPriceFromCoinGecko($ticker, $currency);
             if ($price !== null) {
                 Log::info("Price fetched from CoinGecko for {$ticker}: {$price} {$currency}");
+
                 return $price;
             }
 
@@ -216,6 +231,7 @@ class PriceService
             // }
 
             Log::warning("All crypto APIs failed for {$ticker}");
+
             return null;
         } else {
             Log::info("Using traditional finance APIs for {$ticker} (type: {$unitType})");
@@ -223,16 +239,19 @@ class PriceService
             $price = $this->getPriceFromAlphaVantage($ticker, $currency);
             if ($price !== null) {
                 Log::info("Price fetched from alphavantage for {$ticker}: {$price} {$currency}");
+
                 return $price;
             }
 
             $price = $this->getPriceFromYahooFinance($ticker, $currency);
             if ($price !== null) {
                 Log::info("Price fetched from yahoo for {$ticker}: {$price} {$currency}");
+
                 return $price;
             }
 
             Log::warning("All traditional APIs failed for {$ticker}");
+
             return null;
         }
     }
@@ -349,12 +368,13 @@ class PriceService
 
             if ($response->successful()) {
                 $data = $response->json();
-                Log::info("CoinGecko response for {$ticker}: " . json_encode($data));
+                Log::info("CoinGecko response for {$ticker}: ".json_encode($data));
 
                 // Check if we have data for the CoinGecko ID
                 if (isset($data[$coingeckoId][$normalizedCurrency])) {
                     $price = (float) $data[$coingeckoId][$normalizedCurrency];
                     Log::info("CoinGecko: Found price for {$ticker}: {$price} {$currency}");
+
                     return $price;
                 } else {
                     Log::warning("CoinGecko: No price data found for {$ticker} (ID: {$coingeckoId}) in {$currency}");
@@ -374,7 +394,6 @@ class PriceService
 
         return null;
     }
-
 
     /**
      * Get CoinGecko ID for a ticker
@@ -434,7 +453,7 @@ class PriceService
             $rateLimitKey = "rate_limit_{$normalizedTicker}";
             Cache::forget($rateLimitKey);
         } catch (\Exception $e) {
-            Log::debug("Cache clear error for {$ticker}: " . $e->getMessage());
+            Log::debug("Cache clear error for {$ticker}: ".$e->getMessage());
         }
     }
 
@@ -465,10 +484,12 @@ class PriceService
             Log::info("Force update successful for {$normalizedTicker}: {$price} {$currency}");
             // Update price asset with fresh price
             $this->updateOrCreatePriceAsset($normalizedTicker, $price, $currency, $unitType);
+
             return $price;
         }
 
         Log::warning("Force update failed for {$normalizedTicker}");
+
         return null;
     }
 
@@ -477,7 +498,7 @@ class PriceService
      */
     public function forceUpdateAllPrices(): array
     {
-        Log::info("Starting force update of all prices");
+        Log::info('Starting force update of all prices');
 
         try {
             // Get all unique tickers from price_assets table
@@ -485,13 +506,14 @@ class PriceService
                 ->pluck('ticker')
                 ->toArray();
         } catch (\Exception $e) {
-            Log::error("Database error getting unique tickers: " . $e->getMessage());
+            Log::error('Database error getting unique tickers: '.$e->getMessage());
+
             return [
                 'updated' => 0,
                 'failed' => 0,
                 'skipped' => 0,
                 'tickers' => [],
-                'error' => 'Database connection failed'
+                'error' => 'Database connection failed',
             ];
         }
 
@@ -499,7 +521,7 @@ class PriceService
             'updated' => 0,
             'failed' => 0,
             'skipped' => 0,
-            'tickers' => []
+            'tickers' => [],
         ];
 
         foreach ($uniqueTickers as $ticker) {
@@ -508,6 +530,7 @@ class PriceService
                 if ($this->isRateLimited($ticker)) {
                     $results['skipped']++;
                     $results['tickers'][$ticker] = 'rate_limited';
+
                     continue;
                 }
 
@@ -530,12 +553,13 @@ class PriceService
 
             } catch (\Exception $e) {
                 $results['failed']++;
-                $results['tickers'][$ticker] = 'error: ' . $e->getMessage();
-                Log::error("Error force updating price for {$ticker}: " . $e->getMessage());
+                $results['tickers'][$ticker] = 'error: '.$e->getMessage();
+                Log::error("Error force updating price for {$ticker}: ".$e->getMessage());
             }
         }
 
-        Log::info("Force update completed", $results);
+        Log::info('Force update completed', $results);
+
         return $results;
     }
 

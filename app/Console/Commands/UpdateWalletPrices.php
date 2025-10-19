@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Jobs\UpdateWalletPricesJob;
-use App\Models\WalletPosition;
 use App\Models\PriceAsset;
+use App\Models\WalletPosition;
 use App\Services\PriceService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -44,6 +44,7 @@ class UpdateWalletPrices extends Command
 
         if (empty($tickers)) {
             $this->info(__('No positions with tickers found'));
+
             return 0;
         }
 
@@ -62,9 +63,10 @@ class UpdateWalletPrices extends Command
                 // Check if we should skip this ticker
                 $priceAsset = PriceAsset::where('ticker', $ticker)->first();
 
-                if (!$this->option('force') && $priceAsset && $priceAsset->isPriceRecent()) {
+                if (! $this->option('force') && $priceAsset && $priceAsset->isPriceRecent()) {
                     $skipped++;
                     $progressBar->advance();
+
                     continue;
                 }
 

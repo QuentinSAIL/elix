@@ -26,8 +26,11 @@ class BudgetIndex extends Component
     protected array $allowedSorts = ['name', 'budget', 'spent', 'remaining'];
 
     public float $totalBudget = 0;
+
     public float $totalSpent = 0;
+
     public float $totalRemaining = 0;
+
     public bool $isOverspent = false;
 
     public function mount(): void
@@ -69,7 +72,7 @@ class BudgetIndex extends Component
 
     public function sortBy(string $field): void
     {
-        if (!in_array($field, $this->allowedSorts, true)) {
+        if (! in_array($field, $this->allowedSorts, true)) {
             return;
         }
 

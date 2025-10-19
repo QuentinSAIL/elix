@@ -43,6 +43,7 @@ class UpdateBankAccountsData extends Command
 
         if ($bankAccounts->isEmpty()) {
             $this->warn('Aucun compte bancaire avec un ID GoCardless trouvé.');
+
             return;
         }
 
@@ -56,22 +57,24 @@ class UpdateBankAccountsData extends Command
 
             try {
                 // Authentifier l'utilisateur du compte pour le service GoCardless
-                if (!$account->user) {
+                if (! $account->user) {
                     $this->error("❌ Utilisateur non trouvé pour le compte {$account->name}");
                     $errorCount++;
+
                     continue;
                 }
                 /** @var \App\Models\User $user */
                 $user = $account->user;
                 Auth::login($user);
-                $goCardlessService = new GoCardlessDataService();
+                $goCardlessService = new GoCardlessDataService;
 
                 // Récupérer les détails du compte directement depuis GoCardless (sans cache)
                 $accountDetails = $goCardlessService->getAccountDetailsDirect($account->gocardless_account_id);
 
                 if (isset($accountDetails['status_code']) && $accountDetails['status_code'] !== 200) {
-                    $this->error("❌ Erreur lors de la récupération des détails du compte {$account->name}: " . json_encode($accountDetails));
+                    $this->error("❌ Erreur lors de la récupération des détails du compte {$account->name}: ".json_encode($accountDetails));
                     $errorCount++;
+
                     continue;
                 }
 
@@ -82,20 +85,20 @@ class UpdateBankAccountsData extends Command
                 }
 
                 // Afficher les données récupérées depuis GoCardless
-                $this->line("📋 Données récupérées depuis GoCardless:");
+                $this->line('📋 Données récupérées depuis GoCardless:');
                 if (isset($accountDetails['account'])) {
-                    $this->line("   - IBAN: " . ($accountDetails['account']['iban'] ?? 'N/A'));
-                    $this->line("   - Devise: " . ($accountDetails['account']['currency'] ?? 'N/A'));
-                    $this->line("   - Titulaire: " . ($accountDetails['account']['name'] ?? $accountDetails['account']['ownerName'] ?? 'N/A'));
-                    $this->line("   - Type: " . ($accountDetails['account']['cashAccountType'] ?? 'N/A'));
+                    $this->line('   - IBAN: '.($accountDetails['account']['iban'] ?? 'N/A'));
+                    $this->line('   - Devise: '.($accountDetails['account']['currency'] ?? 'N/A'));
+                    $this->line('   - Titulaire: '.($accountDetails['account']['name'] ?? $accountDetails['account']['ownerName'] ?? 'N/A'));
+                    $this->line('   - Type: '.($accountDetails['account']['cashAccountType'] ?? 'N/A'));
                 }
 
                 if ($agreementDetails) {
                     $this->line("📅 Détails de l'accord:");
-                    $this->line("   - Validité: " . ($agreementDetails['access_valid_for_days'] ?? 'N/A') . " jours");
+                    $this->line('   - Validité: '.($agreementDetails['access_valid_for_days'] ?? 'N/A').' jours');
                     if (isset($agreementDetails['access_valid_for_days'])) {
                         $newDate = now()->addDays($agreementDetails['access_valid_for_days']);
-                        $this->line("   - Nouvelle date limite: " . $newDate->format('d/m/Y'));
+                        $this->line('   - Nouvelle date limite: '.$newDate->format('d/m/Y'));
                     }
                 }
 
@@ -130,32 +133,32 @@ class UpdateBankAccountsData extends Command
                 }
 
                 // Sauvegarder les modifications
-                if (!empty($updateData)) {
+                if (! empty($updateData)) {
                     $account->update($updateData);
 
                     $updatedFields = array_keys($updateData);
-                    $this->info("✅ Compte {$account->name} mis à jour: " . implode(', ', $updatedFields));
+                    $this->info("✅ Compte {$account->name} mis à jour: ".implode(', ', $updatedFields));
                     $successCount++;
                 } else {
                     $this->warn("⚠️  Aucune donnée à mettre à jour pour le compte {$account->name}");
                 }
 
             } catch (\Exception $e) {
-                $this->error("❌ Erreur lors de la mise à jour du compte {$account->name}: " . $e->getMessage());
-                Log::error("Erreur mise à jour compte bancaire {$account->id}: " . $e->getMessage());
+                $this->error("❌ Erreur lors de la mise à jour du compte {$account->name}: ".$e->getMessage());
+                Log::error("Erreur mise à jour compte bancaire {$account->id}: ".$e->getMessage());
                 $errorCount++;
             }
         }
 
         // Résumé
         $this->newLine();
-        $this->info("📈 Résumé de la mise à jour:");
+        $this->info('📈 Résumé de la mise à jour:');
         $this->info("✅ Comptes mis à jour avec succès: {$successCount}");
         $this->info("❌ Comptes en erreur: {$errorCount}");
         $this->info("📊 Total traité: {$bankAccounts->count()}");
 
         if ($errorCount > 0) {
-            $this->warn("⚠️  Certains comptes ont rencontré des erreurs. Vérifiez les logs pour plus de détails.");
+            $this->warn('⚠️  Certains comptes ont rencontré des erreurs. Vérifiez les logs pour plus de détails.');
         }
 
         return Command::SUCCESS;

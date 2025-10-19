@@ -73,7 +73,6 @@ class WalletPosition extends Model
         return false;
     }
 
-
     /**
      * Get the current market price from price_assets table (if ticker exists) or stored price
      */
@@ -95,6 +94,7 @@ class WalletPosition extends Model
                 // Create or update PriceAsset with the fresh price
                 $priceAsset = \App\Models\PriceAsset::findOrCreate($this->ticker, 'OTHER');
                 $priceAsset->updatePrice($currentPrice, $this->wallet->unit);
+
                 return $currentPrice;
             }
 
@@ -162,6 +162,7 @@ class WalletPosition extends Model
                 // Create or update PriceAsset with the fresh price
                 $priceAsset = \App\Models\PriceAsset::findOrCreate($this->ticker, 'OTHER');
                 $priceAsset->updatePrice($currentPrice, $currency);
+
                 return (float) $this->quantity * $currentPrice;
             }
 

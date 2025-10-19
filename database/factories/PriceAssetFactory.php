@@ -33,4 +33,3 @@ class PriceAssetFactory extends Factory
         ];
     }
 }
-

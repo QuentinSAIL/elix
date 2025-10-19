@@ -17,6 +17,7 @@ class BankAccountRenewalTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected BankAccount $bankAccount;
 
     protected function setUp(): void
@@ -62,7 +63,7 @@ class BankAccountRenewalTest extends TestCase
             ], 201),
         ]);
 
-        $service = new GoCardlessDataService();
+        $service = new GoCardlessDataService;
 
         // Simuler le renouvellement
         $service->addNewBankAccount(
@@ -101,7 +102,7 @@ class BankAccountRenewalTest extends TestCase
             ], 200),
         ]);
 
-        $service = new GoCardlessDataService();
+        $service = new GoCardlessDataService;
 
         // Simuler un callback réussi
         $accountId = $service->getAccountsFromRef('test_ref');

@@ -62,6 +62,7 @@ class CategorySelect extends Component
         // Check if selectedCategory is empty or null
         if (empty($this->selectedCategory)) {
             Toaster::error(__('Le contenu de la categorie est invalide.'));
+
             return;
         }
 

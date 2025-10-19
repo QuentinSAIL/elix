@@ -117,7 +117,7 @@ test('can handle uncategorized transactions', function () {
     $colors = $component->get('colors');
 
     $this->assertContains('Uncategorized', $labels);
-    $this->assertTrue(in_array(-50, $values), 'Expected -50 in values: ' . json_encode($values));
+    $this->assertTrue(in_array(-50, $values), 'Expected -50 in values: '.json_encode($values));
     $this->assertContains('#CCCCCC', $colors);
 });
 
@@ -157,8 +157,8 @@ test('can get transactions with filters', function () {
 
     $component = Livewire::test(DashboardPanel::class, ['panel' => $panel]);
 
-    $this->assertTrue(in_array($categoryName, $component->get('labels')), 'Expected ' . $categoryName . ' in labels: ' . json_encode($component->get('labels'))); // Assert with explicit name
-    $this->assertTrue(in_array($transaction->amount, $component->get('values')), 'Expected ' . $transaction->amount . ' in values: ' . json_encode($component->get('values')));
+    $this->assertTrue(in_array($categoryName, $component->get('labels')), 'Expected '.$categoryName.' in labels: '.json_encode($component->get('labels'))); // Assert with explicit name
+    $this->assertTrue(in_array($transaction->amount, $component->get('values')), 'Expected '.$transaction->amount.' in values: '.json_encode($component->get('values')));
 });
 
 test('can edit panel', function () {

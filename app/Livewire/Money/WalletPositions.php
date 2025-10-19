@@ -49,7 +49,7 @@ class WalletPositions extends Component
         $positions = $this->wallet->positions()
             ->get();
 
-        $this->positions = $positions->sortByDesc(function(\App\Models\WalletPosition $position) {
+        $this->positions = $positions->sortByDesc(function (\App\Models\WalletPosition $position) {
             return $position->getCurrentMarketValue();
         });
     }
@@ -146,7 +146,7 @@ class WalletPositions extends Component
                 Toaster::info(__('Using recent market data from database.'));
             } else {
                 // Créer l'entrée dans price_assets si elle n'existe pas
-                if (!$priceAsset) {
+                if (! $priceAsset) {
                     $assetType = $this->getAssetTypeFromUnitType($position->unit);
                     $priceAsset = \App\Models\PriceAsset::findOrCreate($position->ticker, $assetType);
                 }
@@ -257,8 +257,9 @@ class WalletPositions extends Component
     {
         /** @var \App\Models\WalletPosition|null $position */
         $position = $this->wallet->positions()->find($positionId);
-        if (!$position || !$position->ticker) {
+        if (! $position || ! $position->ticker) {
             Toaster::error(__('Position not found or no ticker available.'));
+
             return;
         }
 
@@ -282,7 +283,7 @@ class WalletPositions extends Component
 
                 Toaster::success(__('Price updated successfully for :count positions with ticker :ticker', [
                     'count' => $updatedCount,
-                    'ticker' => $position->ticker
+                    'ticker' => $position->ticker,
                 ]));
                 $this->refreshList();
             } else {
@@ -315,6 +316,7 @@ class WalletPositions extends Component
                     $priceAsset->currency,
                     $this->userCurrency
                 );
+
                 return $convertedPrice;
             }
 
@@ -324,7 +326,6 @@ class WalletPositions extends Component
         // If no price in price_assets, return null (never use wallet_positions price)
         return null;
     }
-
 
     /**
      * Get current value for a position in user's preferred currency

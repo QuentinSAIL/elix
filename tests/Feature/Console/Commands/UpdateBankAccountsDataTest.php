@@ -6,7 +6,6 @@ use App\Models\ApiKey;
 use App\Models\ApiService;
 use App\Models\BankAccount;
 use App\Models\User;
-use App\Services\GoCardlessDataService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -58,7 +57,7 @@ class UpdateBankAccountsDataTest extends TestCase
         $this->artisan('bank-accounts:update-data')
             ->expectsOutput('🔄 Mise à jour des données des comptes bancaires...')
             ->expectsOutput('📊 1 compte(s) bancaire(s) trouvé(s).')
-            ->expectsOutput('❌ Utilisateur non trouvé pour le compte ' . $bankAccount->name)
+            ->expectsOutput('❌ Utilisateur non trouvé pour le compte '.$bankAccount->name)
             ->assertExitCode(0);
     }
 
@@ -80,15 +79,15 @@ class UpdateBankAccountsDataTest extends TestCase
         Http::fake([
             'bankaccountdata.gocardless.com/api/v2/accounts/test-account-1/details/' => Http::response([
                 'status_code' => 500,
-                'detail' => 'Internal server error'
+                'detail' => 'Internal server error',
             ], 500),
         ]);
 
         $this->artisan('bank-accounts:update-data')
             ->expectsOutput('🔄 Mise à jour des données des comptes bancaires...')
             ->expectsOutput('📊 1 compte(s) bancaire(s) trouvé(s).')
-            ->expectsOutput('🔄 Traitement du compte: ' . $bankAccount->name . ' (ID: test-account-1)')
-            ->expectsOutput('❌ Erreur lors de la récupération des détails du compte ' . $bankAccount->name . ': {"status_code":500,"detail":"Internal server error"}')
+            ->expectsOutput('🔄 Traitement du compte: '.$bankAccount->name.' (ID: test-account-1)')
+            ->expectsOutput('❌ Erreur lors de la récupération des détails du compte '.$bankAccount->name.': {"status_code":500,"detail":"Internal server error"}')
             ->assertExitCode(0);
     }
 
@@ -110,25 +109,25 @@ class UpdateBankAccountsDataTest extends TestCase
         // Mock HTTP pour simuler des réponses réussies
         Http::fake([
             'bankaccountdata.gocardless.com/api/v2/token/new/' => Http::response([
-                'access' => 'test-access-token'
+                'access' => 'test-access-token',
             ]),
             'bankaccountdata.gocardless.com/api/v2/accounts/test-account-1/details/' => Http::response([
                 'account' => [
                     'iban' => 'FR1420041010050500013M02606',
                     'currency' => 'EUR',
                     'name' => 'John Doe',
-                    'cashAccountType' => 'CACC'
-                ]
+                    'cashAccountType' => 'CACC',
+                ],
             ]),
             'bankaccountdata.gocardless.com/api/v2/agreements/enduser/test-agreement-1/' => Http::response([
-                'access_valid_for_days' => 90
+                'access_valid_for_days' => 90,
             ]),
         ]);
 
         $this->artisan('bank-accounts:update-data')
             ->expectsOutput('🔄 Mise à jour des données des comptes bancaires...')
             ->expectsOutput('📊 1 compte(s) bancaire(s) trouvé(s).')
-            ->expectsOutput('🔄 Traitement du compte: ' . $bankAccount->name . ' (ID: test-account-1)')
+            ->expectsOutput('🔄 Traitement du compte: '.$bankAccount->name.' (ID: test-account-1)')
             ->expectsOutput('📋 Données récupérées depuis GoCardless:')
             ->expectsOutput('   - IBAN: FR1420041010050500013M02606')
             ->expectsOutput('   - Devise: EUR')
@@ -136,7 +135,7 @@ class UpdateBankAccountsDataTest extends TestCase
             ->expectsOutput('   - Type: CACC')
             ->expectsOutput('📅 Détails de l\'accord:')
             ->expectsOutput('   - Validité: 90 jours')
-            ->expectsOutput('✅ Compte ' . $bankAccount->name . ' mis à jour: iban, currency, owner_name, cash_account_type, end_valid_access')
+            ->expectsOutput('✅ Compte '.$bankAccount->name.' mis à jour: iban, currency, owner_name, cash_account_type, end_valid_access')
             ->assertExitCode(0);
 
         // Vérifier que les données ont été mises à jour
@@ -147,5 +146,4 @@ class UpdateBankAccountsDataTest extends TestCase
         $this->assertEquals('CACC', $bankAccount->cash_account_type);
         $this->assertNotNull($bankAccount->end_valid_access);
     }
-
 }

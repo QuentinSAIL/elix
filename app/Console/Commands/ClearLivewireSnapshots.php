@@ -27,16 +27,18 @@ class ClearLivewireSnapshots extends Command
     {
         $snapshotPath = storage_path('app/livewire-tmp');
 
-        if (!file_exists($snapshotPath)) {
+        if (! file_exists($snapshotPath)) {
             $this->info('No snapshots directory found.');
+
             return 0;
         }
 
-        $files = glob($snapshotPath . '/*');
+        $files = glob($snapshotPath.'/*');
         $count = count($files);
 
         if ($count === 0) {
             $this->info('No snapshots to clear.');
+
             return 0;
         }
 
@@ -47,6 +49,7 @@ class ClearLivewireSnapshots extends Command
         }
 
         $this->info("Cleared {$count} snapshot(s).");
+
         return 0;
     }
 }

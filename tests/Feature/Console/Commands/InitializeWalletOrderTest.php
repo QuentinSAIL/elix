@@ -21,7 +21,7 @@ class InitializeWalletOrderTest extends TestCase
     public function test_command_initializes_wallet_order(): void
     {
         $user = User::factory()->create();
-        
+
         // Create wallets without order
         $wallet1 = Wallet::factory()->create(['user_id' => $user->id, 'order' => null]);
         $wallet2 = Wallet::factory()->create(['user_id' => $user->id, 'order' => null]);
@@ -45,4 +45,3 @@ class InitializeWalletOrderTest extends TestCase
             ->assertExitCode(0);
     }
 }
-

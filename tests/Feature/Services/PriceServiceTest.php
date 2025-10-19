@@ -1146,8 +1146,8 @@ class PriceServiceTest extends TestCase
         Http::fake([
             'api.coingecko.com/*' => Http::response([
                 'unknown_ticker' => [
-                    'eur' => 100.00
-                ]
+                    'eur' => 100.00,
+                ],
             ]),
         ]);
 

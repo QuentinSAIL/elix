@@ -187,7 +187,6 @@ class UpdateWalletPricesTest extends TestCase
             ->assertExitCode(0);
     }
 
-
     public function test_command_handles_clear_cache_with_redis_driver(): void
     {
         // Mock Redis cache driver
@@ -229,7 +228,6 @@ class UpdateWalletPricesTest extends TestCase
             ->expectsOutput('✅ Updated: 1 price assets')
             ->assertExitCode(0);
     }
-
 
     public function test_command_handles_was_recently_updated_just_over_threshold(): void
     {

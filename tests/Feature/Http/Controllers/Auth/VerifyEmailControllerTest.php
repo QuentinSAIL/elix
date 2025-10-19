@@ -49,7 +49,7 @@ class VerifyEmailControllerTest extends TestCase
         $response = $this->get($url);
 
         $response->assertStatus(302);
-        $response->assertRedirect(route('dashboard') . '?verified=1');
+        $response->assertRedirect(route('dashboard').'?verified=1');
 
         $user->refresh();
         $this->assertNotNull($user->email_verified_at);

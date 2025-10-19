@@ -283,7 +283,7 @@ class FormTest extends TestCase
         $component = Livewire::actingAs($user)
             ->test('routine-task.form', ['routine' => $routine, 'task' => $task, 'mobile' => true]);
 
-        $this->assertEquals($task->id . '-m', $component->get('taskId'));
+        $this->assertEquals($task->id.'-m', $component->get('taskId'));
     }
 
     public function test_reset_form_after_save()

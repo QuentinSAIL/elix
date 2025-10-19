@@ -175,7 +175,7 @@ class WalletPositionsTest extends TestCase
         $this->actingAs($user);
 
         // Mock the wallet to throw an exception when creating positions
-        $this->mock(Wallet::class, function ($mock) use ($wallet) {
+        $this->mock(Wallet::class, function ($mock) {
             $mock->shouldReceive('positions->create')->andThrow(new \Exception('Database error'));
         });
 

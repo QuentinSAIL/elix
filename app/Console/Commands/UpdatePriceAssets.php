@@ -31,19 +31,20 @@ class UpdatePriceAssets extends Command
         $limit = (int) $this->option('limit');
         $force = $this->option('force');
 
-        $this->info("Starting price update for assets...");
+        $this->info('Starting price update for assets...');
 
         // Récupérer les actifs à mettre à jour
         $query = PriceAsset::query();
 
-        if (!$force) {
+        if (! $force) {
             $query->needsUpdate();
         }
 
         $assets = $query->limit($limit)->get();
 
         if ($assets->isEmpty()) {
-            $this->info("No assets need updating.");
+            $this->info('No assets need updating.');
+
             return 0;
         }
 
@@ -78,8 +79,8 @@ class UpdatePriceAssets extends Command
 
             } catch (\Exception $e) {
                 $failed++;
-                $this->error("✗ {$asset->ticker}: Error - " . $e->getMessage());
-                Log::error("Price update failed for {$asset->ticker}: " . $e->getMessage());
+                $this->error("✗ {$asset->ticker}: Error - ".$e->getMessage());
+                Log::error("Price update failed for {$asset->ticker}: ".$e->getMessage());
             }
         }
 
@@ -93,7 +94,7 @@ class UpdatePriceAssets extends Command
         $syncedCount = $this->synchronizePositionPrices();
         $this->info("- Synchronized: {$syncedCount} positions");
 
-        Log::info("Price assets update completed", [
+        Log::info('Price assets update completed', [
             'updated' => $updated,
             'failed' => $failed,
             'skipped' => $skipped,

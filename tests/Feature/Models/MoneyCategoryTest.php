@@ -84,7 +84,7 @@ class MoneyCategoryTest extends TestCase
     {
         $user = User::factory()->create();
         $category = MoneyCategory::factory()->create(['user_id' => $user->id]);
-        
+
         // Create some transactions for this month
         $bankAccount = \App\Models\BankAccount::factory()->create(['user_id' => $user->id]);
         \App\Models\BankTransactions::factory()->create([
@@ -106,7 +106,7 @@ class MoneyCategoryTest extends TestCase
             'user_id' => $user->id,
             'budget' => '1000.00',
         ]);
-        
+
         // Create some transactions for this month
         $bankAccount = \App\Models\BankAccount::factory()->create(['user_id' => $user->id]);
         \App\Models\BankTransactions::factory()->create([
@@ -128,7 +128,7 @@ class MoneyCategoryTest extends TestCase
             'user_id' => $user->id,
             'budget' => '500.00',
         ]);
-        
+
         // Create transactions that exceed budget
         $bankAccount = \App\Models\BankAccount::factory()->create(['user_id' => $user->id]);
         \App\Models\BankTransactions::factory()->create([
@@ -148,7 +148,7 @@ class MoneyCategoryTest extends TestCase
             'user_id' => $user->id,
             'budget' => '1000.00',
         ]);
-        
+
         // Create transactions within budget
         $bankAccount = \App\Models\BankAccount::factory()->create(['user_id' => $user->id]);
         \App\Models\BankTransactions::factory()->create([

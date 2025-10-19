@@ -41,7 +41,7 @@ class CategoryIndex extends Component
 
         if ($this->sortField === 'budget') {
             $query = $query->orderByRaw("COALESCE(budget, 0) {$this->sortDirection}")
-                       ->orderBy('name', 'asc');
+                ->orderBy('name', 'asc');
         } else {
             $query = $query->orderBy($this->sortField, $this->sortDirection);
         }
@@ -51,7 +51,7 @@ class CategoryIndex extends Component
 
     public function sortBy(string $field)
     {
-        if (!in_array($field, $this->allowedSorts, true)) {
+        if (! in_array($field, $this->allowedSorts, true)) {
             // Sécurité : si colonne non autorisée, on ignore
             return;
         }

@@ -31,6 +31,7 @@ class PriceAsset extends Model
     ];
 
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $casts = [
@@ -83,7 +84,7 @@ class PriceAsset extends Model
      */
     public function isPriceRecent(): bool
     {
-        if (!$this->last_updated) {
+        if (! $this->last_updated) {
             return false;
         }
 

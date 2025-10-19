@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Models;
 
+use App\Models\MoneyCategory;
 use App\Models\User;
 use App\Models\Wallet;
-use App\Models\MoneyCategory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -85,7 +85,7 @@ class UserTest extends TestCase
         ]);
 
         $this->assertTrue($user->hasApiKey($apiService->id));
-        
+
         // Test with a non-existent UUID
         $nonExistentUuid = '0199f930-fb30-71e0-b028-65687c3db4d7';
         $this->assertFalse($user->hasApiKey($nonExistentUuid));

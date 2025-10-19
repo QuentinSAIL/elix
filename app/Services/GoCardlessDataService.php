@@ -233,8 +233,6 @@ class GoCardlessDataService
         return $response;
     }
 
-
-
     public function addNewBankAccount($institutionId, $maxHistoricalDays, $accessValidForDays, $logo = null, $existingAccountId = null)
     {
         $response = Http::withToken($this->accessToken())->post("{$this->baseUrl}/agreements/enduser/", [

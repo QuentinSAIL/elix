@@ -4,7 +4,6 @@ namespace Tests\Feature\Console\Commands;
 
 use App\Console\Commands\ClearLivewireSnapshots;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class ClearLivewireSnapshotsTest extends TestCase
@@ -21,7 +20,7 @@ class ClearLivewireSnapshotsTest extends TestCase
     {
         // Create directory if it doesn't exist
         $snapshotDir = storage_path('app/livewire-tmp');
-        if (!\Illuminate\Support\Facades\File::exists($snapshotDir)) {
+        if (! \Illuminate\Support\Facades\File::exists($snapshotDir)) {
             \Illuminate\Support\Facades\File::makeDirectory($snapshotDir, 0755, true);
         }
 

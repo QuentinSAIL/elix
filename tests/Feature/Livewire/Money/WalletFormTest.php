@@ -179,7 +179,6 @@ class WalletFormTest extends TestCase
             ->assertSet('walletForm.balance', '1000');
     }
 
-
     public function test_can_edit_position_with_ticker()
     {
         $user = User::factory()->create();
@@ -188,7 +187,7 @@ class WalletFormTest extends TestCase
             'name' => 'Bitcoin',
             'ticker' => 'BTC',
             'quantity' => 1,
-            'price' => 50000
+            'price' => 50000,
         ]);
         $this->actingAs($user);
 
@@ -209,7 +208,7 @@ class WalletFormTest extends TestCase
             'name' => 'Gold',
             'ticker' => null,
             'quantity' => 10,
-            'price' => 2000
+            'price' => 2000,
         ]);
         $this->actingAs($user);
 
@@ -277,9 +276,6 @@ class WalletFormTest extends TestCase
                 'positionForm.price' => 'numeric',
             ]);
     }
-
-
-
 
     public function test_can_handle_save_position_exception()
     {

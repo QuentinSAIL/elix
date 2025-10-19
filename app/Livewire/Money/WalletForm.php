@@ -251,7 +251,7 @@ class WalletForm extends Component
                 Toaster::info(__('Price updated from recent market data.'));
             } else {
                 // Créer l'entrée dans price_assets si elle n'existe pas
-                if (!$priceAsset) {
+                if (! $priceAsset) {
                     $assetType = $this->getAssetTypeFromUnitType($position->unit);
                     $priceAsset = \App\Models\PriceAsset::findOrCreate($position->ticker, $assetType);
                 }

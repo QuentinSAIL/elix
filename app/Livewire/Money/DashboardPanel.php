@@ -39,7 +39,7 @@ class DashboardPanel extends Component
         if ($this->panel && in_array($this->panel->period_type, ['actual_month', 'previous_month', 'two_months_ago', 'three_months_ago'])) {
             $periode = $this->panel->determinePeriode();
             if (isset($periode['startDate'])) {
-                $this->title .= ' (' . $periode['startDate']->translatedFormat('F') . ')';
+                $this->title .= ' ('.$periode['startDate']->translatedFormat('F').')';
             }
         }
 
@@ -56,9 +56,10 @@ class DashboardPanel extends Component
         $this->colors = [];
 
         $filteredTransactions = $this->transactions->filter(function ($transaction) {
-            if (!$this->displayUncategorized && !$transaction->category) {
+            if (! $this->displayUncategorized && ! $transaction->category) {
                 return false;
             }
+
             return true;
         });
 
@@ -67,6 +68,7 @@ class DashboardPanel extends Component
             $this->values = [$filteredTransactions->sum('amount')];
             $this->labels = ['Total'];
             $this->colors = ['#3B82F6']; // Blue color for total
+
             return;
         }
 
@@ -77,6 +79,7 @@ class DashboardPanel extends Component
             $this->values = [$positiveTotal, $negativeTotal];
             $this->labels = ['Revenus', 'Dépenses'];
             $this->colors = ['#10B981', '#EF4444']; // Green for income, red for expenses
+
             return;
         }
 
@@ -94,6 +97,7 @@ class DashboardPanel extends Component
             $this->labels = $dailyData->keys()->toArray();
             $this->values = $dailyData->values()->toArray();
             $this->colors = ['#8B5CF6']; // Purple for trend
+
             return;
         }
 
@@ -117,6 +121,7 @@ class DashboardPanel extends Component
                 $category = MoneyCategory::where('name', $label)->first();
                 $this->colors[] = $category ? $category->color : '#CCCCCC';
             }
+
             return;
         }
 
@@ -178,6 +183,7 @@ class DashboardPanel extends Component
         if (abs($amount) >= 100) {
             return number_format($amount, 0);
         }
+
         return number_format($amount, 2);
     }
 
