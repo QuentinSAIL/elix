@@ -131,6 +131,7 @@ class WalletPositions extends Component
 
     /**
      * Handle ticker price update for new positions
+     * Only updates price_assets table, never wallet_positions
      */
     private function handleTickerPriceUpdate(\App\Models\WalletPosition $position): void
     {
@@ -142,8 +143,7 @@ class WalletPositions extends Component
 
             if ($priceAsset && $priceAsset->isPriceRecent()) {
                 // Utiliser le prix récent de la base de données
-                $position->update(['price' => (string) $priceAsset->price]);
-                Toaster::info(__('Price updated from recent market data.'));
+                Toaster::info(__('Using recent market data from database.'));
             } else {
                 // Créer l'entrée dans price_assets si elle n'existe pas
                 if (!$priceAsset) {
@@ -151,11 +151,11 @@ class WalletPositions extends Component
                     $priceAsset = \App\Models\PriceAsset::findOrCreate($position->ticker, $assetType);
                 }
 
-                // Essayer de récupérer un prix frais depuis l'API et le sauvegarder
+                // Essayer de récupérer un prix frais depuis l'API et le sauvegarder dans price_assets
                 $currentPrice = $priceService->getPrice($position->ticker, $this->wallet->unit, $position->unit);
 
                 if ($currentPrice !== null) {
-                    $position->update(['price' => (string) $currentPrice]);
+                    $priceAsset->updatePrice($currentPrice, $this->wallet->unit);
                     Toaster::info(__('Price updated from market data.'));
                 } else {
                     // Garder le prix manuel si l'API échoue
@@ -203,6 +203,7 @@ class WalletPositions extends Component
 
     /**
      * Update prices for all positions with tickers
+     * Only updates price_assets table, never wallet_positions
      */
     public function updatePrices(): void
     {
@@ -218,18 +219,17 @@ class WalletPositions extends Component
             }
         }
 
-        // Update prices for each ticker group
+        // Update prices for each ticker group in price_assets table
         foreach ($positionsByTicker as $ticker => $positions) {
             try {
-                // Get current price for this ticker
-                $currentPrice = $this->getCurrentPrice($positions[0]);
+                $priceService = app(\App\Services\PriceService::class);
+                $currentPrice = $priceService->getPrice($ticker, $this->wallet->unit, $positions[0]->unit);
 
                 if ($currentPrice !== null) {
-                    // Update all positions with the same ticker
-                    foreach ($positions as $position) {
-                        $position->update(['price' => (string) $currentPrice]);
-                        $updated++;
-                    }
+                    // Update price in price_assets table
+                    $priceAsset = \App\Models\PriceAsset::findOrCreate($ticker, 'OTHER');
+                    $priceAsset->updatePrice($currentPrice, $this->wallet->unit);
+                    $updated += count($positions);
                 } else {
                     $failed += count($positions);
                 }
@@ -251,6 +251,7 @@ class WalletPositions extends Component
 
     /**
      * Update price for a specific position and synchronize with other positions having the same ticker
+     * Only updates price_assets table, never wallet_positions
      */
     public function updatePositionPrice(string $positionId): void
     {
@@ -262,17 +263,19 @@ class WalletPositions extends Component
         }
 
         try {
-            // Get current price for this ticker
-            $currentPrice = $this->getCurrentPrice($position);
+            $priceService = app(\App\Services\PriceService::class);
+            $currentPrice = $priceService->getPrice($position->ticker, $this->wallet->unit, $position->unit);
 
             if ($currentPrice !== null) {
-                // Update all positions with the same ticker
+                // Update price in price_assets table
+                $priceAsset = \App\Models\PriceAsset::findOrCreate($position->ticker, 'OTHER');
+                $priceAsset->updatePrice($currentPrice, $this->wallet->unit);
+
+                // Count positions with the same ticker
                 $ticker = strtoupper($position->ticker);
                 $updatedCount = 0;
-
                 foreach ($this->positions as $pos) {
                     if ($pos->ticker && strtoupper($pos->ticker) === $ticker) {
-                        $pos->update(['price' => (string) $currentPrice]);
                         $updatedCount++;
                     }
                 }
@@ -292,7 +295,7 @@ class WalletPositions extends Component
 
     /**
      * Get current price for a position in user's preferred currency
-     * ALWAYS uses database prices first, never makes API calls
+     * ONLY uses price_assets table if ticker exists, never wallet_positions
      */
     public function getCurrentPrice(WalletPosition $position): ?float
     {
@@ -300,7 +303,7 @@ class WalletPositions extends Component
             return null;
         }
 
-        // First, try to get price from price_assets table
+        // ONLY get price from price_assets table, never wallet_positions
         $priceAsset = \App\Models\PriceAsset::where('ticker', $position->ticker)->first();
 
         if ($priceAsset && $priceAsset->price !== null) {
@@ -318,11 +321,7 @@ class WalletPositions extends Component
             return (float) $priceAsset->price;
         }
 
-        // Fallback to stored price in position (manual price)
-        if ($position->price && (float) $position->price > 0) {
-            return (float) $position->price;
-        }
-
+        // If no price in price_assets, return null (never use wallet_positions price)
         return null;
     }
 

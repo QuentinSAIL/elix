@@ -169,36 +169,48 @@ class WalletForm extends Component
             return;
         }
 
-        $this->validate([
+        // Validation conditionnelle : price requis seulement si pas de ticker
+        $rules = [
             'positionForm.name' => 'required|string|max:255',
             'positionForm.ticker' => 'nullable|string|max:32',
             'positionForm.unit' => 'required|string|max:16',
             'positionForm.quantity' => 'required|numeric|min:0',
-            'positionForm.price' => 'required|numeric|min:0',
-        ]);
+        ];
+
+        // Si pas de ticker, le prix est requis
+        if (empty($this->positionForm['ticker'])) {
+            $rules['positionForm.price'] = 'required|numeric|min:0';
+        } else {
+            $rules['positionForm.price'] = 'nullable|numeric|min:0';
+        }
+
+        $this->validate($rules);
 
         try {
+            // Préparer les données de base
+            $positionData = [
+                'name' => trim($this->positionForm['name']),
+                'ticker' => $this->positionForm['ticker'] ? strtoupper(trim($this->positionForm['ticker'])) : null,
+                'unit' => strtoupper(trim($this->positionForm['unit'])),
+                'quantity' => (string) $this->positionForm['quantity'],
+            ];
+
+            // Ajouter le prix seulement si pas de ticker
+            if (empty($this->positionForm['ticker'])) {
+                $positionData['price'] = (string) $this->positionForm['price'];
+            } else {
+                $positionData['price'] = null; // Pas de prix stocké pour les positions avec ticker
+            }
+
             if ($this->editingPosition) {
-                $this->editingPosition->update([
-                    'name' => trim($this->positionForm['name']),
-                    'ticker' => $this->positionForm['ticker'] ? strtoupper(trim($this->positionForm['ticker'])) : null,
-                    'unit' => strtoupper(trim($this->positionForm['unit'])),
-                    'quantity' => (string) $this->positionForm['quantity'],
-                    'price' => (string) $this->positionForm['price'],
-                ]);
+                $this->editingPosition->update($positionData);
                 Toaster::success(__('Position updated successfully.'));
             } else {
                 /** @var \App\Models\WalletPosition $position */
-                $position = $this->wallet->positions()->create([
-                    'name' => trim($this->positionForm['name']),
-                    'ticker' => $this->positionForm['ticker'] ? strtoupper(trim($this->positionForm['ticker'])) : null,
-                    'unit' => strtoupper(trim($this->positionForm['unit'])),
-                    'quantity' => (string) $this->positionForm['quantity'],
-                    'price' => (string) $this->positionForm['price'],
-                ]);
+                $position = $this->wallet->positions()->create($positionData);
                 Toaster::success(__('Position added successfully.'));
 
-                // Si la position a un ticker, vérifier/créer dans price_assets et mettre à jour le prix
+                // Si la position a un ticker, vérifier/créer dans price_assets
                 if ($position->ticker) {
                     $this->handleTickerPriceUpdate($position);
                 }

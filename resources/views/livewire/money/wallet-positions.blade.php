@@ -117,7 +117,9 @@
                     if(!isset($tickerPrices[$ticker])) {
                         $tickerPrices[$ticker] = [];
                     }
-                    $tickerPrices[$ticker][] = (float)$position->price;
+                    // Use getCurrentPrice() instead of position->price for ticker positions
+                    $currentPrice = $this->getCurrentPrice($position);
+                    $tickerPrices[$ticker][] = $currentPrice !== null ? $currentPrice : 0;
                 }
             }
 
@@ -192,7 +194,7 @@
                                                 @if($currentPrice !== null)
                                                     {{ $this->getCurrencySymbol() }}{{ number_format($currentPrice, 2) }} / {{ $position->unit }}
                                                 @else
-                                                    {{ $this->getCurrencySymbol() }}{{ number_format($position->price, 2) }} / {{ $position->unit }}
+                                                    <span class="text-red-500 dark:text-red-400">Prix indisponible</span>
                                                 @endif
                                             @else
                                                 {{ $this->getCurrencySymbol() }}{{ number_format($position->price, 2) }} / {{ $position->unit }}
@@ -212,7 +214,7 @@
                                         @if($currentValue !== null)
                                             {{ $this->getCurrencySymbol() }}{{ number_format($currentValue, 2) }}
                                         @else
-                                            {{ $this->getCurrencySymbol() }}{{ number_format((float)$position->quantity * (float)$position->price, 2) }}
+                                            <span class="text-red-500 dark:text-red-400">Valeur indisponible</span>
                                         @endif
                                     @else
                                         {{ $this->getCurrencySymbol() }}{{ number_format((float)$position->quantity * (float)$position->price, 2) }}

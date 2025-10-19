@@ -50,7 +50,8 @@ class WalletPosition extends Model
     }
 
     /**
-     * Update the current market price for this position and synchronize with other positions having the same ticker
+     * Update the current market price for this position in price_assets table
+     * No longer updates the price in wallet_positions table
      */
     public function updateCurrentPrice(): bool
     {
@@ -62,11 +63,9 @@ class WalletPosition extends Model
         $currentPrice = $priceService->getPrice($this->ticker, $this->wallet->unit, $this->unit);
 
         if ($currentPrice !== null) {
-            // Update this position
-            $this->update(['price' => (string) $currentPrice]);
-
-            // Synchronize with other positions having the same ticker
-            $this->synchronizeTickerPrices($currentPrice);
+            // Update price in price_assets table instead of wallet_positions
+            $priceAsset = \App\Models\PriceAsset::findOrCreate($this->ticker, 'OTHER');
+            $priceAsset->updatePrice($currentPrice, $this->wallet->unit);
 
             return true;
         }
@@ -74,55 +73,45 @@ class WalletPosition extends Model
         return false;
     }
 
-    /**
-     * Synchronize prices for all positions with the same ticker
-     */
-    private function synchronizeTickerPrices(float $currentPrice): void
-    {
-        if (! $this->ticker) {
-            return;
-        }
-
-        $ticker = strtoupper($this->ticker);
-
-        // Find all positions with the same ticker in the same wallet
-        $sameTickerPositions = self::where('wallet_id', $this->wallet_id)
-            ->whereRaw('UPPER(ticker) = ?', [$ticker])
-            ->where('id', '!=', $this->id)
-            ->get();
-
-        // Update their prices
-        foreach ($sameTickerPositions as $position) {
-            $position->update(['price' => (string) $currentPrice]);
-        }
-    }
 
     /**
-     * Get the current market price (from API) or stored price
+     * Get the current market price from price_assets table (if ticker exists) or stored price
      */
     public function getCurrentPrice(): float
     {
+        // If we have a ticker, ONLY use price_assets table, never wallet_positions
         if ($this->ticker) {
+            $priceAsset = \App\Models\PriceAsset::where('ticker', $this->ticker)->first();
+
+            if ($priceAsset && $priceAsset->price !== null && $priceAsset->isPriceRecent()) {
+                return (float) $priceAsset->price;
+            }
+
+            // If no recent price in price_assets, try to get fresh price via PriceService
             $priceService = app(\App\Services\PriceService::class);
             $currentPrice = $priceService->getPrice($this->ticker, $this->wallet->unit, $this->unit);
 
             if ($currentPrice !== null) {
-                // Update the stored price with the current market price
-                $this->update(['price' => (string) $currentPrice]);
-
+                // Create or update PriceAsset with the fresh price
+                $priceAsset = \App\Models\PriceAsset::findOrCreate($this->ticker, 'OTHER');
+                $priceAsset->updatePrice($currentPrice, $this->wallet->unit);
                 return $currentPrice;
             }
+
+            // If no price available from APIs, return 0 instead of wallet_positions price
+            return 0.0;
         }
 
+        // Fallback to stored price only if no ticker
         return (float) $this->price;
     }
 
     /**
-     * Calculate the total value of this position
+     * Calculate the total value of this position using current price
      */
     public function getValue(): float
     {
-        return (float) $this->quantity * (float) $this->price;
+        return (float) $this->quantity * $this->getCurrentPrice();
     }
 
     /**
@@ -143,8 +132,7 @@ class WalletPosition extends Model
 
     /**
      * Get current market value for this position in user's preferred currency
-     * Uses stored price first, only makes API call if no stored price exists
-     * Prevents multiple simultaneous API calls for the same ticker
+     * Always uses price_assets table if ticker exists, otherwise falls back to stored price
      */
     public function getCurrentMarketValue(?string $userCurrency = null): float
     {
@@ -157,55 +145,33 @@ class WalletPosition extends Model
             $currency = 'EUR';
         }
 
-        // First, try to use stored price if available
-        if ($this->price && (float) $this->price > 0) {
-            return (float) $this->quantity * (float) $this->price;
-        }
-
-        // If no stored price and we have a ticker, try to get from price_assets table
+        // If we have a ticker, ONLY use price_assets table, never wallet_positions
         if ($this->ticker) {
             $priceAsset = \App\Models\PriceAsset::where('ticker', $this->ticker)->first();
 
-            if ($priceAsset && $priceAsset->price && $priceAsset->isPriceRecent()) {
-                // Update this position with the price from price_assets
-                $this->update(['price' => (string) $priceAsset->price]);
+            if ($priceAsset && $priceAsset->price !== null && $priceAsset->isPriceRecent()) {
+                // Use price from price_assets table only if it's recent
                 return (float) $this->quantity * (float) $priceAsset->price;
             }
 
-            // Check if we're already fetching this ticker (prevent multiple simultaneous calls)
-            $fetchingKey = "fetching_price_{$this->ticker}";
-            $failedKey = "failed_price_{$this->ticker}";
+            // If no recent price in price_assets, try to get fresh price via PriceService
+            $priceService = app(\App\Services\PriceService::class);
+            $currentPrice = $priceService->getPrice($this->ticker, $currency, $this->unit);
 
-            if (\Illuminate\Support\Facades\Cache::has($fetchingKey)) {
-                // Another process is already fetching this price, return 0 for now
-                return 0.0;
+            if ($currentPrice !== null) {
+                // Create or update PriceAsset with the fresh price
+                $priceAsset = \App\Models\PriceAsset::findOrCreate($this->ticker, 'OTHER');
+                $priceAsset->updatePrice($currentPrice, $currency);
+                return (float) $this->quantity * $currentPrice;
             }
 
-            if (\Illuminate\Support\Facades\Cache::has($failedKey)) {
-                // This ticker failed recently, don't try again for a while
-                return 0.0;
-            }
+            // If no price available from APIs, return 0 instead of wallet_positions price
+            return 0.0;
+        }
 
-            // Set a temporary cache to prevent other processes from fetching the same ticker
-            \Illuminate\Support\Facades\Cache::put($fetchingKey, true, 30); // 30 seconds
-
-            try {
-                // If no recent price in price_assets, make API call and store it
-                $priceService = app(\App\Services\PriceService::class);
-                $currentPrice = $priceService->getPrice($this->ticker, $currency, $this->unit);
-
-                if ($currentPrice !== null) {
-                    // Update this position with the fresh price
-                    $this->update(['price' => (string) $currentPrice]);
-                    return (float) $this->quantity * $currentPrice;
-                } else {
-                    // Mark this ticker as failed for 1 hour to avoid repeated failed calls
-                    \Illuminate\Support\Facades\Cache::put($failedKey, true, 3600); // 1 hour
-                }
-            } finally {
-                // Always remove the fetching lock, even if an exception occurs
-                \Illuminate\Support\Facades\Cache::forget($fetchingKey);
-            }
+        // Fallback to stored price only if no ticker
+        if ($this->price && (float) $this->price > 0) {
+            return (float) $this->quantity * (float) $this->price;
         }
 
         // Final fallback: return 0 if no price available

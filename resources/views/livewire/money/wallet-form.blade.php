@@ -209,7 +209,20 @@
                                                     </div>
                                                     <div>
                                                         <span class="text-zinc-500 dark:text-zinc-400">{{ __('Price') }}:</span>
-                                                        <span class="font-medium ml-1 text-zinc-900 dark:text-zinc-50">{{ rtrim(rtrim($pos->price, '0'), '.') }}</span>
+                                                        <span class="font-medium ml-1 text-zinc-900 dark:text-zinc-50">
+                                                            @if($pos->ticker)
+                                                                @php
+                                                                    $currentPrice = $pos->getCurrentPrice();
+                                                                @endphp
+                                                                @if($currentPrice !== null)
+                                                                    {{ rtrim(rtrim($currentPrice, '0'), '.') }}
+                                                                @else
+                                                                    <span class="text-red-500 dark:text-red-400">Prix indisponible</span>
+                                                                @endif
+                                                            @else
+                                                                {{ rtrim(rtrim($pos->price, '0'), '.') }}
+                                                            @endif
+                                                        </span>
                                                     </div>
                                                     <div>
                                                         <span class="text-zinc-500 dark:text-zinc-400">{{ __('Value') }}:</span>
@@ -298,12 +311,20 @@
                                 <flux:error name="positionForm.quantity" />
                                 <flux:description>{{ __('Number of units you own') }}</flux:description>
                             </flux:field>
-                            <flux:field>
-                                <flux:label>{{ __('Price per Unit') }}</flux:label>
-                                <flux:input type="number" step="any" min="0" wire:model.lazy="positionForm.price" placeholder="150.00" />
-                                <flux:error name="positionForm.price" />
-                                <flux:description>{{ __('Current price per unit (auto-updated if ticker provided)') }}</flux:description>
-                            </flux:field>
+                            @if(empty($positionForm['ticker']))
+                                <flux:field>
+                                    <flux:label>{{ __('Price per Unit') }}</flux:label>
+                                    <flux:input type="number" step="any" min="0" wire:model.lazy="positionForm.price" placeholder="150.00" />
+                                    <flux:error name="positionForm.price" />
+                                    <flux:description>{{ __('Current price per unit') }}</flux:description>
+                                </flux:field>
+                            @else
+                                <flux:field>
+                                    <flux:label>{{ __('Price per Unit') }}</flux:label>
+                                    <flux:input type="text" readonly value="{{ __('Auto-updated from market data') }}" class="bg-zinc-100 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400" />
+                                    <flux:description>{{ __('Price will be automatically updated from market data using the ticker') }}</flux:description>
+                                </flux:field>
+                            @endif
                         </div>
 
                         <div class="flex justify-end gap-3">
