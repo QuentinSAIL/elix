@@ -37,8 +37,8 @@ class DashboardPanelForm extends Component
     {
         $this->user = Auth::user();
         $this->edition = $this->panel ? true : false;
-        $this->bankAccounts = $this->user->bankAccounts()->get()->pluck('name', 'id')->toArray();
-        $this->categories = $this->user->moneyCategories()->get()->pluck('name', 'id')->toArray();
+        $this->bankAccounts = $this->user->bankAccounts()->get();
+        $this->categories = $this->user->moneyCategories()->get();
         $this->populateForm();
     }
 
@@ -49,16 +49,23 @@ class DashboardPanelForm extends Component
         $this->accountsId = [];
         $this->categoriesId = [];
         $this->periodType = '';
+
+        // Close the modal
+        if ($this->edition && $this->panel) {
+            Flux::modals()->close('panel-form-'.$this->panel->id);
+        } else {
+            Flux::modals()->close('panel-form-create');
+        }
     }
 
     public function populateForm()
     {
-        if ($this->edition) {
-            $this->title = $this->panel->title;
-            $this->type = $this->panel->type;
-            $this->accountsId = $this->panel->bankAccounts->pluck('id')->toArray();
-            $this->categoriesId = $this->panel->categories->pluck('id')->toArray();
-            $this->periodType = $this->panel->period_type;
+        if ($this->edition && $this->panel) {
+            $this->title = $this->panel->title ?? '';
+            $this->type = $this->panel->type ?? '';
+            $this->accountsId = $this->panel->bankAccounts ? $this->panel->bankAccounts->pluck('id')->toArray() : [];
+            $this->categoriesId = $this->panel->categories ? $this->panel->categories->pluck('id')->toArray() : [];
+            $this->periodType = $this->panel->period_type ?? '';
         } else {
             $this->resetForm();
         }
@@ -68,12 +75,12 @@ class DashboardPanelForm extends Component
     {
         $rules = [
             'title' => 'required|string|max:255',
-            'type' => 'required|string|in:bar,doughnut,pie,line,table,number',
+            'type' => 'required|string|in:bar,doughnut,pie,line,table,number,gauge,trend,category_comparison',
             'accountsId' => 'array',
             'accountsId.*' => 'exists:bank_accounts,id',
             'categoriesId' => 'array',
             'categoriesId.*' => 'exists:money_categories,id',
-            'periodType' => 'required|string|in:daily,weekly,biweekly,monthly,quarterly,biannual,yearly,actual_month,previous_month,two_months_ago,three_months_ago',
+            'periodType' => 'required|string|in:daily,weekly,biweekly,monthly,quarterly,biannual,yearly,actual_month,previous_month,two_months_ago,three_months_ago,all',
         ];
 
         try {
@@ -84,6 +91,9 @@ class DashboardPanelForm extends Component
             return;
         }
 
+        // Get the next order number for new panels
+        $order = $this->panel ? ($this->panel->order ?? 0) : ($this->moneyDashboard->panels()->max('order') ?? 0) + 1;
+
         $panel = MoneyDashboardPanel::updateOrCreate(
             [
                 'id' => $this->panel ? $this->panel->id : null,
@@ -93,13 +103,16 @@ class DashboardPanelForm extends Component
                 'title' => $this->title,
                 'type' => $this->type,
                 'period_type' => $this->periodType,
+                'order' => $order,
             ],
         );
-        $panel->bankAccounts()->sync($this->accountsId);
-        $panel->categories()->sync($this->categoriesId);
+
+        // Sync relationships safely
+        $panel->bankAccounts()->sync($this->accountsId ?? []);
+        $panel->categories()->sync($this->categoriesId ?? []);
 
         $this->populateForm();
-        if ($this->edition) {
+        if ($this->edition && $this->panel) {
             Toaster::success(__('Panel edited successfully.'));
             Flux::modals()->close('panel-form-'.$this->panel->id);
         } else {

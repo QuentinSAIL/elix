@@ -47,9 +47,11 @@ class WalletPositions extends Component
     {
         /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
         $positions = $this->wallet->positions()
-            ->orderBy('created_at', 'desc')
             ->get();
-        $this->positions = $positions;
+
+        $this->positions = $positions->sortByDesc(function(\App\Models\WalletPosition $position) {
+            return $position->getCurrentMarketValue();
+        });
     }
 
     public function edit(string $positionId): void
@@ -104,7 +106,8 @@ class WalletPositions extends Component
                 ]);
                 Toaster::success(__('Position updated successfully.'));
             } else {
-                $this->wallet->positions()->create([
+                /** @var \App\Models\WalletPosition $position */
+                $position = $this->wallet->positions()->create([
                     'name' => trim($this->positionForm['name']),
                     'ticker' => $this->positionForm['ticker'] ? strtoupper(trim($this->positionForm['ticker'])) : null,
                     'unit' => strtoupper(trim($this->positionForm['unit'])),
@@ -112,6 +115,11 @@ class WalletPositions extends Component
                     'price' => (string) $this->positionForm['price'],
                 ]);
                 Toaster::success(__('Position created successfully.'));
+
+                // Si la position a un ticker, vérifier/créer dans price_assets et mettre à jour le prix
+                if ($position->ticker) {
+                    $this->handleTickerPriceUpdate($position);
+                }
             }
 
             $this->resetForm();
@@ -119,6 +127,60 @@ class WalletPositions extends Component
         } catch (\Exception $e) {
             Toaster::error(__('Failed to save position. Please try again.'));
         }
+    }
+
+    /**
+     * Handle ticker price update for new positions
+     * Only updates price_assets table, never wallet_positions
+     */
+    private function handleTickerPriceUpdate(\App\Models\WalletPosition $position): void
+    {
+        try {
+            $priceService = app(\App\Services\PriceService::class);
+
+            // Vérifier si l'actif existe déjà dans price_assets
+            $priceAsset = \App\Models\PriceAsset::where('ticker', $position->ticker)->first();
+
+            if ($priceAsset && $priceAsset->isPriceRecent()) {
+                // Utiliser le prix récent de la base de données
+                Toaster::info(__('Using recent market data from database.'));
+            } else {
+                // Créer l'entrée dans price_assets si elle n'existe pas
+                if (!$priceAsset) {
+                    $assetType = $this->getAssetTypeFromUnitType($position->unit);
+                    $priceAsset = \App\Models\PriceAsset::findOrCreate($position->ticker, $assetType);
+                }
+
+                // Essayer de récupérer un prix frais depuis l'API et le sauvegarder dans price_assets
+                $currentPrice = $priceService->getPrice($position->ticker, $this->wallet->unit, $position->unit);
+
+                if ($currentPrice !== null) {
+                    $priceAsset->updatePrice($currentPrice, $this->wallet->unit);
+                    Toaster::info(__('Price updated from market data.'));
+                } else {
+                    // Garder le prix manuel si l'API échoue
+                    Toaster::warning(__('Could not fetch current price. Using manual price.'));
+                }
+            }
+        } catch (\Exception $e) {
+            // En cas d'erreur, garder le prix manuel
+            Toaster::warning(__('Could not update price. Using manual price.'));
+        }
+    }
+
+    /**
+     * Convert unitType to asset type for the price_assets table
+     */
+    private function getAssetTypeFromUnitType(?string $unitType): string
+    {
+        return match ($unitType) {
+            'CRYPTO', 'TOKEN' => 'CRYPTO',
+            'STOCK' => 'STOCK',
+            'COMMODITY' => 'COMMODITY',
+            'ETF' => 'ETF',
+            'BOND' => 'BOND',
+            default => 'OTHER',
+        };
     }
 
     public function delete(string $positionId): void
@@ -140,7 +202,100 @@ class WalletPositions extends Component
     }
 
     /**
+     * Update prices for all positions with tickers
+     * Only updates price_assets table, never wallet_positions
+     */
+    public function updatePrices(): void
+    {
+        $updated = 0;
+        $failed = 0;
+
+        // Group positions by ticker to synchronize prices
+        $positionsByTicker = [];
+        foreach ($this->positions as $position) {
+            if ($position->ticker) {
+                $ticker = strtoupper($position->ticker);
+                $positionsByTicker[$ticker][] = $position;
+            }
+        }
+
+        // Update prices for each ticker group in price_assets table
+        foreach ($positionsByTicker as $ticker => $positions) {
+            try {
+                $priceService = app(\App\Services\PriceService::class);
+                $currentPrice = $priceService->getPrice($ticker, $this->wallet->unit, $positions[0]->unit);
+
+                if ($currentPrice !== null) {
+                    // Update price in price_assets table
+                    $priceAsset = \App\Models\PriceAsset::findOrCreate($ticker, 'OTHER');
+                    $priceAsset->updatePrice($currentPrice, $this->wallet->unit);
+                    $updated += count($positions);
+                } else {
+                    $failed += count($positions);
+                }
+            } catch (\Exception $e) {
+                $failed += count($positions);
+            }
+        }
+
+        $this->refreshList();
+
+        if ($updated > 0) {
+            Toaster::success(__('Prices updated successfully for :count positions', ['count' => $updated]));
+        }
+
+        if ($failed > 0) {
+            Toaster::warning(__('Failed to update prices for :count positions', ['count' => $failed]));
+        }
+    }
+
+    /**
+     * Update price for a specific position and synchronize with other positions having the same ticker
+     * Only updates price_assets table, never wallet_positions
+     */
+    public function updatePositionPrice(string $positionId): void
+    {
+        /** @var \App\Models\WalletPosition|null $position */
+        $position = $this->wallet->positions()->find($positionId);
+        if (!$position || !$position->ticker) {
+            Toaster::error(__('Position not found or no ticker available.'));
+            return;
+        }
+
+        try {
+            $priceService = app(\App\Services\PriceService::class);
+            $currentPrice = $priceService->getPrice($position->ticker, $this->wallet->unit, $position->unit);
+
+            if ($currentPrice !== null) {
+                // Update price in price_assets table
+                $priceAsset = \App\Models\PriceAsset::findOrCreate($position->ticker, 'OTHER');
+                $priceAsset->updatePrice($currentPrice, $this->wallet->unit);
+
+                // Count positions with the same ticker
+                $ticker = strtoupper($position->ticker);
+                $updatedCount = 0;
+                foreach ($this->positions as $pos) {
+                    if ($pos->ticker && strtoupper($pos->ticker) === $ticker) {
+                        $updatedCount++;
+                    }
+                }
+
+                Toaster::success(__('Price updated successfully for :count positions with ticker :ticker', [
+                    'count' => $updatedCount,
+                    'ticker' => $position->ticker
+                ]));
+                $this->refreshList();
+            } else {
+                Toaster::warning(__('Failed to update price for :name', ['name' => $position->name]));
+            }
+        } catch (\Exception $e) {
+            Toaster::error(__('Error updating price for :name', ['name' => $position->name]));
+        }
+    }
+
+    /**
      * Get current price for a position in user's preferred currency
+     * ONLY uses price_assets table if ticker exists, never wallet_positions
      */
     public function getCurrentPrice(WalletPosition $position): ?float
     {
@@ -148,8 +303,28 @@ class WalletPositions extends Component
             return null;
         }
 
-        return app(PriceService::class)->getPriceInCurrency($position->ticker, $this->userCurrency, 'USD');
+        // ONLY get price from price_assets table, never wallet_positions
+        $priceAsset = \App\Models\PriceAsset::where('ticker', $position->ticker)->first();
+
+        if ($priceAsset && $priceAsset->price !== null) {
+            // Convert to user's currency if needed
+            if ($priceAsset->currency !== $this->userCurrency) {
+                $priceService = app(PriceService::class);
+                $convertedPrice = $priceService->convertCurrency(
+                    (float) $priceAsset->price,
+                    $priceAsset->currency,
+                    $this->userCurrency
+                );
+                return $convertedPrice;
+            }
+
+            return (float) $priceAsset->price;
+        }
+
+        // If no price in price_assets, return null (never use wallet_positions price)
+        return null;
     }
+
 
     /**
      * Get current value for a position in user's preferred currency

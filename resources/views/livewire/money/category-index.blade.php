@@ -79,7 +79,7 @@
                             <div class="relative">
                                 <input type="number"
                                     class="w-full px-3 py-2 text-right border-transparent focus:border-zinc-300 focus:ring-1 focus:ring-custom rounded-md bg-custom-accent outline-none transition-all duration-150"
-                                    value="{{ number_format($category->budget, 2, '.', '') }}"
+                                    value="{{ $category->budget === null ? '' : number_format($category->budget, 2, '.', '') }}"
                                     wire:change="updateCategoryBudget($event.target.value, '{{ $category->id }}')"
                                     aria-label="{{ __('Category budget') }}" />
                             </div>

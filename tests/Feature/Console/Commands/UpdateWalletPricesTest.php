@@ -137,20 +137,36 @@ class UpdateWalletPricesTest extends TestCase
         WalletPosition::factory()->create([
             'wallet_id' => $wallet->id,
             'ticker' => 'AAPL',
-            'updated_at' => Carbon::now(),
+        ]);
+
+        // Create recent PriceAsset for AAPL
+        \App\Models\PriceAsset::create([
+            'ticker' => 'AAPL',
+            'type' => 'STOCK',
+            'price' => 100.0,
+            'currency' => 'EUR',
+            'last_updated' => now(),
         ]);
 
         // Older position should be updated
         WalletPosition::factory()->create([
             'wallet_id' => $wallet->id,
             'ticker' => 'MSFT',
-            'updated_at' => Carbon::now()->subMinutes(30),
+        ]);
+
+        // Create old PriceAsset for MSFT
+        \App\Models\PriceAsset::create([
+            'ticker' => 'MSFT',
+            'type' => 'STOCK',
+            'price' => 200.0,
+            'currency' => 'EUR',
+            'last_updated' => now()->subHours(13), // Older than 12 hours
         ]);
 
         $this->artisan(UpdateWalletPrices::class)
-            ->expectsOutput(__('Updating wallet position prices'))
-            ->expectsOutput('✅ Updated: 1 positions')
-            ->expectsOutput('⏭️ Skipped: 1 positions (recently updated)');
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 1 price assets')
+            ->expectsOutput('⏭️ Skipped: 1 tickers (recently updated)');
     }
 
     public function test_force_option_updates_even_recent_positions(): void
@@ -166,8 +182,124 @@ class UpdateWalletPricesTest extends TestCase
         ]);
 
         $this->artisan(UpdateWalletPrices::class, ['--force' => true])
-            ->expectsOutput(__('Updating wallet position prices'))
-            ->expectsOutput('✅ Updated: 1 positions')
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 1 price assets')
+            ->assertExitCode(0);
+    }
+
+
+    public function test_command_handles_clear_cache_with_redis_driver(): void
+    {
+        // Mock Redis cache driver
+        $redisMock = $this->mock(\Illuminate\Cache\RedisStore::class);
+        $redisMock->shouldReceive('getStore')->andReturnSelf();
+
+        Cache::shouldReceive('getStore')->andReturn($redisMock);
+        Cache::shouldReceive('flush')->never();
+
+        $this->artisan(UpdateWalletPrices::class, ['--clear-cache' => true])
+            ->expectsOutput(__('Clearing price cache'))
+            ->assertExitCode(0);
+    }
+
+    public function test_command_handles_clear_cache_exception(): void
+    {
+        Cache::shouldReceive('getStore')->andThrow(new \Exception('Cache error'));
+
+        $this->artisan(UpdateWalletPrices::class, ['--clear-cache' => true])
+            ->expectsOutput(__('Clearing price cache'))
+            ->expectsOutput(__('Could not clear price cache: :error', ['error' => 'Cache error']))
+            ->assertExitCode(0);
+    }
+
+    public function test_command_handles_was_recently_updated_edge_case(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+
+        // Create position updated exactly 10 minutes ago (edge case)
+        WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'ticker' => 'AAPL',
+            'updated_at' => Carbon::now()->subMinutes(10),
+        ]);
+
+        $this->artisan(UpdateWalletPrices::class)
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 1 price assets')
+            ->assertExitCode(0);
+    }
+
+
+    public function test_command_handles_was_recently_updated_just_over_threshold(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+
+        // Create position updated 11 minutes ago (should be updated)
+        WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'ticker' => 'AAPL',
+            'updated_at' => Carbon::now()->subMinutes(11),
+        ]);
+
+        $this->artisan(UpdateWalletPrices::class)
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 1 price assets')
+            ->assertExitCode(0);
+    }
+
+    public function test_command_handles_was_recently_updated_current_time(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+
+        // Create position updated right now (should be skipped)
+        WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'ticker' => 'AAPL',
+        ]);
+
+        // Create recent PriceAsset
+        \App\Models\PriceAsset::create([
+            'ticker' => 'AAPL',
+            'type' => 'STOCK',
+            'price' => 100.0,
+            'currency' => 'EUR',
+            'last_updated' => now(),
+        ]);
+
+        $this->artisan(UpdateWalletPrices::class)
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 0 price assets')
+            ->expectsOutput('⏭️ Skipped: 1 tickers (recently updated)')
+            ->assertExitCode(0);
+    }
+
+    public function test_command_handles_was_recently_updated_future_time(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+
+        // Create position updated in the future (should be skipped)
+        WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'ticker' => 'AAPL',
+        ]);
+
+        // Create recent PriceAsset (future time)
+        \App\Models\PriceAsset::create([
+            'ticker' => 'AAPL',
+            'type' => 'STOCK',
+            'price' => 100.0,
+            'currency' => 'EUR',
+            'last_updated' => now()->addMinutes(5),
+        ]);
+
+        $this->artisan(UpdateWalletPrices::class)
+            ->expectsOutput(__('Updating wallet position prices using price_assets system'))
+            ->expectsOutput('✅ Updated: 0 price assets')
+            ->expectsOutput('⏭️ Skipped: 1 tickers (recently updated)')
             ->assertExitCode(0);
     }
 }

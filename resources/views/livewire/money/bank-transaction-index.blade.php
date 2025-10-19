@@ -12,7 +12,10 @@
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                         <flux:icon.magnifying-glass class="h-5 w-5 text-grey" aria-hidden="true" />
                     </span>
-                    <input wire:model.live.debounce.500ms="search" x-on:click.stop placeholder="{{ __('Search...') }}"
+                    <input wire:model.live.debounce.500ms="search"
+                           x-on:click.stop
+                           x-on:input="$wire.isAccountLoading = true"
+                           placeholder="{{ __('Search...') }}"
                         class="pl-10 pr-4 py-2 input-neutral border rounded-lg w-full text-sm"
                         aria-label="{{ __('Search transactions') }}" />
                 </div>
@@ -83,15 +86,20 @@
             </div>
 
             <div class="mt-3 md:mt-0 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                <select wire:model.live="categoryFilter" class="px-3 py-2 rounded-lg text-sm bg-custom-accent"
+                <select wire:model.live="categoryFilter"
+                        x-on:change="$wire.isAccountLoading = true"
+                        class="px-3 py-2 rounded-lg text-sm bg-custom-accent"
                     aria-label="{{ __('Filter by category') }}">
                     <option value="">{{ __('All categories') }}</option>
+                    <option value="uncategorized">{{ __('Uncategorized') }}</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
                     @endforeach
                 </select>
 
-                <select wire:model.live="dateFilter" class="px-3 py-2 rounded-lg text-sm bg-custom-accent"
+                <select wire:model.live="dateFilter"
+                        x-on:change="$wire.isAccountLoading = true"
+                        class="px-3 py-2 rounded-lg text-sm bg-custom-accent"
                     aria-label="{{ __('Filter by date') }}">
                     <option value="all">{{ __('All dates') }}</option>
                     <option value="current_month">{{ __('Current month') }}</option>
@@ -104,7 +112,7 @@
         {{-- Liste mobile avec cartes --}}
         <div class="mt-4 flex-1 min-h-0 overflow-y-auto relative" x-data="{
             fetchLoading: false,
-            accountLoading: false,
+            accountLoading: @entangle('isAccountLoading'),
             loadMore() {
                 if (this.fetchLoading || $wire.noMoreToLoad) return;
                 this.fetchLoading = true;
@@ -146,9 +154,13 @@
                                     </div>
                                 @endif
 
-                                <div class="text-sm font-medium mb-1">
-                                    {{ $tx->description }}
-                                </div>
+                                <input
+                                    type="text"
+                                    class="text-sm font-medium mb-1 input-none w-full bg-transparent focus:outline-none"
+                                    value="{{ $tx->description }}"
+                                    wire:change="updateTransactionDescription('{{ $tx->id }}', $event.target.value)"
+                                    aria-label="{{ __('Transaction description') }}"
+                                />
 
                                 <div class="text-xs text-grey-inverse mb-2">
                                     {{ $tx->transaction_date->format('d/m/Y') }}
@@ -217,7 +229,9 @@
                         <flux:icon.magnifying-glass class="h-5 w-5 text-grey" aria-hidden="true" />
                     </span>
 
-                    <input wire:model.live.debounce.500ms="search" x-on:click.stop
+                    <input wire:model.live.debounce.500ms="search"
+                           x-on:click.stop
+                           x-on:input="$wire.isAccountLoading = true"
                         placeholder="{{ __('Search...') }}"
                         class="pl-10 pr-4 py-2 input-neutral border rounded-lg w-full md:w-64 text-sm"
                         aria-label="{{ __('Search transactions') }}" />
@@ -288,15 +302,20 @@
             </div>
 
             <div class="mt-3 md:mt-0 flex space-x-2">
-                <select wire:model.live="categoryFilter" class="px-3 py-2 rounded-lg text-sm bg-custom-accent"
+                <select wire:model.live="categoryFilter"
+                        x-on:change="$wire.isAccountLoading = true"
+                        class="px-3 py-2 rounded-lg text-sm bg-custom-accent"
                     aria-label="{{ __('Filter by category') }}">
                     <option value="">{{ __('All categories') }}</option>
+                    <option value="uncategorized">{{ __('Uncategorized') }}</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
                     @endforeach
                 </select>
 
-                <select wire:model.live="dateFilter" class="px-3 py-2 rounded-lg text-sm bg-custom-accent"
+                <select wire:model.live="dateFilter"
+                        x-on:change="$wire.isAccountLoading = true"
+                        class="px-3 py-2 rounded-lg text-sm bg-custom-accent"
                     aria-label="{{ __('Filter by date') }}">
                     <option value="all">{{ __('All dates') }}</option>
                     <option value="current_month">{{ __('Current month') }}</option>
@@ -309,7 +328,7 @@
         {{-- Tableau desktop avec scroll --}}
         <div x-data="{
             fetchLoading: false,
-            accountLoading: false,
+            accountLoading: @entangle('isAccountLoading'),
             loadMore() {
                 if (this.fetchLoading || $wire.noMoreToLoad) return;
                 this.fetchLoading = true;
@@ -478,7 +497,13 @@
                                     @endif
 
                                     <td class="px-4 py-3 text-sm">
-                                        {{ $tx->description }}
+                                        <input
+                                            type="text"
+                                            class="input-none w-full bg-transparent focus:outline-none"
+                                            value="{{ $tx->description }}"
+                                            wire:change="updateTransactionDescription('{{ $tx->id }}', $event.target.value)"
+                                            aria-label="{{ __('Transaction description') }}"
+                                        />
                                     </td>
 
                                     <td class="px-4 py-3 whitespace-nowrap text-xs text-center">

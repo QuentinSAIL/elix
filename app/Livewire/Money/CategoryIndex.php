@@ -3,6 +3,7 @@
 namespace App\Livewire\Money;
 
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
 
@@ -24,21 +25,37 @@ class CategoryIndex extends Component
 
     public $sortDirection = 'desc';
 
+    /** Champs autorisés pour le tri (sécurité) */
+    protected array $allowedSorts = ['budget', 'name', 'color', 'created_at'];
+
     public function mount()
     {
         $this->user = Auth::user();
         $this->refreshList();
     }
 
+    #[On('category-saved')]
     public function refreshList()
     {
-        $query = $this->user->moneyCategories();
-        $query = $query->orderBy($this->sortField, $this->sortDirection);
+        $query = $this->user->moneyCategories()->withoutGlobalScope('created_at');
+
+        if ($this->sortField === 'budget') {
+            $query = $query->orderByRaw("COALESCE(budget, 0) {$this->sortDirection}")
+                       ->orderBy('name', 'asc');
+        } else {
+            $query = $query->orderBy($this->sortField, $this->sortDirection);
+        }
+
         $this->categories = $query->get();
     }
 
     public function sortBy(string $field)
     {
+        if (!in_array($field, $this->allowedSorts, true)) {
+            // Sécurité : si colonne non autorisée, on ignore
+            return;
+        }
+
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
@@ -64,7 +81,7 @@ class CategoryIndex extends Component
     {
         $cat = $this->user->moneyCategories()->find($categoryId);
         if ($cat) {
-            $cat->update(['budget' => $newBudget]);
+            $cat->update(['budget' => $newBudget ?: null]);
             Toaster::success(__('Budget updated.'));
             $this->refreshList();
         } else {
@@ -105,13 +122,12 @@ class CategoryIndex extends Component
     {
         $this->validate([
             'newName' => 'required|string|max:255',
-            'newBudget' => 'required|numeric|min:0',
             'newColor' => 'required|string',
         ]);
 
         $this->user->moneyCategories()->create([
             'name' => $this->newName,
-            'budget' => $this->newBudget,
+            'budget' => $this->newBudget ?: null,
             'color' => $this->newColor,
         ]);
 

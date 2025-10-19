@@ -39,9 +39,28 @@ class WalletIndex extends Component
         /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Wallet> $wallets */
         $wallets = $this->user->wallets()
             ->withCount('positions')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('order')
             ->get();
         $this->wallets = $wallets;
+    }
+
+    public function updateWalletOrder(array $walletIds): void
+    {
+        try {
+            foreach ($walletIds as $index => $walletId) {
+                /** @var \App\Models\Wallet|null $wallet */
+                $wallet = $this->user->wallets()->find($walletId);
+
+                if ($wallet) {
+                    $wallet->updateOrder($index + 1);
+                }
+            }
+
+            // Reload wallets to reflect the new order
+            $this->loadWallets();
+        } catch (\Exception $e) {
+            Toaster::error(__('Failed to update wallet order. Please try again.'));
+        }
     }
 
     public function delete(string|int $walletId): void
@@ -79,22 +98,36 @@ class WalletIndex extends Component
     public function getWalletBalanceInCurrency(\App\Models\Wallet $wallet): float
     {
         if ($wallet->mode === 'single') {
-            // For single mode, assume the balance is already in user's currency
-            return (float) $wallet->getCurrentBalance();
+            // For single mode, convert the balance from wallet currency to user currency
+            $walletBalance = (float) $wallet->getCurrentBalance();
+
+            // If wallet currency is the same as user currency, no conversion needed
+            if ($wallet->unit === $this->userCurrency) {
+                return $walletBalance;
+            }
+
+            // Convert from wallet currency to user currency
+            $priceService = app(PriceService::class);
+            $exchangeRate = $priceService->getExchangeRate($wallet->unit, $this->userCurrency);
+
+            if ($exchangeRate !== null) {
+                return $walletBalance * $exchangeRate;
+            }
+
+            // Fallback: return the original balance if conversion fails
+            return $walletBalance;
         }
 
-        // For multi mode, calculate from positions
+        // For multi mode, calculate from positions using getCurrentMarketValue (stored prices first, API only if needed)
+        $totalValue = 0;
         /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
         $positions = $wallet->positions;
-        $positionsArray = $positions->map(function (\App\Models\WalletPosition $position) {
-            return [
-                'ticker' => $position->ticker,
-                'quantity' => $position->quantity,
-                'price' => $position->price,
-            ];
-        })->toArray();
 
-        return app(PriceService::class)->calculatePositionsValueInCurrency($positionsArray, $this->userCurrency);
+        foreach ($positions as $position) {
+            $totalValue += $position->getCurrentMarketValue($this->userCurrency);
+        }
+
+        return $totalValue;
     }
 
     /**
@@ -130,8 +163,40 @@ class WalletIndex extends Component
         return $totalValue;
     }
 
-    public function render(): \Illuminate\Contracts\View\View
+    /**
+     * Get top positions by value for a wallet
+     *
+     * @return \Illuminate\Support\Collection<int, \App\Models\WalletPosition>
+     */
+    public function getTopPositionsByValue(\App\Models\Wallet $wallet, int $limit = 3): \Illuminate\Support\Collection
     {
-        return view('livewire.money.wallet-index');
+        if ($wallet->mode !== 'multi') {
+            return collect();
+        }
+
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
+        $positions = $wallet->positions()
+            ->with('wallet')
+            ->get();
+
+        return $positions
+            ->sortByDesc(function($position) {
+                return $position->getCurrentMarketValue($this->userCurrency);
+            })
+            ->take($limit);
+    }
+
+    /**
+     * Check if there are wallets with different currencies than user's preferred currency
+     */
+    public function hasMultipleCurrencies(): bool
+    {
+        foreach ($this->wallets as $wallet) {
+            if ($wallet->unit !== $this->userCurrency) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

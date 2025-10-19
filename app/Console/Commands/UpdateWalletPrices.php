@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Jobs\UpdateWalletPricesJob;
 use App\Models\WalletPosition;
+use App\Models\PriceAsset;
+use App\Services\PriceService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
@@ -32,41 +34,55 @@ class UpdateWalletPrices extends Command
             $this->clearPriceCache();
         }
 
-        $this->info(__('Updating wallet position prices'));
+        $this->info(__('Updating wallet position prices using price_assets system'));
 
-        $positions = WalletPosition::whereNotNull('ticker')->get();
+        // Get unique tickers from positions
+        $tickers = WalletPosition::whereNotNull('ticker')
+            ->distinct()
+            ->pluck('ticker')
+            ->toArray();
 
-        if ($positions->isEmpty()) {
+        if (empty($tickers)) {
             $this->info(__('No positions with tickers found'));
-
             return 0;
         }
+
+        $this->info(__('Found :count unique tickers to update', ['count' => count($tickers)]));
 
         $updated = 0;
         $failed = 0;
         $skipped = 0;
 
-        $progressBar = $this->output->createProgressBar($positions->count());
+        $priceService = app(PriceService::class);
+        $progressBar = $this->output->createProgressBar(count($tickers));
         $progressBar->start();
 
-        foreach ($positions as $position) {
+        foreach ($tickers as $ticker) {
             try {
-                // Skip if recently updated (unless force flag is used)
-                if (! $this->option('force') && $this->wasRecentlyUpdated($position)) {
+                // Check if we should skip this ticker
+                $priceAsset = PriceAsset::where('ticker', $ticker)->first();
+
+                if (!$this->option('force') && $priceAsset && $priceAsset->isPriceRecent()) {
                     $skipped++;
                     $progressBar->advance();
-
                     continue;
                 }
 
-                if ($position->updateCurrentPrice()) {
+                // Determine unit type from positions
+                $position = WalletPosition::where('ticker', $ticker)->first();
+                $unitType = $this->getUnitTypeFromPosition($position);
+
+                // Update price using PriceService (which updates price_assets)
+                $price = $priceService->forceUpdatePrice($ticker, 'EUR', $unitType);
+
+                if ($price !== null) {
                     $updated++;
                 } else {
                     $failed++;
                 }
             } catch (\Exception $e) {
                 $failed++;
-                $this->warn(__('Failed to update price for :name (:ticker): :error', ['name' => $position->name, 'ticker' => $position->ticker, 'error' => $e->getMessage()]));
+                $this->warn(__('Failed to update price for :ticker: :error', ['ticker' => $ticker, 'error' => $e->getMessage()]));
             }
 
             $progressBar->advance();
@@ -75,12 +91,17 @@ class UpdateWalletPrices extends Command
         $progressBar->finish();
         $this->newLine();
 
-        $this->info("✅ Updated: {$updated} positions");
+        // Synchronize all positions with updated price_assets
+        $this->info(__('Synchronizing position prices...'));
+        $syncedCount = $this->synchronizePositionPrices();
+
+        $this->info("✅ Updated: {$updated} price assets");
+        $this->info("🔄 Synchronized: {$syncedCount} positions");
         if ($skipped > 0) {
-            $this->comment("⏭️ Skipped: {$skipped} positions (recently updated)");
+            $this->comment("⏭️ Skipped: {$skipped} tickers (recently updated)");
         }
         if ($failed > 0) {
-            $this->warn("❌ Failed: {$failed} positions");
+            $this->warn("❌ Failed: {$failed} tickers");
         }
 
         $this->info(__('Price update completed'));
@@ -89,11 +110,37 @@ class UpdateWalletPrices extends Command
     }
 
     /**
-     * Check if position was recently updated (within last 10 minutes)
+     * Get unit type from position for API calls
      */
-    private function wasRecentlyUpdated(WalletPosition $position): bool
+    private function getUnitTypeFromPosition(WalletPosition $position): string
     {
-        return $position->updated_at->isAfter(now()->subMinutes(10));
+        return match ($position->unit) {
+            'CRYPTO', 'TOKEN' => 'CRYPTO',
+            'STOCK' => 'STOCK',
+            'COMMODITY' => 'COMMODITY',
+            'ETF' => 'ETF',
+            'BOND' => 'BOND',
+            default => 'OTHER',
+        };
+    }
+
+    /**
+     * Synchronize position prices with price_assets table
+     */
+    private function synchronizePositionPrices(): int
+    {
+        $syncedCount = 0;
+
+        WalletPosition::whereNotNull('ticker')->get()->each(function ($position) use (&$syncedCount) {
+            $priceAsset = PriceAsset::where('ticker', $position->ticker)->first();
+
+            if ($priceAsset && $priceAsset->price) {
+                $position->update(['price' => (string) $priceAsset->price]);
+                $syncedCount++;
+            }
+        });
+
+        return $syncedCount;
     }
 
     /**

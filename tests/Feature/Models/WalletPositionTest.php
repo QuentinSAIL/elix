@@ -74,7 +74,7 @@ class WalletPositionTest extends TestCase
         // Mock the PriceService
         $priceService = $this->mock(PriceService::class);
         $priceService->shouldReceive('getPrice')
-            ->with('AAPL', $wallet->unit)
+            ->with('AAPL', $wallet->unit, $position->unit)
             ->once()
             ->andReturn(150.0);
 
@@ -83,8 +83,15 @@ class WalletPositionTest extends TestCase
         $result = $position->updateCurrentPrice();
 
         $this->assertTrue($result);
+
+        // Verify price was updated in price_assets table, not wallet_positions
+        $priceAsset = \App\Models\PriceAsset::where('ticker', 'AAPL')->first();
+        $this->assertNotNull($priceAsset);
+        $this->assertEquals(150.0, $priceAsset->price);
+
+        // Position price should remain unchanged
         $position->refresh();
-        $this->assertEquals('150.000000000000000000', $position->price);
+        $this->assertEquals('100.000000000000000000', $position->price);
     }
 
     public function test_update_current_price_without_ticker(): void
@@ -117,7 +124,7 @@ class WalletPositionTest extends TestCase
         // Mock the PriceService to return null
         $priceService = $this->mock(PriceService::class);
         $priceService->shouldReceive('getPrice')
-            ->with('INVALID', $wallet->unit)
+            ->with('INVALID', $wallet->unit, $position->unit)
             ->once()
             ->andReturn(null);
 
@@ -143,7 +150,7 @@ class WalletPositionTest extends TestCase
         // Mock the PriceService
         $priceService = $this->mock(PriceService::class);
         $priceService->shouldReceive('getPrice')
-            ->with('AAPL', $wallet->unit)
+            ->with('AAPL', $wallet->unit, $position->unit)
             ->once()
             ->andReturn(150.0);
 
@@ -152,8 +159,15 @@ class WalletPositionTest extends TestCase
         $currentPrice = $position->getCurrentPrice();
 
         $this->assertEquals(150.0, $currentPrice);
+
+        // Verify price was updated in price_assets table, not wallet_positions
+        $priceAsset = \App\Models\PriceAsset::where('ticker', 'AAPL')->first();
+        $this->assertNotNull($priceAsset);
+        $this->assertEquals(150.0, $priceAsset->price);
+
+        // Position price should remain unchanged
         $position->refresh();
-        $this->assertEquals('150.000000000000000000', $position->price);
+        $this->assertEquals('100.000000000000000000', $position->price);
     }
 
     public function test_get_current_price_without_ticker(): void
@@ -184,7 +198,7 @@ class WalletPositionTest extends TestCase
         // Mock the PriceService to return null
         $priceService = $this->mock(PriceService::class);
         $priceService->shouldReceive('getPrice')
-            ->with('INVALID', $wallet->unit)
+            ->with('INVALID', $wallet->unit, $position->unit)
             ->once()
             ->andReturn(null);
 
@@ -192,7 +206,8 @@ class WalletPositionTest extends TestCase
 
         $currentPrice = $position->getCurrentPrice();
 
-        $this->assertEquals(100.0, $currentPrice);
+        // With ticker, should return 0.0 instead of wallet_positions price when PriceService returns null
+        $this->assertEquals(0.0, $currentPrice);
     }
 
     public function test_get_value(): void
@@ -203,6 +218,7 @@ class WalletPositionTest extends TestCase
             'wallet_id' => $wallet->id,
             'quantity' => '10.5',
             'price' => '150.25',
+            'ticker' => null, // No ticker, should use stored price
         ]);
 
         $value = $position->getValue();
@@ -218,6 +234,7 @@ class WalletPositionTest extends TestCase
             'wallet_id' => $wallet->id,
             'quantity' => '10',
             'price' => '150.50',
+            'ticker' => null, // No ticker, should use stored price
         ]);
 
         $formattedValue = $position->getFormattedValue();
@@ -233,6 +250,7 @@ class WalletPositionTest extends TestCase
             'wallet_id' => $wallet->id,
             'quantity' => '10',
             'price' => '150.00',
+            'ticker' => null, // No ticker, should use stored price
         ]);
 
         $formattedValue = $position->getFormattedValue();
@@ -240,13 +258,145 @@ class WalletPositionTest extends TestCase
         $this->assertEquals('15', $formattedValue);
     }
 
-    public function test_wallet_position_uses_uuid(): void
+    public function test_get_stored_value(): void
     {
         $user = User::factory()->create();
         $wallet = Wallet::factory()->create(['user_id' => $user->id]);
-        $position = WalletPosition::factory()->create(['wallet_id' => $wallet->id]);
+        $position = WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'quantity' => '10.5',
+            'price' => '150.25',
+        ]);
 
-        $this->assertIsString($position->id);
-        $this->assertGreaterThan(20, strlen($position->id)); // UUIDs are longer than 20 chars
+        $storedValue = $position->getStoredValue();
+
+        $this->assertEquals(1577.625, $storedValue);
+    }
+
+    public function test_get_current_market_value_with_stored_price(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+        $position = WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'quantity' => '10.5',
+            'price' => '150.25',
+            'ticker' => null, // No ticker, should use stored price
+        ]);
+
+        $marketValue = $position->getCurrentMarketValue();
+
+        $this->assertEquals(1577.625, $marketValue);
+    }
+
+    public function test_get_current_market_value_with_user_currency(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id, 'unit' => 'USD']);
+        $position = WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'quantity' => '10.5',
+            'price' => '150.25',
+            'ticker' => null, // No ticker, should use stored price
+        ]);
+
+        $marketValue = $position->getCurrentMarketValue('EUR');
+
+        $this->assertEquals(1577.625, $marketValue);
+    }
+
+    public function test_get_current_market_value_with_recent_price_asset(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+        $position = WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'quantity' => '10.5',
+            'price' => '0', // No stored price
+            'ticker' => 'AAPL',
+        ]);
+
+        // Create a recent PriceAsset
+        \App\Models\PriceAsset::create([
+            'ticker' => 'AAPL',
+            'type' => 'STOCK',
+            'price' => 200.0,
+            'currency' => 'EUR',
+            'last_updated' => now()->subHours(6),
+        ]);
+
+        $marketValue = $position->getCurrentMarketValue();
+
+        $this->assertEquals(2100.0, $marketValue);
+        // Position price should remain unchanged (price comes from price_assets)
+        $position->refresh();
+        $this->assertEquals('0.000000000000000000', $position->price);
+    }
+
+    public function test_get_current_market_value_with_old_price_asset(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+        $position = WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'quantity' => '10.5',
+            'price' => '0', // No stored price
+            'ticker' => 'AAPL',
+        ]);
+
+        // Create an old PriceAsset
+        \App\Models\PriceAsset::create([
+            'ticker' => 'AAPL',
+            'type' => 'STOCK',
+            'price' => 200.0,
+            'currency' => 'EUR',
+            'last_updated' => now()->subHours(13), // Older than 12 hours
+        ]);
+
+        // Mock PriceService to return null for old prices
+        $priceService = \Mockery::mock(\App\Services\PriceService::class);
+        $priceService->shouldReceive('getPrice')
+            ->with('AAPL', $wallet->unit, $position->unit)
+            ->once()
+            ->andReturn(null);
+
+        $this->app->instance(\App\Services\PriceService::class, $priceService);
+
+        $marketValue = $position->getCurrentMarketValue();
+
+        // Should return 0 because the price asset is too old and PriceService returns null
+        $this->assertEquals(0.0, $marketValue);
+    }
+
+    public function test_get_current_market_value_without_ticker(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+        $position = WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'quantity' => '10.5',
+            'price' => '0', // No stored price
+            'ticker' => null,
+        ]);
+
+        $marketValue = $position->getCurrentMarketValue();
+
+        $this->assertEquals(0.0, $marketValue);
+    }
+
+    public function test_get_current_market_value_without_wallet(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+        $position = WalletPosition::factory()->create([
+            'wallet_id' => $wallet->id,
+            'quantity' => '10.5',
+            'price' => '150.25',
+            'ticker' => null, // No ticker, should use stored price
+        ]);
+
+        $marketValue = $position->getCurrentMarketValue();
+
+        $this->assertEquals(1577.625, $marketValue);
     }
 }

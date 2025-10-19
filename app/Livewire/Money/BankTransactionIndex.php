@@ -174,22 +174,28 @@ class BankTransactionIndex extends Component
     /** Réinitialise la pagination lors de l'actualisation de la recherche */
     public function updatedSearch(): void
     {
+        $this->isAccountLoading = true;
         $this->resetPagination();
         $this->getTransactionsProperty();
+        $this->isAccountLoading = false;
     }
 
     /** Réinitialise la pagination lors du changement de filtre de catégorie */
     public function updatedCategoryFilter(): void
     {
+        $this->isAccountLoading = true;
         $this->resetPagination();
         $this->getTransactionsProperty();
+        $this->isAccountLoading = false;
     }
 
     /** Réinitialise la pagination lors du changement de filtre de date */
     public function updatedDateFilter(): void
     {
+        $this->isAccountLoading = true;
         $this->resetPagination();
         $this->getTransactionsProperty();
+        $this->isAccountLoading = false;
     }
 
     /**
@@ -208,9 +214,10 @@ class BankTransactionIndex extends Component
             $this->sortField = $field;
             $this->sortDirection = 'asc';
         }
-
+        $this->isAccountLoading = true;
         $this->resetPagination();
         $this->getTransactionsProperty();
+        $this->isAccountLoading = false;
     }
 
     /**
@@ -277,7 +284,11 @@ class BankTransactionIndex extends Component
 
         // Filtre de catégorie : attention aux valeurs "0"/0
         if ($this->categoryFilter !== '' && $this->categoryFilter !== null) {
-            $query->where('money_category_id', $this->categoryFilter);
+            if ($this->categoryFilter === 'uncategorized') {
+                $query->whereNull('money_category_id');
+            } else {
+                $query->where('money_category_id', $this->categoryFilter);
+            }
         }
 
         // Filtre de date : passer sur des bornes (meilleure utilisation des index)
@@ -372,6 +383,32 @@ class BankTransactionIndex extends Component
     {
         $this->perPage = $this->onInitialLoad;
         $this->noMoreToLoad = false;
+    }
+
+    /**
+     * Met à jour la description d'une transaction
+     */
+    public function updateTransactionDescription(string|int $transactionId, string $description): void
+    {
+        /** @var \App\Models\BankTransactions|null $transaction */
+        $transaction = \App\Models\BankTransactions::find($transactionId);
+
+        if ($transaction) {
+            $transaction->update(['description' => $description]);
+
+            // Mettre à jour la transaction dans la collection locale
+            $index = $this->transactions->search(function ($tx) use ($transactionId) {
+                return $tx->id === (int) $transactionId;
+            });
+
+            if ($index !== false) {
+                $this->transactions->put($index, $transaction->fresh(['category:id,name', 'account:id,name']));
+            }
+
+            Toaster::success(__('Transaction description updated successfully'));
+        } else {
+            Toaster::error(__('Transaction not found'));
+        }
     }
 
     /**

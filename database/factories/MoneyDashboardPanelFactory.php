@@ -17,15 +17,15 @@ class MoneyDashboardPanelFactory extends Factory
      */
     public function definition(): array
     {
-        $types = ['bar', 'doughnut', 'pie', 'line', 'table', 'number'];
-        $periodTypes = ['all', 'daily', 'weekly', 'biweekly', 'monthly', 'quarterly', 'biannual', 'yearly'];
+        $types = ['bar', 'doughnut', 'pie', 'line', 'table', 'number', 'gauge', 'trend', 'category_comparison'];
+        $periodTypes = ['all', 'daily', 'weekly', 'biweekly', 'monthly', 'quarterly', 'biannual', 'yearly', 'actual_month', 'previous_month', 'two_months_ago', 'three_months_ago'];
 
         return [
             'money_dashboard_id' => MoneyDashboard::factory(),
             'title' => $this->faker->sentence(),
-            'is_expense' => $this->faker->boolean(),
             'type' => $this->faker->randomElement($types),
             'period_type' => $this->faker->randomElement($periodTypes),
+            'order' => $this->faker->numberBetween(1, 100),
         ];
     }
 }

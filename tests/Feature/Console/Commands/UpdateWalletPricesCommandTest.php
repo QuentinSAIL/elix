@@ -52,11 +52,19 @@ class UpdateWalletPricesCommandTest extends TestCase
         WalletPosition::factory()->for($wallet)->create([
             'ticker' => 'AAPL',
             'price' => 100.0,
-            'updated_at' => now(), // Recently updated
+        ]);
+
+        // Create a recent PriceAsset to simulate recently updated price
+        \App\Models\PriceAsset::create([
+            'ticker' => 'AAPL',
+            'type' => 'STOCK',
+            'price' => 100.0,
+            'currency' => 'EUR',
+            'last_updated' => now(),
         ]);
 
         $this->artisan('wallets:update-prices')
-            ->expectsOutput('⏭️ Skipped: 1 positions (recently updated)')
+            ->expectsOutput('⏭️ Skipped: 1 tickers (recently updated)')
             ->assertExitCode(0);
     }
 
@@ -80,7 +88,7 @@ class UpdateWalletPricesCommandTest extends TestCase
         ]);
 
         $this->artisan('wallets:update-prices --force')
-            ->expectsOutput('✅ Updated: 1 positions')
+            ->expectsOutput('✅ Updated: 1 price assets')
             ->assertExitCode(0);
     }
 
