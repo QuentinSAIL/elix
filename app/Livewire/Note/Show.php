@@ -19,7 +19,7 @@ class Show extends Component
     {
         $this->user = Auth::user();
         $this->note = $note;
-        $this->markdownContent = $note?->content;
+        $this->markdownContent = $note?->content ?? '';
     }
 
     public function updatedMarkdownContent()
@@ -49,11 +49,13 @@ class Show extends Component
             return;
         }
 
-        if ($this->note) {
+        if ($this->note && $this->note->id) {
+            // Note existante - mise à jour
             $this->note->content = $this->markdownContent;
             $this->note->save();
             Toaster::success(__('Note updated successfully.'));
         } else {
+            // Nouvelle note - création
             $this->note = $this->user->notes()->create([
                 'content' => $this->markdownContent,
             ]);
@@ -62,6 +64,17 @@ class Show extends Component
         }
 
         $this->dispatch('note-saved', $this->note);
+    }
+
+    public function closeNote()
+    {
+        $this->dispatch('close-note');
+    }
+
+    public function deleteNote($id)
+    {
+        $this->dispatch('delete-note', (string) $id);
+        $this->dispatch('close-note');
     }
 
     public function render()
