@@ -60,11 +60,11 @@
                             }
                         }" class="relative">
                             <button @click="open = !open" type="button"
-                                    class="w-full px-4 py-3 text-left bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus-ring-color>
-                                <span x-show="!selectedCategory" class="text-zinc-500 dark:text-zinc-400">
+                                    class="w-full px-4 py-3 text-left bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-color-500 focus:border-color-500">
+                                <span x-show="!selectedCategory || selectedCategory === ''" class="text-zinc-500 dark:text-zinc-400">
                                     {{ __('Select a category') }}
                                 </span>
-                                <span x-show="selectedCategory" class="text-zinc-900 dark:text-zinc-50" x-text="selectedCategory"></span>
+                                <span x-show="selectedCategory && selectedCategory !== ''" class="text-zinc-900 dark:text-zinc-50" x-text="selectedCategory"></span>
                                 <flux:icon.chevron-down class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-zinc-400" />
                             </button>
 
@@ -77,9 +77,8 @@
                                 <div class="max-h-48 overflow-y-auto">
                                     <template x-for="category in filteredCategories" :key="category.id">
                                         <div @click="selectCategory(category.name)"
-                                             class="px-4 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-700 cursor-pointer flex items-center justify-between">
+                                             class="px-4 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-700 cursor-pointer">
                                             <span class="text-sm text-zinc-900 dark:text-zinc-50" x-text="category.name"></span>
-                                            <flux:icon.check x-show="selectedCategory === category.name" class="w-4 h-4 text-color" />
                                         </div>
                                     </template>
                                     <div x-show="filteredCategories.length === 0" class="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400">
