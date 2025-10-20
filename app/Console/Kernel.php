@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // Only run scheduled tasks in production
-        if (!app()->environment('production')) {
+        if (! app()->environment('production')) {
             return;
         }
 

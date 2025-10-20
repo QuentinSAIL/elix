@@ -55,9 +55,10 @@ class UpdateBankTransactions extends Command
         foreach ($bankAccounts as $account) {
             try {
                 // Authentifier l'utilisateur du compte pour le service GoCardless
-                if (!$account->user) {
+                if (! $account->user) {
                     $this->error("❌ Utilisateur non trouvé pour le compte {$account->name}");
                     $errorCount++;
+
                     continue;
                 }
 
@@ -84,8 +85,8 @@ class UpdateBankTransactions extends Command
                 }
 
             } catch (\Exception $e) {
-                $this->error("❌ Erreur lors de la mise à jour du compte {$account->name}: " . $e->getMessage());
-                Log::error("Erreur mise à jour transactions compte bancaire {$account->id}: " . $e->getMessage());
+                $this->error("❌ Erreur lors de la mise à jour du compte {$account->name}: ".$e->getMessage());
+                Log::error("Erreur mise à jour transactions compte bancaire {$account->id}: ".$e->getMessage());
                 $errorCount++;
             }
         }
