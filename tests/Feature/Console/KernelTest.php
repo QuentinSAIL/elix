@@ -7,7 +7,6 @@ use Tests\TestCase;
 
 class KernelTest extends TestCase
 {
-
     public function test_schedule_method_defines_commands(): void
     {
         $kernel = new \App\Console\Kernel(app(), app('events'), app(Schedule::class));

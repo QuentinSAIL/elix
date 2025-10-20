@@ -18,14 +18,14 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->onOneServer()
             ->runInBackground()
-            ->when(fn() => app()->environment('production'));
+            ->when(fn () => app()->environment('production'));
 
         $schedule->command('prices:update-assets --limit=100')
             ->dailyAt('18:00')
             ->withoutOverlapping()
             ->onOneServer()
             ->runInBackground()
-            ->when(fn() => app()->environment('production'));
+            ->when(fn () => app()->environment('production'));
 
         // Keep the old command for backward compatibility during transition
         $schedule->command('wallets:update-prices')
@@ -33,7 +33,7 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->onOneServer()
             ->runInBackground()
-            ->when(fn() => app()->environment('production'));
+            ->when(fn () => app()->environment('production'));
 
         // Update bank transactions for all users every night at 2:00 AM
         $schedule->command('bank-transactions:update')
@@ -41,7 +41,7 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->onOneServer()
             ->runInBackground()
-            ->when(fn() => app()->environment('production'));
+            ->when(fn () => app()->environment('production'));
     }
 
     /**
