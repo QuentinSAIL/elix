@@ -610,5 +610,21 @@
     "Le contenu de la categorie est invalide.": "The category content is invalid.",
     "Transaction description updated successfully": "Transaction description updated successfully",
     "Transaction not found": "Transaction not found",
-    "Transaction description": "Transaction description"
+    "Transaction description": "Transaction description",
+    "Untitled note": "Untitled note",
+    "Click \"Add new note\" to get started.": "Click \"Add new note\" to get started.",
+    "Last updated": "Last updated",
+    "New note": "New note",
+    "Start writing your note below": "Start writing your note below",
+    "Start writing your note...": "Start writing your note...",
+    "Preview": "Preview",
+    "Start typing to see the preview.": "Start typing to see the preview.",
+    "No notes yet": "No notes yet",
+    "Start creating your first note to organize your thoughts and ideas.": "Start creating your first note to organize your thoughts and ideas.",
+    "Create your first note": "Create your first note",
+    "Close": "Close",
+    "Write": "Write",
+    "Auto-saved": "Auto-saved",
+    "Auto-save enabled": "Auto-save enabled",
+    "Delete": "Delete"
 }
