@@ -1,15 +1,18 @@
 <div class="min-h-screen bg-custom-accent">
-    <!-- Header avec bouton d'ajout -->
-    <div class="sticky top-0 z-10 bg-custom-accent border-b border-zinc-200 dark:border-zinc-700 p-4">
+    <div class="sticky top-0 z-10 border-b border-zinc-200 dark:border-zinc-700 p-4">
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold text-custom">{{ __('Notes') }}</h1>
-            <button
+            <flux:button
                 wire:click="selectNote('{{ null }}')"
-                class="bg-color text-white rounded-xl px-6 py-3 flex items-center gap-2 hover:opacity-90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                class="cursor-pointer inline-flex items-center p-0"
+                variant="primary"
                 aria-label="{{ __('Add new note') }}">
-                <flux:icon.plus class="w-5 h-5" aria-hidden="true" />
-                <span class="font-medium">{{ __('Add new note') }}</span>
-            </button>
+                <div class="flex items-center gap-2 whitespace-nowrap">
+                    <flux:icon.plus class="w-5 h-5 inline-block" aria-hidden="true" />
+                    <span class="font-medium hidden md:inline">{{ __('Add new note') }}</span>
+                    <span class="font-medium md:hidden">{{ __('Add') }}</span>
+                </div>
+            </flux:button>
         </div>
     </div>
 

@@ -30,7 +30,7 @@
 
         <button
             wire:click="closeNote"
-            class="p-2 text-zinc-400 hover:text-custom rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-200"
+            class="cursor-pointer p-2 text-zinc-400 hover:text-custom rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-200"
             aria-label="{{ __('Close') }}">
             <flux:icon.x-mark class="w-6 h-6" aria-hidden="true" />
         </button>
@@ -90,13 +90,14 @@
             <div class="flex items-center gap-2">
                 <flux:button
                     wire:click="closeNote"
-                    class="px-4 py-2 text-sm text-grey hover:text-custom transition-colors duration-200">
+                    class="cursor-pointer">
                     {{ __('Close') }}
                 </flux:button>
                 @if($note && $note->id)
                     <flux:button
                         wire:click="deleteNote('{{ $note->id }}')"
-                        class="px-4 py-2 text-sm text-danger-500 hover:text-danger-600 hover:bg-danger-100 rounded-lg transition-all duration-200">
+                        variant="danger"
+                        class="cursor-pointer">
                         {{ __('Delete') }}
                     </flux:button>
                 @endif
