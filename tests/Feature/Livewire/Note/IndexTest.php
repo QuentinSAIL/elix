@@ -42,7 +42,7 @@ test('can create new note', function () {
     Livewire::test(Index::class)
         ->call('selectNote', null)
         ->assertSet('selectedNote.content', '')
-        ->assertNotNull('selectedNote');
+        ->assertNotSet('selectedNote', null);
 });
 
 test('can delete note', function () {
