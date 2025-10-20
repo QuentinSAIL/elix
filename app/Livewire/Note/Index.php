@@ -38,16 +38,39 @@ class Index extends Component
     }
 
     #[On('note-created')]
+    public function noteCreated($noteId)
+    {
+        $note = Note::where('user_id', $this->user->id)->find($noteId);
+        if ($note) {
+            $this->notes->prepend($note);
+            $this->selectedNote = $note;
+        }
+    }
+
     public function selectNote($noteId)
     {
-        if (! $noteId) {
-            $this->selectedNote = null;
+        if (! $noteId || $noteId === 'null') {
+            // Créer une nouvelle note vide pour l'édition
+            $this->selectedNote = new Note;
+            $this->selectedNote->content = '';
         } else {
             $note = Note::where('user_id', $this->user->id)->findOrFail($noteId);
             $this->selectedNote = $note;
         }
     }
 
+    #[On('close-note')]
+    public function closeNote()
+    {
+        $this->selectedNote = null;
+    }
+
+    public function closeModal()
+    {
+        $this->selectedNote = null;
+    }
+
+    #[On('delete-note')]
     public function delete($id)
     {
         if ($r = Note::where('user_id', $this->user->id)->find($id)) {

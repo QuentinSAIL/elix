@@ -28,6 +28,8 @@ class WalletForm extends Component
 
     public bool $mobile = false;
 
+    public string $userCurrency = 'EUR';
+
     /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> */
     public \Illuminate\Database\Eloquent\Collection $positions;
 
@@ -45,11 +47,20 @@ class WalletForm extends Component
     public function mount(): void
     {
         $this->user = Auth::user();
+
+        // Get user's preferred currency
+        $userPreference = $this->user->preference()->first();
+        $this->userCurrency = $userPreference->currency ?? 'EUR';
+
         $this->populateForm();
         $this->positions = new \Illuminate\Database\Eloquent\Collection;
         if ($this->wallet) {
             /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
             $positions = $this->wallet->positions()->get();
+            // Order positions by current market value (stored prices first, API only if needed)
+            $positions = $positions->sortByDesc(function ($position) {
+                return $position->getCurrentMarketValue($this->userCurrency);
+            })->values();
             $this->positions = $positions;
         }
     }
@@ -112,6 +123,10 @@ class WalletForm extends Component
                 Toaster::success(__('Wallet updated successfully.'));
                 /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
                 $positions = $this->wallet->positions()->get();
+                // Order positions by current market value (stored prices first, API only if needed)
+                $positions = $positions->sortByDesc(function ($position) {
+                    return $position->getCurrentMarketValue($this->userCurrency);
+                })->values();
                 $this->positions = $positions;
             } else {
                 $walletData = [
@@ -154,44 +169,60 @@ class WalletForm extends Component
             return;
         }
 
-        $this->validate([
+        // Validation conditionnelle : price requis seulement si pas de ticker
+        $rules = [
             'positionForm.name' => 'required|string|max:255',
             'positionForm.ticker' => 'nullable|string|max:32',
             'positionForm.unit' => 'required|string|max:16',
             'positionForm.quantity' => 'required|numeric|min:0',
-            'positionForm.price' => 'required|numeric|min:0',
-        ]);
+        ];
+
+        // Si pas de ticker, le prix est requis
+        if (empty($this->positionForm['ticker'])) {
+            $rules['positionForm.price'] = 'required|numeric|min:0';
+        } else {
+            $rules['positionForm.price'] = 'nullable|numeric|min:0';
+        }
+
+        $this->validate($rules);
 
         try {
+            // Préparer les données de base
+            $positionData = [
+                'name' => trim($this->positionForm['name']),
+                'ticker' => $this->positionForm['ticker'] ? strtoupper(trim($this->positionForm['ticker'])) : null,
+                'unit' => strtoupper(trim($this->positionForm['unit'])),
+                'quantity' => (string) $this->positionForm['quantity'],
+            ];
+
+            // Ajouter le prix seulement si pas de ticker
+            if (empty($this->positionForm['ticker'])) {
+                $positionData['price'] = (string) $this->positionForm['price'];
+            } else {
+                $positionData['price'] = null; // Pas de prix stocké pour les positions avec ticker
+            }
+
             if ($this->editingPosition) {
-                $this->editingPosition->update([
-                    'name' => trim($this->positionForm['name']),
-                    'ticker' => $this->positionForm['ticker'] ? strtoupper(trim($this->positionForm['ticker'])) : null,
-                    'unit' => strtoupper(trim($this->positionForm['unit'])),
-                    'quantity' => (string) $this->positionForm['quantity'],
-                    'price' => (string) $this->positionForm['price'],
-                ]);
+                $this->editingPosition->update($positionData);
                 Toaster::success(__('Position updated successfully.'));
             } else {
                 /** @var \App\Models\WalletPosition $position */
-                $position = $this->wallet->positions()->create([
-                    'name' => trim($this->positionForm['name']),
-                    'ticker' => $this->positionForm['ticker'] ? strtoupper(trim($this->positionForm['ticker'])) : null,
-                    'unit' => strtoupper(trim($this->positionForm['unit'])),
-                    'quantity' => (string) $this->positionForm['quantity'],
-                    'price' => (string) $this->positionForm['price'],
-                ]);
+                $position = $this->wallet->positions()->create($positionData);
                 Toaster::success(__('Position added successfully.'));
 
-                // Update price for the new position if it has a ticker
+                // Si la position a un ticker, vérifier/créer dans price_assets
                 if ($position->ticker) {
-                    $position->updateCurrentPrice();
+                    $this->handleTickerPriceUpdate($position);
                 }
             }
 
             $this->resetPositionForm();
             /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
             $positions = $this->wallet->positions()->get();
+            // Order positions by current market value (stored prices first, API only if needed)
+            $positions = $positions->sortByDesc(function ($position) {
+                return $position->getCurrentMarketValue($this->userCurrency);
+            })->values();
             $this->positions = $positions;
 
             // Update price for the position if it has a ticker
@@ -201,6 +232,60 @@ class WalletForm extends Component
         } catch (\Exception $e) {
             Toaster::error(__('Failed to save position. Please try again.'));
         }
+    }
+
+    /**
+     * Handle ticker price update for new positions
+     */
+    private function handleTickerPriceUpdate(\App\Models\WalletPosition $position): void
+    {
+        try {
+            $priceService = app(\App\Services\PriceService::class);
+
+            // Vérifier si l'actif existe déjà dans price_assets
+            $priceAsset = \App\Models\PriceAsset::where('ticker', $position->ticker)->first();
+
+            if ($priceAsset && $priceAsset->isPriceRecent()) {
+                // Utiliser le prix récent de la base de données
+                $position->update(['price' => (string) $priceAsset->price]);
+                Toaster::info(__('Price updated from recent market data.'));
+            } else {
+                // Créer l'entrée dans price_assets si elle n'existe pas
+                if (! $priceAsset) {
+                    $assetType = $this->getAssetTypeFromUnitType($position->unit);
+                    $priceAsset = \App\Models\PriceAsset::findOrCreate($position->ticker, $assetType);
+                }
+
+                // Essayer de récupérer un prix frais depuis l'API et le sauvegarder
+                $currentPrice = $priceService->getPrice($position->ticker, $this->wallet->unit, $position->unit);
+
+                if ($currentPrice !== null) {
+                    $position->update(['price' => (string) $currentPrice]);
+                    Toaster::info(__('Price updated from market data.'));
+                } else {
+                    // Garder le prix manuel si l'API échoue
+                    Toaster::warning(__('Could not fetch current price. Using manual price.'));
+                }
+            }
+        } catch (\Exception $e) {
+            // En cas d'erreur, garder le prix manuel
+            Toaster::warning(__('Could not update price. Using manual price.'));
+        }
+    }
+
+    /**
+     * Convert unitType to asset type for the price_assets table
+     */
+    private function getAssetTypeFromUnitType(?string $unitType): string
+    {
+        return match ($unitType) {
+            'CRYPTO', 'TOKEN' => 'CRYPTO',
+            'STOCK' => 'STOCK',
+            'COMMODITY' => 'COMMODITY',
+            'ETF' => 'ETF',
+            'BOND' => 'BOND',
+            default => 'OTHER',
+        };
     }
 
     public function editPosition(string $positionId): void

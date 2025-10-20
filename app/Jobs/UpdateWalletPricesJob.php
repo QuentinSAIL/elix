@@ -33,20 +33,39 @@ class UpdateWalletPricesJob implements ShouldQueue
     {
         Log::info(__('Starting background wallet price update job'));
 
+        // Group positions by ticker to avoid duplicate API calls
+        $positionsByTicker = [];
         $positions = WalletPosition::whereNotNull('ticker')->get();
+
+        foreach ($positions as $position) {
+            $ticker = strtoupper($position->ticker);
+            $positionsByTicker[$ticker][] = $position;
+        }
+
         $updated = 0;
         $failed = 0;
 
-        foreach ($positions as $position) {
+        // Update prices for each ticker group
+        foreach ($positionsByTicker as $ticker => $tickerPositions) {
             try {
-                if ($position->updateCurrentPrice()) {
-                    $updated++;
+                // Use the first position to get the current price
+                $firstPosition = $tickerPositions[0];
+                $priceService = app(\App\Services\PriceService::class);
+                $currentPrice = $priceService->getPrice($firstPosition->ticker, $firstPosition->wallet->unit);
+
+                if ($currentPrice !== null) {
+                    // Update all positions with the same ticker
+                    foreach ($tickerPositions as $position) {
+                        $position->update(['price' => (string) $currentPrice]);
+                        $updated++;
+                    }
                 } else {
-                    $failed++;
+                    $failed += count($tickerPositions);
+                    Log::warning(__('Failed to get price for ticker :ticker', ['ticker' => $ticker]));
                 }
             } catch (\Exception $e) {
-                $failed++;
-                Log::warning(__('Failed to update price for :name (:ticker): :error', ['name' => $position->name, 'ticker' => $position->ticker, 'error' => $e->getMessage()]));
+                $failed += count($tickerPositions);
+                Log::warning(__('Failed to update price for ticker :ticker: :error', ['ticker' => $ticker, 'error' => $e->getMessage()]));
             }
         }
 

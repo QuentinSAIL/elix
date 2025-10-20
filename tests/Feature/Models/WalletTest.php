@@ -74,6 +74,7 @@ class WalletTest extends TestCase
             'mode',
             'balance',
             'category_linked_id',
+            'order',
             'created_at',
             'updated_at',
         ];
@@ -89,6 +90,7 @@ class WalletTest extends TestCase
             'id' => 'string',
             'balance' => 'decimal:18',
             'mode' => 'string',
+            'order' => 'integer',
         ];
 
         $this->assertEquals($expectedCasts, $wallet->getCasts());
@@ -177,5 +179,56 @@ class WalletTest extends TestCase
         // Should auto-create a category
         $this->assertNotNull($wallet->fresh()->category_linked_id);
         $this->assertInstanceOf(MoneyCategory::class, $wallet->category);
+    }
+
+    public function test_wallet_can_get_formatted_balance(): void
+    {
+        $wallet = Wallet::factory()->create(['balance' => '1234.56']);
+
+        $formattedBalance = $wallet->balance;
+
+        $this->assertEquals('1234.560000000000000000', $formattedBalance);
+    }
+
+    public function test_wallet_can_get_total_value(): void
+    {
+        $wallet = Wallet::factory()->create(['balance' => '1000.00']);
+
+        $totalValue = $wallet->getCurrentBalance();
+
+        $this->assertEquals(1000.0, $totalValue);
+    }
+
+    public function test_wallet_can_get_positions_count(): void
+    {
+        $wallet = Wallet::factory()->create();
+        WalletPosition::factory()->count(3)->create(['wallet_id' => $wallet->id]);
+
+        $positionsCount = $wallet->positions()->count();
+
+        $this->assertEquals(3, $positionsCount);
+    }
+
+    public function test_wallet_can_update_order(): void
+    {
+        $wallet = Wallet::factory()->create(['order' => 1]);
+
+        $wallet->updateOrder(5);
+
+        $this->assertEquals(5, $wallet->fresh()->order);
+    }
+
+    public function test_wallet_scope_ordered(): void
+    {
+        $user = User::factory()->create();
+        $wallet1 = Wallet::factory()->create(['user_id' => $user->id, 'order' => 2]);
+        $wallet2 = Wallet::factory()->create(['user_id' => $user->id, 'order' => 1]);
+        $wallet3 = Wallet::factory()->create(['user_id' => $user->id, 'order' => 3]);
+
+        $orderedWallets = Wallet::ordered()->get();
+
+        $this->assertEquals($wallet2->id, $orderedWallets->first()->id);
+        $this->assertEquals($wallet1->id, $orderedWallets->skip(1)->first()->id);
+        $this->assertEquals($wallet3->id, $orderedWallets->last()->id);
     }
 }

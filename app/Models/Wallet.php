@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
  * @property string $mode
  * @property string $balance
  * @property string $category_linked_id
+ * @property int $order
  * @property string $created_at
  * @property string $updated_at
  */
@@ -33,6 +34,7 @@ class Wallet extends Model
         'mode',
         'balance',
         'category_linked_id',
+        'order',
         'created_at',
         'updated_at',
     ];
@@ -45,6 +47,7 @@ class Wallet extends Model
         'id' => 'string',
         'balance' => 'decimal:18',
         'mode' => 'string',
+        'order' => 'integer',
     ];
 
     protected static function boot(): void
@@ -67,6 +70,12 @@ class Wallet extends Model
             // Ensure mode default
             if (! $wallet->mode) {
                 $wallet->mode = 'single';
+            }
+
+            // Set order to be last if not specified
+            if (! $wallet->order) {
+                $maxOrder = static::where('user_id', $wallet->user_id)->max('order') ?? 0;
+                $wallet->order = $maxOrder + 1;
             }
         });
 
@@ -160,5 +169,21 @@ class Wallet extends Model
         if ($this->isSingleMode()) {
             $this->update(['balance' => (string) $newBalance]);
         }
+    }
+
+    /**
+     * Scope to order wallets by their order field
+     */
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query->orderBy('order');
+    }
+
+    /**
+     * Update wallet order
+     */
+    public function updateOrder(int $newOrder): void
+    {
+        $this->update(['order' => $newOrder]);
     }
 }

@@ -150,7 +150,7 @@ class CategoryForm extends Component
         ];
 
         foreach ($this->categoryMatchForm as $index => $match) {
-            $rules['categoryMatchForm.'.$index.'.keyword'] = 'required|string|max:255';
+            // $rules['categoryMatchForm.'.$index.'.keyword'] = 'required|string|max:255';
         }
 
         $this->validate($rules);

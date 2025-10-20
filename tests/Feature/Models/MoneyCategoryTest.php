@@ -4,6 +4,7 @@ namespace Tests\Feature\Models;
 
 use App\Models\MoneyCategory;
 use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -20,18 +21,16 @@ class MoneyCategoryTest extends TestCase
         $this->assertEquals($user->id, $category->user->id);
     }
 
-    public function test_money_category_has_many_matches(): void
+    public function test_money_category_has_many_wallets(): void
     {
-        $category = MoneyCategory::factory()->create();
+        $user = User::factory()->create();
+        $category = MoneyCategory::factory()->create(['user_id' => $user->id]);
+        Wallet::factory()->count(2)->create([
+            'user_id' => $user->id,
+            'category_linked_id' => $category->id,
+        ]);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $category->categoryMatches);
-    }
-
-    public function test_money_category_has_many_transactions(): void
-    {
-        $category = MoneyCategory::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $category->transactions);
+        $this->assertInstanceOf(Wallet::class, $category->wallet);
     }
 
     public function test_money_category_can_be_created(): void
@@ -41,20 +40,14 @@ class MoneyCategoryTest extends TestCase
         $category = MoneyCategory::factory()->create([
             'user_id' => $user->id,
             'name' => 'Test Category',
-            'description' => 'Test Description',
-            'color' => '#FF0000',
-            'budget' => 1000.00,
-            'include_in_dashboard' => true,
+            'budget' => '5000.00',
         ]);
 
         $this->assertDatabaseHas('money_categories', [
             'id' => $category->id,
             'user_id' => $user->id,
             'name' => 'Test Category',
-            'description' => 'Test Description',
-            'color' => '#FF0000',
-            'budget' => '1000.00',
-            'include_in_dashboard' => true,
+            'budget' => '5000.00',
         ]);
     }
 
@@ -82,28 +75,31 @@ class MoneyCategoryTest extends TestCase
     {
         $category = new MoneyCategory;
 
-        // MoneyCategory doesn't have explicit casts defined, so it uses defaults
-        $this->assertIsArray($category->getCasts());
+        $expectedCasts = [];
+
+        $this->assertEquals($expectedCasts, $category->getCasts());
     }
 
-    public function test_money_category_can_calculate_spent_for_month(): void
+    public function test_money_category_can_get_spent_for_month(): void
     {
         $user = User::factory()->create();
         $category = MoneyCategory::factory()->create(['user_id' => $user->id]);
 
-        // Create some transactions for this category
-        \App\Models\BankTransactions::factory()->count(3)->create([
+        // Create some transactions for this month
+        $bankAccount = \App\Models\BankAccount::factory()->create(['user_id' => $user->id]);
+        \App\Models\BankTransactions::factory()->create([
+            'bank_account_id' => $bankAccount->id,
             'money_category_id' => $category->id,
-            'amount' => '-100.00',
+            'amount' => -100.0,
             'transaction_date' => now()->startOfMonth()->addDays(5),
         ]);
 
-        $spentForMonth = $category->spentForMonth(now());
+        $spent = $category->spentForMonth(now());
 
-        $this->assertEquals(-300.0, $spentForMonth);
+        $this->assertEquals(-100.0, $spent);
     }
 
-    public function test_money_category_can_calculate_remaining_budget(): void
+    public function test_money_category_can_get_remaining_for_month(): void
     {
         $user = User::factory()->create();
         $category = MoneyCategory::factory()->create([
@@ -111,19 +107,21 @@ class MoneyCategoryTest extends TestCase
             'budget' => '1000.00',
         ]);
 
-        // Create some transactions for this category
-        \App\Models\BankTransactions::factory()->count(2)->create([
+        // Create some transactions for this month
+        $bankAccount = \App\Models\BankAccount::factory()->create(['user_id' => $user->id]);
+        \App\Models\BankTransactions::factory()->create([
+            'bank_account_id' => $bankAccount->id,
             'money_category_id' => $category->id,
-            'amount' => '-200.00',
+            'amount' => -200.0,
             'transaction_date' => now()->startOfMonth()->addDays(5),
         ]);
 
-        $remainingBudget = $category->remainingForMonth(now());
+        $remaining = $category->remainingForMonth(now());
 
-        $this->assertEquals(600.0, $remainingBudget);
+        $this->assertEquals(800.0, $remaining);
     }
 
-    public function test_money_category_can_check_if_over_budget(): void
+    public function test_money_category_can_check_if_overspent_for_month(): void
     {
         $user = User::factory()->create();
         $category = MoneyCategory::factory()->create([
@@ -132,18 +130,18 @@ class MoneyCategoryTest extends TestCase
         ]);
 
         // Create transactions that exceed budget
-        \App\Models\BankTransactions::factory()->count(3)->create([
+        $bankAccount = \App\Models\BankAccount::factory()->create(['user_id' => $user->id]);
+        \App\Models\BankTransactions::factory()->create([
+            'bank_account_id' => $bankAccount->id,
             'money_category_id' => $category->id,
-            'amount' => '-200.00',
+            'amount' => -600.0,
             'transaction_date' => now()->startOfMonth()->addDays(5),
         ]);
 
-        $isOverspent = $category->isOverspentForMonth(now());
-
-        $this->assertTrue($isOverspent);
+        $this->assertTrue($category->isOverspentForMonth(now()));
     }
 
-    public function test_money_category_can_check_if_under_budget(): void
+    public function test_money_category_can_check_if_not_overspent_for_month(): void
     {
         $user = User::factory()->create();
         $category = MoneyCategory::factory()->create([
@@ -151,15 +149,15 @@ class MoneyCategoryTest extends TestCase
             'budget' => '1000.00',
         ]);
 
-        // Create transactions that are under budget
-        \App\Models\BankTransactions::factory()->count(2)->create([
+        // Create transactions within budget
+        $bankAccount = \App\Models\BankAccount::factory()->create(['user_id' => $user->id]);
+        \App\Models\BankTransactions::factory()->create([
+            'bank_account_id' => $bankAccount->id,
             'money_category_id' => $category->id,
-            'amount' => '-200.00',
+            'amount' => -200.0,
             'transaction_date' => now()->startOfMonth()->addDays(5),
         ]);
 
-        $isOverspent = $category->isOverspentForMonth(now());
-
-        $this->assertFalse($isOverspent);
+        $this->assertFalse($category->isOverspentForMonth(now()));
     }
 }

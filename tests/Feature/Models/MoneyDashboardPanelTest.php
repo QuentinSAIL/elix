@@ -118,6 +118,122 @@ test('can determine all period', function () {
     $this->assertNull($period['endDate']);
 });
 
+test('can determine biweekly period', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'period_type' => 'biweekly',
+    ]);
+
+    $period = $panel->determinePeriode();
+
+    $this->assertNotNull($period['startDate']);
+    $this->assertNotNull($period['endDate']);
+    $this->assertEquals(now()->startOfWeek()->format('Y-m-d'), $period['startDate']->format('Y-m-d'));
+    $this->assertEquals(now()->addWeek()->endOfWeek()->format('Y-m-d'), $period['endDate']->format('Y-m-d'));
+});
+
+test('can determine quarterly period', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'period_type' => 'quarterly',
+    ]);
+
+    $period = $panel->determinePeriode();
+
+    $this->assertNotNull($period['startDate']);
+    $this->assertNotNull($period['endDate']);
+    $this->assertEquals(now()->startOfQuarter()->format('Y-m-d'), $period['startDate']->format('Y-m-d'));
+    $this->assertEquals(now()->endOfQuarter()->format('Y-m-d'), $period['endDate']->format('Y-m-d'));
+});
+
+test('can determine biannual period', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'period_type' => 'biannual',
+    ]);
+
+    $period = $panel->determinePeriode();
+
+    $this->assertNotNull($period['startDate']);
+    $this->assertNotNull($period['endDate']);
+});
+
+test('can determine actual month period', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'period_type' => 'actual_month',
+    ]);
+
+    $period = $panel->determinePeriode();
+
+    $this->assertNotNull($period['startDate']);
+    $this->assertNotNull($period['endDate']);
+    $this->assertEquals(now()->startOfMonth()->format('Y-m-d'), $period['startDate']->format('Y-m-d'));
+    $this->assertEquals(now()->format('Y-m-d'), $period['endDate']->format('Y-m-d'));
+});
+
+test('can determine previous month period', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'period_type' => 'previous_month',
+    ]);
+
+    $period = $panel->determinePeriode();
+
+    $this->assertNotNull($period['startDate']);
+    $this->assertNotNull($period['endDate']);
+    $this->assertEquals(now()->subMonth()->startOfMonth()->format('Y-m-d'), $period['startDate']->format('Y-m-d'));
+    $this->assertEquals(now()->subMonth()->endOfMonth()->format('Y-m-d'), $period['endDate']->format('Y-m-d'));
+});
+
+test('can determine two months ago period', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'period_type' => 'two_months_ago',
+    ]);
+
+    $period = $panel->determinePeriode();
+
+    $this->assertNotNull($period['startDate']);
+    $this->assertNotNull($period['endDate']);
+    $this->assertEquals(now()->subMonths(2)->startOfMonth()->format('Y-m-d'), $period['startDate']->format('Y-m-d'));
+    $this->assertEquals(now()->subMonths(2)->endOfMonth()->format('Y-m-d'), $period['endDate']->format('Y-m-d'));
+});
+
+test('can determine three months ago period', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'period_type' => 'three_months_ago',
+    ]);
+
+    $period = $panel->determinePeriode();
+
+    $this->assertNotNull($period['startDate']);
+    $this->assertNotNull($period['endDate']);
+    $this->assertEquals(now()->subMonths(3)->startOfMonth()->format('Y-m-d'), $period['startDate']->format('Y-m-d'));
+    $this->assertEquals(now()->subMonths(3)->endOfMonth()->format('Y-m-d'), $period['endDate']->format('Y-m-d'));
+});
+
+test('can determine default period for unknown type', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create([
+        'money_dashboard_id' => $dashboard->id,
+        'period_type' => 'unknown_type',
+    ]);
+
+    $period = $panel->determinePeriode();
+
+    $this->assertNull($period['startDate']);
+    $this->assertNull($period['endDate']);
+});
+
 test('can get transactions with filters', function () {
     $dashboard = MoneyDashboard::factory()->for($this->user)->create();
     $panel = MoneyDashboardPanel::factory()->create(['money_dashboard_id' => $dashboard->id]);
@@ -136,6 +252,34 @@ test('can get transactions with filters', function () {
             'categories' => [$category->id],
         ]
     );
+
+    $this->assertCount(1, $transactions);
+    $this->assertEquals($transaction->id, $transactions->first()->id);
+});
+
+test('can get transactions without date filters', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create(['money_dashboard_id' => $dashboard->id]);
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    $transaction = BankTransactions::factory()->for($bankAccount, 'account')->create();
+
+    $transactions = $panel->getTransactions(null, null, [
+        'accounts' => [$bankAccount->id],
+    ]);
+
+    $this->assertCount(1, $transactions);
+    $this->assertEquals($transaction->id, $transactions->first()->id);
+});
+
+test('can get transactions without filters', function () {
+    $dashboard = MoneyDashboard::factory()->for($this->user)->create();
+    $panel = MoneyDashboardPanel::factory()->create(['money_dashboard_id' => $dashboard->id]);
+    $bankAccount = BankAccount::factory()->for($this->user)->create();
+    $transaction = BankTransactions::factory()->for($bankAccount, 'account')->create([
+        'transaction_date' => now(), // Ensure transaction is within the date range
+    ]);
+
+    $transactions = $panel->getTransactions(now()->startOfDay(), now()->endOfDay());
 
     $this->assertCount(1, $transactions);
     $this->assertEquals($transaction->id, $transactions->first()->id);

@@ -59,6 +59,13 @@ class CategorySelect extends Component
 
     public function save()
     {
+        // Check if selectedCategory is empty or null
+        if (empty($this->selectedCategory)) {
+            Toaster::error(__('Le contenu de la categorie est invalide.'));
+
+            return;
+        }
+
         $rules = [
             'selectedCategory' => 'required|string|max:255',
         ];

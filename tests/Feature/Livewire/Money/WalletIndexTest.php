@@ -82,4 +82,103 @@ class WalletIndexTest extends TestCase
 
         $this->assertIsFloat($totalValue);
     }
+
+    public function test_can_delete_wallet_with_positions()
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->for($user)->create();
+        $wallet->positions()->create([
+            'name' => 'Bitcoin',
+            'ticker' => 'BTC',
+            'quantity' => 1,
+            'price' => 50000,
+        ]);
+        $this->actingAs($user);
+
+        Livewire::test(WalletIndex::class)
+            ->call('delete', $wallet->id);
+
+        $this->assertDatabaseMissing('wallets', ['id' => $wallet->id]);
+    }
+
+    public function test_can_delete_nonexistent_wallet()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        Livewire::test(WalletIndex::class)
+            ->call('delete', '00000000-0000-0000-0000-000000000000')
+            ->assertStatus(200);
+    }
+
+    public function test_get_wallet_balance_in_currency_single_mode()
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->for($user)->create([
+            'mode' => 'single',
+            'balance' => 1000,
+            'unit' => 'EUR',
+        ]);
+        $user->preference()->create(['currency' => 'EUR']);
+        $this->actingAs($user);
+
+        $component = Livewire::test(WalletIndex::class);
+        $balance = $component->instance()->getWalletBalanceInCurrency($wallet);
+
+        $this->assertEquals(1000.0, $balance);
+    }
+
+    public function test_get_wallet_balance_in_currency_multi_mode()
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->for($user)->create(['mode' => 'multi']);
+        $wallet->positions()->create([
+            'name' => 'Bitcoin',
+            'ticker' => 'BTC',
+            'quantity' => 1,
+            'price' => 50000,
+        ]);
+        $this->actingAs($user);
+
+        $component = Livewire::test(WalletIndex::class);
+        $balance = $component->instance()->getWalletBalanceInCurrency($wallet);
+
+        $this->assertIsFloat($balance);
+    }
+
+    public function test_get_currency_symbol_for_various_currencies()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $testCases = [
+            'EUR' => '€',
+            'USD' => '$',
+            'GBP' => '£',
+            'CHF' => 'CHF',
+            'CAD' => 'C$',
+            'AUD' => 'A$',
+            'JPY' => '¥',
+            'CNY' => '¥',
+            'XXX' => 'XXX', // Use 3-character currency code
+        ];
+
+        foreach ($testCases as $currency => $expectedSymbol) {
+            $user->preference()->updateOrCreate([], ['currency' => $currency]);
+
+            $component = Livewire::test(WalletIndex::class);
+            $symbol = $component->instance()->getCurrencySymbol();
+
+            $this->assertEquals($expectedSymbol, $symbol);
+        }
+    }
+
+    public function test_mount_without_user_preference()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        Livewire::test(WalletIndex::class)
+            ->assertSet('userCurrency', 'EUR');
+    }
 }

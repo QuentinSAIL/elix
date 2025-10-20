@@ -11,7 +11,7 @@ class MoneyDashboardPanel extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['money_dashboard_id', 'type', 'title', 'is_expense', 'period_type'];
+    protected $fillable = ['money_dashboard_id', 'type', 'title', 'period_type', 'order'];
 
     public function dashboard()
     {

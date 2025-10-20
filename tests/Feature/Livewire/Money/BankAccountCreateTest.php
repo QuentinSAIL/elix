@@ -160,10 +160,10 @@ test('can not add new bank account without selection', function () {
         'bankaccountdata.gocardless.com/api/v2/institutions/?country=fr' => Http::response([], 200),
     ]);
 
-    $component = Livewire::test(BankAccountCreate::class)
-        ->set('selectedBank', null);
-    $component->call('addNewBankAccount');
-    // Event assertion removed due to environment differences; behavior verified by lack of redirect
+    Livewire::test(BankAccountCreate::class)
+        ->set('selectedBank', null)
+        ->call('addNewBankAccount')
+        ->assertNotDispatched('redirect');
 });
 
 test('can filter banks with accents', function () {
