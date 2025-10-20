@@ -34,8 +34,15 @@ test('can deselect note', function () {
 
     Livewire::test(Index::class)
         ->set('selectedNote', $note)
-        ->call('selectNote', null)
+        ->call('closeModal')
         ->assertSet('selectedNote', null);
+});
+
+test('can create new note', function () {
+    Livewire::test(Index::class)
+        ->call('selectNote', null)
+        ->assertSet('selectedNote.content', '')
+        ->assertNotNull('selectedNote');
 });
 
 test('can delete note', function () {

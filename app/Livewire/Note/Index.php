@@ -50,7 +50,7 @@ class Index extends Component
     public function selectNote($noteId)
     {
         if (! $noteId || $noteId === 'null') {
-            // Créer une nouvelle note vide
+            // Créer une nouvelle note vide pour l'édition
             $this->selectedNote = new Note;
             $this->selectedNote->content = '';
         } else {
