@@ -19,7 +19,10 @@ class Show extends Component
     {
         $this->user = Auth::user();
         $this->note = $note;
-        $this->markdownContent = $note ? ($note->content ?? '') : '';
+        $this->markdownContent = $note?->content;
+        if (!$this->markdownContent) {
+            $this->markdownContent = '';
+        }
     }
 
     public function updatedMarkdownContent()
