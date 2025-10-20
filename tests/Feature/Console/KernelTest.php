@@ -3,12 +3,10 @@
 namespace Tests\Feature\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class KernelTest extends TestCase
 {
-    use RefreshDatabase;
 
     public function test_schedule_method_defines_commands(): void
     {
@@ -151,5 +149,31 @@ class KernelTest extends TestCase
         }
 
         $this->assertTrue($hasFrequentWalletUpdate, 'Frequent wallet update should be scheduled');
+    }
+
+    public function test_schedule_has_bank_transactions_update(): void
+    {
+        $kernel = new \App\Console\Kernel(app(), app('events'), app(Schedule::class));
+        $schedule = app(Schedule::class);
+
+        // Use reflection to call the protected schedule method
+        $reflection = new \ReflectionClass($kernel);
+        $method = $reflection->getMethod('schedule');
+        $method->setAccessible(true);
+        $method->invoke($kernel, $schedule);
+
+        // Get all scheduled events
+        $events = $schedule->events();
+
+        // Check that we have bank transactions update command scheduled
+        $hasBankTransactionsUpdate = false;
+        foreach ($events as $event) {
+            if (str_contains($event->command, 'bank-transactions:update')) {
+                $hasBankTransactionsUpdate = true;
+                break;
+            }
+        }
+
+        $this->assertTrue($hasBankTransactionsUpdate, 'Bank transactions update command should be scheduled');
     }
 }
