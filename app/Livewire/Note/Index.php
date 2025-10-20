@@ -4,7 +4,6 @@ namespace App\Livewire\Note;
 
 use App\Models\Note;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
@@ -52,7 +51,7 @@ class Index extends Component
     {
         if (! $noteId || $noteId === 'null') {
             // Créer une nouvelle note vide
-            $this->selectedNote = new Note();
+            $this->selectedNote = new Note;
             $this->selectedNote->content = '';
         } else {
             $note = Note::where('user_id', $this->user->id)->findOrFail($noteId);
