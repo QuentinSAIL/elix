@@ -20,7 +20,7 @@ class Show extends Component
         $this->user = Auth::user();
         $this->note = $note;
         $this->markdownContent = $note?->content;
-        if (!$this->markdownContent) {
+        if (! $this->markdownContent) {
             $this->markdownContent = '';
         }
     }
