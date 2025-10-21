@@ -343,7 +343,7 @@
             }
         })" @account-changing.window="accountLoading = true"
             @account-changed.window="accountLoading = false"
-            class="mt-4 max-h-[70vh] overflow-y-auto bg-custom rounded-lg relative">
+            class="mt-4 max-h-[70vh] overflow-y-auto overflow-x-auto bg-custom rounded-lg relative">
             <div class="absolute inset-0 bg-black/5 dark:bg-white/5 backdrop-blur-sm flex items-center justify-center z-10"
                 x-show="accountLoading" x-cloak>
                 <svg class="animate-spin h-6 w-6 text-color" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -356,14 +356,12 @@
                 </svg>
             </div>
             <div :class="accountLoading ? 'blur-sm pointer-events-none select-none' : ''">
-
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
-                        <thead>
-                            <tr class="sticky top-0 z-10 bg-custom shadow-sm">
+                <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
+                        <thead class="sticky top-0 z-10 bg-custom shadow-sm">
+                            <tr>
                                 @if ($allAccounts)
                                     <th wire:click="sortBy('bank_account_id')"
-                                        class="px-4 py-3 text-left text-xs font-medium sticky top-0 w-32"
+                                        class="px-4 py-3 text-left text-xs font-medium w-32"
                                         aria-sort="{{ $sortField === 'bank_account_id' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
                                         role="button" tabindex="0">
                                         <div class="flex items-center">
@@ -387,7 +385,7 @@
                                 @endif
 
                                 <th wire:click="sortBy('description')"
-                                    class="px-4 py-3 text-left text-xs font-medium sticky top-0 w-3/5"
+                                    class="px-4 py-3 text-left text-xs font-medium w-3/5"
                                     aria-sort="{{ $sortField === 'description' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
                                     role="button" tabindex="0">
                                     <div class="flex items-center">
@@ -410,7 +408,7 @@
                                 </th>
 
                                 <th wire:click="sortBy('transaction_date')"
-                                    class="px-4 py-3 text-center text-xs font-medium sticky top-0 w-1/12"
+                                    class="px-4 py-3 text-center text-xs font-medium w-1/12"
                                     aria-sort="{{ $sortField === 'transaction_date' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
                                     role="button" tabindex="0">
                                     <div class="flex items-center justify-center">
@@ -433,7 +431,7 @@
                                 </th>
 
                                 <th wire:click="sortBy('money_category_id')"
-                                    class="px-4 py-3 text-center text-xs font-medium sticky top-0 w-1/5"
+                                    class="px-4 py-3 text-center text-xs font-medium w-1/5"
                                     aria-sort="{{ $sortField === 'money_category_id' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
                                     role="button" tabindex="0">
                                     <div class="flex items-center justify-center">
@@ -456,7 +454,7 @@
                                 </th>
 
                                 <th wire:click="sortBy('amount')"
-                                    class="px-4 py-3 text-right text-xs font-medium sticky top-0 w-1/12"
+                                    class="px-4 py-3 text-right text-xs font-medium w-1/12"
                                     aria-sort="{{ $sortField === 'amount' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
                                     role="button" tabindex="0">
                                     <div class="flex items-center justify-end">
@@ -543,7 +541,6 @@
                             @endforelse
                         </tbody>
                     </table>
-                </div>
 
                 {{-- Loader desktop (pagination) --}}
                 <div class="bg-custom-ultra rounded-none px-4 py-3 border-t text-center" role="status"
