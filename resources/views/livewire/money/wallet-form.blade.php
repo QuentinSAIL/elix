@@ -1,6 +1,6 @@
 <div class="min-h-screen">
-    <div class="max-w-4xl mx-auto px-6 py-12">
-        <div class="space-y-8">
+    <div class="max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-8 lg:py-12">
+        <div class="space-y-4 sm:space-y-6 lg:space-y-8">
             <!-- Header -->
             <div class="text-center">
                 <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight mb-2">
@@ -21,16 +21,16 @@
 
             <!-- Wallet Form -->
             <div class="bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm rounded-2xl border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm overflow-hidden">
-                <form class="space-y-8">
+                <form class="space-y-4 sm:space-y-6 lg:space-y-8">
                     <!-- Basic Information -->
-                    <div class="px-8 py-6 border-b border-zinc-200/50 dark:border-zinc-700/50">
+                    <div class="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6 border-b border-zinc-200/50 dark:border-zinc-700/50">
                         <div class="text-center">
                             <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-50 mb-2">{{ __('Basic Information') }}</h2>
                             <p class="text-zinc-600 dark:text-zinc-400">{{ __('Set up your wallet details') }}</p>
                         </div>
                     </div>
 
-                    <div class="px-8 py-6 space-y-6">
+                    <div class="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6 space-y-4 sm:space-y-6">
 
                         <flux:field>
                             <flux:label>{{ __('Wallet name') }}</flux:label>

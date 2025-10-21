@@ -286,9 +286,9 @@
                 <!-- View Positions Modal -->
                 @if($wallet->mode === 'multi' && $wallet->positions()->count() > 0)
                     <flux:modal name="view-wallet-{{ $wallet->id }}" class="w-11/12 sm:w-1/2 lg:w-2/5 xl:w-1/3 max-w-none mx-auto" wire:key="view-modal-{{ $wallet->id }}">
-                        <div class="space-y-4 sm:space-y-6">
+                        <div class="space-y-2 sm:space-y-4 lg:space-y-6">
                             <!-- Modal Header -->
-                            <div class="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div class="mt-2 sm:mt-4 lg:mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                                 <div class="min-w-0 flex-1">
                                     <h2 class="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50 break-words leading-tight">{{ $wallet->name }}</h2>
                                     <p class="text-zinc-600 dark:text-zinc-400 mt-1">{{ __('Portfolio Positions') }}</p>
@@ -302,10 +302,10 @@
                             </div>
 
                             <!-- Positions List -->
-                            <div class="max-h-64 sm:max-h-80 lg:max-h-96 overflow-y-auto space-y-3">
+                            <div class="max-h-64 sm:max-h-80 lg:max-h-96 overflow-y-auto space-y-2 sm:space-y-3">
                                 @php($allPositions = $this->getAllPositions($wallet))
                                 @forelse($allPositions as $position)
-                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 rounded-lg bg-zinc-50/50 dark:bg-zinc-800/50 border border-zinc-200/50 dark:border-zinc-700/50 gap-2 sm:gap-0">
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 sm:p-3 lg:p-4 rounded-lg bg-zinc-50/50 dark:bg-zinc-800/50 border border-zinc-200/50 dark:border-zinc-700/50 gap-1 sm:gap-2 lg:gap-0">
                                         <div class="min-w-0 flex-1">
                                             <div class="font-medium text-sm text-zinc-900 dark:text-zinc-50 break-words">{{ $position->name }}</div>
                                             @if ($position->ticker)
@@ -334,7 +334,7 @@
                             </div>
 
                             <!-- Modal Footer -->
-                            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-zinc-200/50 dark:border-zinc-700/50">
+                            <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-2 sm:pt-4 border-t border-zinc-200/50 dark:border-zinc-700/50">
                                 <flux:button class="cursor-pointer w-full sm:w-auto" variant="ghost" @click="Flux.modals().close('view-wallet-{{ $wallet->id }}')">{{ __('Close') }}</flux:button>
                                 <flux:modal.trigger name="edit-wallet-{{ $wallet->id }}">
                                     <flux:button class="cursor-pointer w-full sm:w-auto" variant="primary" @click="Flux.modals().close('view-wallet-{{ $wallet->id }}')">{{ __('Manage Positions') }}</flux:button>
