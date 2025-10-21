@@ -199,4 +199,26 @@ class WalletIndex extends Component
 
         return false;
     }
+
+    /**
+     * Get all positions for a wallet (for view modal)
+     *
+     * @return \Illuminate\Support\Collection<int, \App\Models\WalletPosition>
+     */
+    public function getAllPositions(\App\Models\Wallet $wallet): \Illuminate\Support\Collection
+    {
+        if ($wallet->mode !== 'multi') {
+            return collect();
+        }
+
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletPosition> $positions */
+        $positions = $wallet->positions()
+            ->with('wallet')
+            ->get();
+
+        return $positions
+            ->sortByDesc(function ($position) {
+                return $position->getCurrentMarketValue($this->userCurrency);
+            });
+    }
 }
