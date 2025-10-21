@@ -3,6 +3,7 @@
 namespace App\Livewire\Money;
 
 use App\Models\MoneyCategoryMatch;
+use App\Models\BankTransactions;
 use App\Services\GoCardlessDataService;
 use App\Services\TransactionCacheService;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -242,8 +243,7 @@ class BankTransactionIndex extends Component
     public function updateTransaction(string $transactionId): void
     {
         // Recharger la transaction avec ses relations
-        // @phpstan-ignore-next-line
-        $updatedTransaction = \App\Models\BankTransactions::with([
+        $updatedTransaction = BankTransactions::with([
             'category' => fn ($query) => $query->select('id', 'name'),
             'account' => fn ($query) => $query->select('id', 'name'),
         ])->find($transactionId);
@@ -345,7 +345,7 @@ class BankTransactionIndex extends Component
 
         // Forcer le type : si $query est déjà une Collection, on wrap en queryBuilder
         if ($query instanceof \Illuminate\Support\Collection) {
-            $ids = $query->pluck('id')->all();
+            $ids = $query->pluck('bank_transactions.id')->all();
 
             $query = \App\Models\BankTransactions::query()->whereIn('id', $ids);
             // Ici on repasse sur une query SQL, donc tout est optimisé côté DB
@@ -451,13 +451,13 @@ class BankTransactionIndex extends Component
 
         $matchingTransactionIds = $query
             ->whereRaw('LOWER(description) LIKE ?', ['%' . Str::lower($keyword) . '%'])
-            ->pluck('id')
+            ->pluck('bank_transactions.id')
             ->toArray();
 
         // Mettre à jour seulement les transactions correspondantes dans la collection
         foreach ($this->transactions as $index => $transaction) {
             if (in_array($transaction->id, $matchingTransactionIds, true)) {
-                $updatedTransaction = \App\Models\BankTransactions::with([
+                $updatedTransaction = BankTransactions::with([
                     'category' => fn ($query) => $query->select('id', 'name'),
                     'account' => fn ($query) => $query->select('id', 'name'),
                 ])->find($transaction->id);
