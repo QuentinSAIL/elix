@@ -50,8 +50,8 @@
 
                 @foreach ($accounts as $acct)
                     <button type="button"
+                    class="cursor-pointer px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors flex items-center"
                         @click="all = false; selectedId = '{{ $acct->id }}'; $dispatch('account-changing'); $wire.updateSelectedAccount('{{ $acct->id }}')"
-                        class="px-3 py-2 text-sm cursor-pointer font-medium rounded-md whitespace-nowrap transition-colors flex items-center"
                         :class="!all && selectedId === '{{ $acct->id }}' ? 'selected' : ''" :disabled="isLoading">
                         @if ($acct->logo)
                             <img src="{{ $acct->logo }}" alt="{{ $acct->name }}" class="w-4 h-4 mr-2">
@@ -237,7 +237,7 @@
                         aria-label="{{ __('Search transactions') }}" />
                 </div>
 
-                <flux:button wire:click="getTransactions" variant="primary" class="">
+                <flux:button wire:click="getTransactions" variant="primary" class="cursor-pointer">
                     {{ __('Refresh') }}
                 </flux:button>
             </div>
@@ -249,7 +249,7 @@
             <nav class="flex space-x-4" wire:ignore>
                 <button type="button"
                     @click="all = true; selectedId = null; $dispatch('account-changing'); $wire.updateSelectedAccount('all')"
-                    class="px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors"
+                    class="cursor-pointer px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors"
                     :class="all ? 'selected' : ''" :disabled="isLoading">
                     {{ __('All accounts') }}
                     <span class="ml-1 text-xs font-normal text-grey-inverse">
@@ -265,15 +265,15 @@
 
                 @foreach ($accounts as $acct)
                     <button type="button"
+                    class="cursor-pointer px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors flex items-center"
                         @click="all = false; selectedId = '{{ $acct->id }}'; $dispatch('account-changing'); $wire.updateSelectedAccount('{{ $acct->id }}')"
-                        class="px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors flex items-center"
                         :class="!all && selectedId === '{{ $acct->id }}' ? 'selected' : ''"
                         :disabled="isLoading">
                         @if ($acct->logo)
                             <img src="{{ $acct->logo }}" alt="{{ $acct->name }}" class="w-4 h-4 mr-2">
                         @endif
                         {{ $acct->name }}
-                        <span class="ml-1 text-xs font-normal text-grey-inverse">
+                        <span class="cursor-pointer ml-1 text-xs font-normal text-grey-inverse">
                             ({{ $acct->transactions_count ?? $acct->transactions()->count() }})
                         </span>
                         {{-- <span x-show="isLoading" class="ml-1">
@@ -304,7 +304,7 @@
             <div class="mt-3 md:mt-0 flex space-x-2">
                 <select wire:model.live="categoryFilter"
                         x-on:change="$wire.isAccountLoading = true"
-                        class="px-3 py-2 rounded-lg text-sm bg-custom-accent"
+                        class="cursor-pointer px-3 py-2 rounded-lg text-sm bg-custom-accent"
                     aria-label="{{ __('Filter by category') }}">
                     <option value="">{{ __('All categories') }}</option>
                     <option value="uncategorized">{{ __('Uncategorized') }}</option>
@@ -315,7 +315,7 @@
 
                 <select wire:model.live="dateFilter"
                         x-on:change="$wire.isAccountLoading = true"
-                        class="px-3 py-2 rounded-lg text-sm bg-custom-accent"
+                        class="cursor-pointer px-3 py-2 rounded-lg text-sm bg-custom-accent"
                     aria-label="{{ __('Filter by date') }}">
                     <option value="all">{{ __('All dates') }}</option>
                     <option value="current_month">{{ __('Current month') }}</option>
@@ -361,7 +361,7 @@
                             <tr>
                                 @if ($allAccounts)
                                     <th wire:click="sortBy('bank_account_id')"
-                                        class="px-4 py-3 text-left text-xs font-medium w-32"
+                                        class="px-4 py-3 text-left text-xs font-medium w-32 cursor-pointer"
                                         aria-sort="{{ $sortField === 'bank_account_id' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
                                         role="button" tabindex="0">
                                         <div class="flex items-center">
@@ -385,7 +385,7 @@
                                 @endif
 
                                 <th wire:click="sortBy('description')"
-                                    class="px-4 py-3 text-left text-xs font-medium w-3/5"
+                                    class="px-4 py-3 text-left text-xs font-medium w-3/5 cursor-pointer"
                                     aria-sort="{{ $sortField === 'description' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
                                     role="button" tabindex="0">
                                     <div class="flex items-center">
@@ -408,7 +408,7 @@
                                 </th>
 
                                 <th wire:click="sortBy('transaction_date')"
-                                    class="px-4 py-3 text-center text-xs font-medium w-1/12"
+                                    class="px-4 py-3 text-center text-xs font-medium w-1/12 cursor-pointer"
                                     aria-sort="{{ $sortField === 'transaction_date' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
                                     role="button" tabindex="0">
                                     <div class="flex items-center justify-center">
@@ -431,7 +431,7 @@
                                 </th>
 
                                 <th wire:click="sortBy('money_category_id')"
-                                    class="px-4 py-3 text-center text-xs font-medium w-1/5"
+                                    class="px-4 py-3 text-center text-xs font-medium w-1/5 cursor-pointer"
                                     aria-sort="{{ $sortField === 'money_category_id' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
                                     role="button" tabindex="0">
                                     <div class="flex items-center justify-center">
@@ -454,7 +454,7 @@
                                 </th>
 
                                 <th wire:click="sortBy('amount')"
-                                    class="px-4 py-3 text-right text-xs font-medium w-1/12"
+                                    class="px-4 py-3 text-right text-xs font-medium w-1/12 cursor-pointer"
                                     aria-sort="{{ $sortField === 'amount' ? ($sortDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}"
                                     role="button" tabindex="0">
                                     <div class="flex items-center justify-end">

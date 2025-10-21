@@ -113,7 +113,8 @@ class BankTransactionIndex extends Component
         $transactionEdited = MoneyCategoryMatch::searchAndApplyMatchCategory($keyword);
         Toaster::success(__('Category applied to all matching transactions (:count)', ['count' => $transactionEdited]));
 
-        $this->getTransactionsProperty();
+        // Recharger seulement les transactions qui correspondent au keyword
+        $this->refreshMatchingTransactions($keyword);
     }
 
     public function updateSelectedAccount(string|int $accountId): void
@@ -135,6 +136,7 @@ class BankTransactionIndex extends Component
         $this->getTransactionsProperty();
         $this->isAccountLoading = false;
         $this->dispatch('account-changed');
+        $this->dispatch('transactions-updated');
     }
 
     public function loadMore(): void
@@ -153,13 +155,14 @@ class BankTransactionIndex extends Component
             return; // Pas de pagination pour les collections
         }
 
-        // Récupérer les nouvelles transactions avec eager loading
+        // Récupérer les nouvelles transactions avec eager loading et tri secondaire
         $newRows = $query
             ->with([
                 'category' => fn ($query) => $query->select('id', 'name'),
                 'account' => fn ($query) => $query->select('id', 'name'),
             ])
             ->orderBy($this->sortField, $this->sortDirection)
+            ->orderBy('description', 'asc') // Tri secondaire alphabétique par description
             ->skip($oldPerPage)
             ->take($this->increasedLoad + 1)
             ->get();
@@ -178,6 +181,7 @@ class BankTransactionIndex extends Component
         $this->resetPagination();
         $this->getTransactionsProperty();
         $this->isAccountLoading = false;
+        $this->dispatch('transactions-updated');
     }
 
     /** Réinitialise la pagination lors du changement de filtre de catégorie */
@@ -187,6 +191,7 @@ class BankTransactionIndex extends Component
         $this->resetPagination();
         $this->getTransactionsProperty();
         $this->isAccountLoading = false;
+        $this->dispatch('transactions-updated');
     }
 
     /** Réinitialise la pagination lors du changement de filtre de date */
@@ -196,6 +201,7 @@ class BankTransactionIndex extends Component
         $this->resetPagination();
         $this->getTransactionsProperty();
         $this->isAccountLoading = false;
+        $this->dispatch('transactions-updated');
     }
 
     /**
@@ -218,12 +224,12 @@ class BankTransactionIndex extends Component
         $this->resetPagination();
         $this->getTransactionsProperty();
         $this->isAccountLoading = false;
+        $this->dispatch('transactions-updated');
     }
 
     /**
      * Rafraîchit les transactions après une édition externe
      */
-    #[On('transactions-edited')]
     public function refreshTransactions(): void
     {
         $this->mount();
@@ -351,10 +357,11 @@ class BankTransactionIndex extends Component
             $this->sortDirection = 'desc';
         }
 
-        // On récupère perPage + 1 en BDD
+        // On récupère perPage + 1 en BDD avec tri secondaire alphabétique
         $rows = $query
             ->with(['category:id,name', 'account:id,name'])
             ->orderBy($this->sortField, $this->sortDirection)
+            ->orderBy('description', 'asc') // Tri secondaire alphabétique par description
             ->take($this->perPage + 1)
             ->get();
 
@@ -427,5 +434,38 @@ class BankTransactionIndex extends Component
 
         // Ajouter le total au user pour l'affichage "All accounts"
         $this->user->setAttribute('bank_transactions_count', $totalCount);
+    }
+
+    /**
+     * Met à jour seulement les transactions qui correspondent au keyword
+     * sans perdre la pagination
+     */
+    protected function refreshMatchingTransactions(string $keyword): void
+    {
+        // Récupérer les IDs des transactions qui correspondent au keyword
+        $query = $this->getTransactionQuery();
+
+        if ($query instanceof SupportCollection) {
+            return; // Pas de mise à jour pour les collections
+        }
+
+        $matchingTransactionIds = $query
+            ->whereRaw('LOWER(description) LIKE ?', ['%' . Str::lower($keyword) . '%'])
+            ->pluck('id')
+            ->toArray();
+
+        // Mettre à jour seulement les transactions correspondantes dans la collection
+        foreach ($this->transactions as $index => $transaction) {
+            if (in_array($transaction->id, $matchingTransactionIds, true)) {
+                $updatedTransaction = \App\Models\BankTransactions::with([
+                    'category' => fn ($query) => $query->select('id', 'name'),
+                    'account' => fn ($query) => $query->select('id', 'name'),
+                ])->find($transaction->id);
+
+                if ($updatedTransaction) {
+                    $this->transactions->put($index, $updatedTransaction);
+                }
+            }
+        }
     }
 }
