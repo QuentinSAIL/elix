@@ -255,7 +255,7 @@ class GoCardlessDataService
     {
         $reference = (string) Str::uuid();
         $response = Http::withToken($this->accessToken())->post("{$this->baseUrl}/requisitions/", [
-            'redirect' => config('services.url.web').'money/accounts',
+            'redirect' => config('services.url.web').'/money/accounts',
             'institution_id' => $institutionId,
             'reference' => $reference,
             'agreement' => $agreementId,

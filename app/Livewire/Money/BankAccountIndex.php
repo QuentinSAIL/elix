@@ -115,7 +115,7 @@ class BankAccountIndex extends Component
         }
     }
 
-    public function needsRenewal(\App\Models\BankAccount $account, int $weeksThreshold = 80): bool
+    public function needsRenewal(\App\Models\BankAccount $account, int $weeksThreshold = 2): bool
     {
         if (! $account->end_valid_access) {
             return false;

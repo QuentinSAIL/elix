@@ -27,14 +27,6 @@ class Kernel extends ConsoleKernel
             ->runInBackground()
             ->when(fn () => app()->environment('production'));
 
-        // Keep the old command for backward compatibility during transition
-        $schedule->command('wallets:update-prices')
-            ->everyFifteenMinutes()
-            ->withoutOverlapping()
-            ->onOneServer()
-            ->runInBackground()
-            ->when(fn () => app()->environment('production'));
-
         // Update bank transactions for all users every night at 2:00 AM
         $schedule->command('bank-transactions:update')
             ->dailyAt('02:00')
