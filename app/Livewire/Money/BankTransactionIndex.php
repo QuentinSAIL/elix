@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Money;
 
-use App\Models\MoneyCategoryMatch;
 use App\Models\BankTransactions;
+use App\Models\MoneyCategoryMatch;
 use App\Services\GoCardlessDataService;
 use App\Services\TransactionCacheService;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -450,7 +450,7 @@ class BankTransactionIndex extends Component
         }
 
         $matchingTransactionIds = $query
-            ->whereRaw('LOWER(description) LIKE ?', ['%' . Str::lower($keyword) . '%'])
+            ->whereRaw('LOWER(description) LIKE ?', ['%'.Str::lower($keyword).'%'])
             ->pluck('bank_transactions.id')
             ->toArray();
 
