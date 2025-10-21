@@ -1,20 +1,36 @@
 
 
-[1;37;40mCode Coverage Report:      [0m
-[1;37;40m  2025-10-20 19:31:18      [0m
-[1;37;40m                           [0m
-[1;37;40m Summary:                  [0m
-[37;41m  Classes:  1.37% (1/73)   [0m
-[37;41m  Methods:  2.18% (8/367)  [0m
-[37;41m  Lines:    0.84% (26/3096)[0m
+[1;37;40mCode Coverage Report:       [0m
+[1;37;40m  2025-10-21 18:36:04       [0m
+[1;37;40m                            [0m
+[1;37;40m Summary:                   [0m
+[37;41m  Classes:  1.37% (1/73)    [0m
+[37;41m  Methods: 11.11% (41/369)  [0m
+[37;41m  Lines:   10.25% (320/3121)[0m
 
-App\Livewire\Note\Index
-  [37;41mMethods:  37.50% ( 3/ 8)[0m   [37;41mLines:  14.29% (  4/ 28)[0m
-App\Livewire\Note\Show
-  [37;41mMethods:  16.67% ( 1/ 6)[0m   [37;41mLines:  14.71% (  5/ 34)[0m
-App\Models\Note
-  [30;42mMethods: 100.00% ( 2/ 2)[0m   [30;42mLines: 100.00% (  5/  5)[0m
+App\Livewire\Money\BankTransactionIndex
+  [30;43mMethods:  68.42% (13/19)[0m   [30;42mLines:  90.96% (161/177)[0m
+App\Livewire\Money\CategorySelect
+  [37;41mMethods:  50.00% ( 2/ 4)[0m   [37;41mLines:  14.89% (  7/ 47)[0m
+App\Models\ApiKey
+  [37;41mMethods:  50.00% ( 1/ 2)[0m   [37;41mLines:  50.00% (  1/  2)[0m
+App\Models\BankAccount
+  [30;43mMethods:  60.00% ( 3/ 5)[0m   [37;41mLines:  48.39% ( 15/ 31)[0m
+App\Models\BankTransactions
+  [30;42mMethods: 100.00% ( 3/ 3)[0m   [30;42mLines: 100.00% (  7/  7)[0m
+App\Models\MoneyCategory
+  [37;41mMethods:  37.50% ( 3/ 8)[0m   [37;41mLines:  28.57% (  6/ 21)[0m
+App\Models\MoneyCategoryMatch
+  [37;41mMethods:  50.00% ( 3/ 6)[0m   [30;43mLines:  61.29% ( 19/ 31)[0m
 App\Models\User
-  [37;41mMethods:   5.88% ( 1/17)[0m   [37;41mLines:  20.00% (  4/ 20)[0m
+  [37;41mMethods:  35.29% ( 6/17)[0m   [37;41mLines:  45.00% (  9/ 20)[0m
+App\Models\Wallet
+  [37;41mMethods:   0.00% ( 0/11)[0m   [37;41mLines:  22.22% ( 10/ 45)[0m
 App\Providers\AppServiceProvider
-  [37;41mMethods:  50.00% ( 1/ 2)[0m   [30;43mLines:  53.33% (  8/ 15)[0m
+  [37;41mMethods:  50.00% ( 1/ 2)[0m   [30;43mLines:  80.00% ( 12/ 15)[0m
+App\Services\GoCardlessDataService
+  [37;41mMethods:  11.76% ( 2/17)[0m   [37;41mLines:  27.32% ( 50/183)[0m
+App\Services\TransactionCacheService
+  [37;41mMethods:  50.00% ( 4/ 8)[0m   [30;43mLines:  51.52% ( 17/ 33)[0m
+App\Services\WalletUpdateService
+  [37;41mMethods:   0.00% ( 0/ 5)[0m   [37;41mLines:  15.38% (  6/ 39)[0m

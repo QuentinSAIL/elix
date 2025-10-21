@@ -1,6 +1,6 @@
-<div class="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-800">
-    <div class="max-w-4xl mx-auto px-6 py-12">
-        <div class="space-y-8">
+<div class="min-h-screen">
+    <div class="max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-8 lg:py-12">
+        <div class="space-y-4 sm:space-y-6 lg:space-y-8">
             <!-- Header -->
             <div class="text-center">
                 <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight mb-2">
@@ -21,16 +21,16 @@
 
             <!-- Wallet Form -->
             <div class="bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm rounded-2xl border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm overflow-hidden">
-                <form class="space-y-8">
+                <form class="space-y-4 sm:space-y-6 lg:space-y-8">
                     <!-- Basic Information -->
-                    <div class="px-8 py-6 border-b border-zinc-200/50 dark:border-zinc-700/50 bg-gradient-to-r from-zinc-50/50 dark:from-zinc-800/50 to-transparent">
+                    <div class="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6 border-b border-zinc-200/50 dark:border-zinc-700/50">
                         <div class="text-center">
                             <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-50 mb-2">{{ __('Basic Information') }}</h2>
                             <p class="text-zinc-600 dark:text-zinc-400">{{ __('Set up your wallet details') }}</p>
                         </div>
                     </div>
 
-                    <div class="px-8 py-6 space-y-6">
+                    <div class="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6 space-y-4 sm:space-y-6">
 
                         <flux:field>
                             <flux:label>{{ __('Wallet name') }}</flux:label>
@@ -65,10 +65,10 @@
                                     <flux:description>{{ __('Starting amount for this wallet') }}</flux:description>
                                 </flux:field>
                             @else
-                                <div class="flex items-center justify-center h-12 px-4 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200/50 dark:border-blue-700/50 self-end">
+                                <div class="flex items-center justify-center h-12 px-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-700/50 self-end">
                                     <div class="flex items-center gap-2">
-                                        <flux:icon.calculator class="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                        <span class="text-blue-700 dark:text-blue-300 font-medium">{{ __('Balance calculated from positions') }}</span>
+                                        <flux:icon.calculator class="w-4 h-4 text-color" />
+                                        <span class="text-color font-medium">{{ __('Balance calculated from positions') }}</span>
                                     </div>
                                 </div>
                             @endif
@@ -150,7 +150,7 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="px-8 py-6 border-t border-zinc-200/50 dark:border-zinc-700/50 bg-gradient-to-r from-zinc-50/50 dark:from-zinc-800/50 to-transparent">
+                    <div class="px-8 py-6 border-t border-zinc-200/50 dark:border-zinc-700/50 ">
                         <div class="flex justify-end">
                             <button
                                 type="button"
@@ -172,7 +172,7 @@
             @if ($edition && $wallet && $wallet->isMultiMode())
                 <!-- Positions Section -->
                 <div class="bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm rounded-2xl border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm overflow-hidden">
-                    <div class="px-8 py-6 border-b border-zinc-200/50 dark:border-zinc-700/50 bg-gradient-to-r from-zinc-50/50 dark:from-zinc-800/50 to-transparent">
+                    <div class="px-8 py-6 border-b border-zinc-200/50 dark:border-zinc-700/50 ">
                         <div class="text-center">
                             <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-50 mb-2">{{ __('Wallet positions') }}</h2>
                             <p class="text-zinc-600 dark:text-zinc-400">{{ __('Manage your investment positions') }}</p>
@@ -260,7 +260,7 @@
                     @endif
 
                     <!-- Add/Edit Position Form -->
-                    <div class="px-8 py-6 border-t border-zinc-200/50 dark:border-zinc-700/50 bg-gradient-to-r from-zinc-50/50 dark:from-zinc-800/50 to-transparent">
+                    <div class="px-8 py-6 border-t border-zinc-200/50 dark:border-zinc-700/50 ">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/20 flex items-center justify-center">
                                 <flux:icon.plus class="w-4 h-4 text-primary-600 dark:text-primary-400" />

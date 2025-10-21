@@ -17,6 +17,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon $transaction_date
  * @property-read \App\Models\MoneyCategory $category
  * @property-read \App\Models\BankAccount $account
+ *
+ * @method \Illuminate\Database\Eloquent\Relations\BelongsTo account()
+ * @method \Illuminate\Database\Eloquent\Relations\BelongsTo category()
  */
 class BankTransactions extends Model
 {

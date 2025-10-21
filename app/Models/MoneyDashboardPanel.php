@@ -109,7 +109,6 @@ class MoneyDashboardPanel extends Model
         }
 
         /** @var \Illuminate\Database\Eloquent\Collection<\App\Models\BankTransactions> $transactions */
-        /** @phpstan-ignore-next-line */
         $transactions = $query->with('category')->get();
 
         return $transactions;

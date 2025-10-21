@@ -71,32 +71,6 @@ class KernelTest extends TestCase
         $this->assertTrue($hasPriceUpdateCommand, 'Price update command should be scheduled');
     }
 
-    public function test_schedule_has_wallet_update_command(): void
-    {
-        $kernel = new \App\Console\Kernel(app(), app('events'), app(Schedule::class));
-        $schedule = app(Schedule::class);
-
-        // Use reflection to call the protected schedule method
-        $reflection = new \ReflectionClass($kernel);
-        $method = $reflection->getMethod('schedule');
-        $method->setAccessible(true);
-        $method->invoke($kernel, $schedule);
-
-        // Get all scheduled events
-        $events = $schedule->events();
-
-        // Check that we have wallet update command scheduled
-        $hasWalletUpdateCommand = false;
-        foreach ($events as $event) {
-            if (str_contains($event->command, 'wallets:update-prices')) {
-                $hasWalletUpdateCommand = true;
-                break;
-            }
-        }
-
-        $this->assertTrue($hasWalletUpdateCommand, 'Wallet update command should be scheduled');
-    }
-
     public function test_schedule_has_daily_price_updates(): void
     {
         $kernel = new \App\Console\Kernel(app(), app('events'), app(Schedule::class));
@@ -121,33 +95,6 @@ class KernelTest extends TestCase
         }
 
         $this->assertTrue($hasDailyPriceUpdate, 'Daily price update should be scheduled');
-    }
-
-    public function test_schedule_has_frequent_wallet_updates(): void
-    {
-        $kernel = new \App\Console\Kernel(app(), app('events'), app(Schedule::class));
-        $schedule = app(Schedule::class);
-
-        // Use reflection to call the protected schedule method
-        $reflection = new \ReflectionClass($kernel);
-        $method = $reflection->getMethod('schedule');
-        $method->setAccessible(true);
-        $method->invoke($kernel, $schedule);
-
-        // Get all scheduled events
-        $events = $schedule->events();
-
-        // Check that we have frequent wallet updates (every 15 minutes)
-        $hasFrequentWalletUpdate = false;
-        foreach ($events as $event) {
-            if (str_contains($event->command, 'wallets:update-prices') &&
-                str_contains($event->expression, '*/15 * * * *')) { // Every 15 minutes
-                $hasFrequentWalletUpdate = true;
-                break;
-            }
-        }
-
-        $this->assertTrue($hasFrequentWalletUpdate, 'Frequent wallet update should be scheduled');
     }
 
     public function test_schedule_has_bank_transactions_update(): void

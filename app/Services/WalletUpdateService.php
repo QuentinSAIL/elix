@@ -69,7 +69,6 @@ class WalletUpdateService
         $processedCount = 0;
 
         // Get all transactions that have categories linked to single mode wallets
-        // @phpstan-ignore-next-line
         $transactions = BankTransactions::whereHas('category.wallet', function ($query) {
             $query->where('mode', 'single');
         })->get();
