@@ -70,7 +70,7 @@ class BankTransactionIndex extends Component
         }
 
         // Utiliser le cache pour les catégories
-        $this->categories = $cacheService->getCategories();
+        $this->categories = $cacheService->getCategories($this->user);
         $this->transactions = new EloquentCollection;
 
         $this->allAccounts = true;

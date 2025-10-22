@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class MoneyDashboard extends Model
 {
@@ -17,6 +19,17 @@ class MoneyDashboard extends Model
         'position_x',
         'position_y',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('user', function (Builder $builder) {
+            if (Auth::check()) {
+                $builder->where('user_id', Auth::id());
+            }
+        });
+    }
 
     public function panels()
     {

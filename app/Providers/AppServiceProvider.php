@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +28,12 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
+
+        // Register policies
+        Gate::policy(\App\Models\MoneyCategory::class, \App\Policies\MoneyCategoryPolicy::class);
+        Gate::policy(\App\Models\BankTransactions::class, \App\Policies\BankTransactionPolicy::class);
+        Gate::policy(\App\Models\Wallet::class, \App\Policies\WalletPolicy::class);
+        Gate::policy(\App\Models\MoneyDashboardPanel::class, \App\Policies\MoneyDashboardPanelPolicy::class);
 
         Blade::directive('euro', function ($expression) {
             return "<?php echo number_format($expression, 2, ',', ' ') . ' €'; ?>";
