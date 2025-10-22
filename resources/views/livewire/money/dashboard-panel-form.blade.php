@@ -83,6 +83,7 @@
                         <option value="previous_month">{{ __('Previous Month') }}</option>
                         <option value="two_months_ago">{{ __('Two Months Ago') }}</option>
                         <option value="three_months_ago">{{ __('Three Months Ago') }}</option>
+                        <option value="all">{{ __('All Period') }}</option>
                     </flux:select>
                     <flux:error name="periodType" />
                 </flux:field>
