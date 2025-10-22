@@ -118,8 +118,9 @@ class CategorySelect extends Component
 
     public function removeCategory()
     {
-        if (!$this->transaction) {
+        if (! $this->transaction) {
             Toaster::error(__('No transaction found.'));
+
             return;
         }
 
