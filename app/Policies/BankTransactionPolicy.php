@@ -20,7 +20,7 @@ class BankTransactionPolicy
      */
     public function view(User $user, BankTransactions $bankTransaction): bool
     {
-        return $user->id === $bankTransaction->account->user_id;
+        return (string) $user->id === $bankTransaction->account->user_id;
     }
 
     /**
@@ -36,7 +36,7 @@ class BankTransactionPolicy
      */
     public function update(User $user, BankTransactions $bankTransaction): bool
     {
-        return $user->id === $bankTransaction->account->user_id;
+        return (string) $user->id === $bankTransaction->account->user_id;
     }
 
     /**
@@ -44,7 +44,7 @@ class BankTransactionPolicy
      */
     public function delete(User $user, BankTransactions $bankTransaction): bool
     {
-        return $user->id === $bankTransaction->account->user_id;
+        return (string) $user->id === $bankTransaction->account->user_id;
     }
 
     /**
@@ -52,7 +52,7 @@ class BankTransactionPolicy
      */
     public function restore(User $user, BankTransactions $bankTransaction): bool
     {
-        return $user->id === $bankTransaction->account->user_id;
+        return (string) $user->id === $bankTransaction->account->user_id;
     }
 
     /**
@@ -60,6 +60,6 @@ class BankTransactionPolicy
      */
     public function forceDelete(User $user, BankTransactions $bankTransaction): bool
     {
-        return $user->id === $bankTransaction->account->user_id;
+        return (string) $user->id === $bankTransaction->account->user_id;
     }
 }

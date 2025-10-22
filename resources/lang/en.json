@@ -542,6 +542,7 @@
     "Remove Category": "Remove Category",
     "Category removed successfully": "Category removed successfully",
     "Are you sure you want to remove the category from this transaction?": "Are you sure you want to remove the category from this transaction?",
+    "No transaction found.": "No transaction found.",
     "Data Sources": "Data Sources",
     "Select accounts": "Select accounts",
     "account(s) selected": "account(s) selected",

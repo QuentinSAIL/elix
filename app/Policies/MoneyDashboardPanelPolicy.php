@@ -20,7 +20,7 @@ class MoneyDashboardPanelPolicy
      */
     public function view(User $user, MoneyDashboardPanel $moneyDashboardPanel): bool
     {
-        return $user->id === $moneyDashboardPanel->dashboard->user_id;
+        return (string) $user->id === $moneyDashboardPanel->dashboard()->first()->user_id;
     }
 
     /**
@@ -36,7 +36,7 @@ class MoneyDashboardPanelPolicy
      */
     public function update(User $user, MoneyDashboardPanel $moneyDashboardPanel): bool
     {
-        return $user->id === $moneyDashboardPanel->dashboard->user_id;
+        return (string) $user->id === $moneyDashboardPanel->dashboard()->first()->user_id;
     }
 
     /**
@@ -44,7 +44,7 @@ class MoneyDashboardPanelPolicy
      */
     public function delete(User $user, MoneyDashboardPanel $moneyDashboardPanel): bool
     {
-        return $user->id === $moneyDashboardPanel->dashboard->user_id;
+        return (string) $user->id === $moneyDashboardPanel->dashboard()->first()->user_id;
     }
 
     /**
@@ -52,7 +52,7 @@ class MoneyDashboardPanelPolicy
      */
     public function restore(User $user, MoneyDashboardPanel $moneyDashboardPanel): bool
     {
-        return $user->id === $moneyDashboardPanel->dashboard->user_id;
+        return (string) $user->id === $moneyDashboardPanel->dashboard()->first()->user_id;
     }
 
     /**
@@ -60,6 +60,6 @@ class MoneyDashboardPanelPolicy
      */
     public function forceDelete(User $user, MoneyDashboardPanel $moneyDashboardPanel): bool
     {
-        return $user->id === $moneyDashboardPanel->dashboard->user_id;
+        return (string) $user->id === $moneyDashboardPanel->dashboard()->first()->user_id;
     }
 }

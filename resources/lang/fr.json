@@ -553,6 +553,7 @@
     "Remove Category": "Retirer la catégorie",
     "Category removed successfully": "Catégorie supprimée avec succès",
     "Are you sure you want to remove the category from this transaction?": "Êtes-vous sûr de vouloir supprimer la catégorie de cette transaction ?",
+    "No transaction found.": "Aucune transaction trouvée.",
     "Data Sources": "Sources de Données",
     "Select accounts": "Sélectionner les comptes",
     "account(s) selected": "compte(s) sélectionné(s)",

@@ -20,7 +20,7 @@ class WalletPolicy
      */
     public function view(User $user, Wallet $wallet): bool
     {
-        return $user->id === $wallet->user_id;
+        return (string) $user->id === $wallet->user_id;
     }
 
     /**
@@ -36,7 +36,7 @@ class WalletPolicy
      */
     public function update(User $user, Wallet $wallet): bool
     {
-        return $user->id === $wallet->user_id;
+        return (string) $user->id === $wallet->user_id;
     }
 
     /**
@@ -44,7 +44,7 @@ class WalletPolicy
      */
     public function delete(User $user, Wallet $wallet): bool
     {
-        return $user->id === $wallet->user_id;
+        return (string) $user->id === $wallet->user_id;
     }
 
     /**
@@ -52,7 +52,7 @@ class WalletPolicy
      */
     public function restore(User $user, Wallet $wallet): bool
     {
-        return $user->id === $wallet->user_id;
+        return (string) $user->id === $wallet->user_id;
     }
 
     /**
@@ -60,6 +60,6 @@ class WalletPolicy
      */
     public function forceDelete(User $user, Wallet $wallet): bool
     {
-        return $user->id === $wallet->user_id;
+        return (string) $user->id === $wallet->user_id;
     }
 }

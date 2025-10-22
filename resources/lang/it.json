@@ -431,6 +431,7 @@
     "Remove Category": "Rimuovi Categoria",
     "Category removed successfully": "Categoria rimossa con successo",
     "Are you sure you want to remove the category from this transaction?": "Sei sicuro di voler rimuovere la categoria da questa transazione?",
+    "No transaction found.": "Nessuna transazione trovata.",
     "Data Sources": "Fonti Dati",
     "Bank Accounts": "Conti Bancari",
     "Select accounts": "Seleziona conti",
