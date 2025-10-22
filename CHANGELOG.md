@@ -1,6 +1,6 @@
 # Changelog
 
-# v1.3.1 — 2025-10-21
+# v1.3.2 — 2025-10-22
 
 ### Added
 - 
@@ -12,13 +12,12 @@
 - 
 
 ## Changes
-* chore(release): bump version to v1.3.1 (f7c7fa7) – Quentin SAILLARD
-* Merge pull request #49 from QuentinSAIL/develop (14233d0) – Quentin SAILLARD
-* style: apply Pint code style fixes (8ff52d2) – QuentinSAIL
-* refactor: improve BankTransactions model relations and enhance transaction retrieval in Livewire components (fc90993) – Quentin SAILLARD
-* style: adjust spacing and padding in wallet form and index views for improved layout (ddc736a) – Quentin SAILLARD
-* feat: add method to retrieve and sort all wallet positions for view modal (4f52fd0) – Quentin SAILLARD
-* UI: enhance transaction handling in BankTransactionIndex component (8444490) – Quentin SAILLARD
-* style: enhance table layout and overflow handling in bank transaction index view (40ffb5e) – Quentin SAILLARD
-* refactor: remove deprecated wallet price update (fc5fc63) – Quentin SAILLARD
+* chore(release): bump version to v1.3.2 (2115f01) – Quentin SAILLARD
+* Merge pull request #50 from QuentinSAIL/develop (5088c08) – Quentin SAILLARD
+* style: apply Pint code style fixes (a9f23de) – QuentinSAIL
+* fix: ensure user ID comparison is type-safe in policy methods and update coverage report with new metrics (0cdaf54) – Quentin SAILLARD
+* feat: add category removal functionality in CategorySelect component with localization support (f1a32a6) – Quentin SAILLARD
+* fix: update code coverage report with new metrics and formatting adjustments (8b95c31) – Quentin SAILLARD
+* feat: implement user-specific caching for categories and add global scopes for MoneyCategory and MoneyDashboard models (07ef2c8) – Quentin SAILLARD
+* feat: add .env.testing file and update coverage report; localize "All Period" in multiple languages (ea2a1ba) – Quentin SAILLARD
 
