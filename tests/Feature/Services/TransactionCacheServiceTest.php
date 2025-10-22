@@ -37,7 +37,7 @@ class TransactionCacheServiceTest extends TestCase
         // Check if cache keys exist
         $this->assertTrue(Cache::has("user_transactions_{$user->id}_counts"));
         $this->assertTrue(Cache::has("user_transactions_{$user->id}_total"));
-        $this->assertTrue(Cache::has('categories_all'));
+        $this->assertTrue(Cache::has("categories_{$user->id}"));
     }
 
     public function test_can_get_user_account_counts(): void
@@ -74,7 +74,7 @@ class TransactionCacheServiceTest extends TestCase
         // Create some categories
         MoneyCategory::factory()->count(5)->create(['user_id' => $user->id]);
 
-        $categories = $this->transactionCacheService->getCategories();
+        $categories = $this->transactionCacheService->getCategories($user);
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $categories);
         $this->assertCount(5, $categories);
@@ -109,6 +109,8 @@ class TransactionCacheServiceTest extends TestCase
         // Verify cache exists
         $this->assertTrue(Cache::has("user_transactions_{$user1->id}_counts"));
         $this->assertTrue(Cache::has("user_transactions_{$user2->id}_counts"));
+        $this->assertTrue(Cache::has("categories_{$user1->id}"));
+        $this->assertTrue(Cache::has("categories_{$user2->id}"));
 
         // Clear all cache
         $this->transactionCacheService->clearAllCaches();
@@ -116,6 +118,8 @@ class TransactionCacheServiceTest extends TestCase
         // Verify cache is cleared
         $this->assertFalse(Cache::has("user_transactions_{$user1->id}_counts"));
         $this->assertFalse(Cache::has("user_transactions_{$user2->id}_counts"));
+        $this->assertFalse(Cache::has("categories_{$user1->id}"));
+        $this->assertFalse(Cache::has("categories_{$user2->id}"));
     }
 
     public function test_can_get_cached_user_account_counts(): void
@@ -158,10 +162,10 @@ class TransactionCacheServiceTest extends TestCase
         MoneyCategory::factory()->count(3)->create(['user_id' => $user->id]);
 
         // First call should cache the result
-        $categories1 = $this->transactionCacheService->getCategories();
+        $categories1 = $this->transactionCacheService->getCategories($user);
 
         // Second call should return cached result
-        $categories2 = $this->transactionCacheService->getCategories();
+        $categories2 = $this->transactionCacheService->getCategories($user);
 
         $this->assertEquals($categories1->count(), $categories2->count());
     }
@@ -172,7 +176,7 @@ class TransactionCacheServiceTest extends TestCase
 
         $counts = $this->transactionCacheService->getUserAccountCounts($user);
         $totalCount = $this->transactionCacheService->getUserTotalCount($user);
-        $categories = $this->transactionCacheService->getCategories();
+        $categories = $this->transactionCacheService->getCategories($user);
 
         $this->assertIsArray($counts);
         $this->assertEmpty($counts);

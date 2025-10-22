@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\BankAccount;
-use App\Models\MoneyCategory;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
@@ -44,14 +43,14 @@ class TransactionCacheService
     }
 
     /**
-     * Get cached categories
+     * Get cached categories for a specific user
      */
-    public function getCategories(): \Illuminate\Database\Eloquent\Collection
+    public function getCategories(User $user): \Illuminate\Database\Eloquent\Collection
     {
-        $cacheKey = self::CATEGORY_CACHE_PREFIX.'all';
+        $cacheKey = self::CATEGORY_CACHE_PREFIX.$user->id;
 
-        return Cache::remember($cacheKey, self::CACHE_DURATION, function () {
-            return MoneyCategory::orderBy('name')->get();
+        return Cache::remember($cacheKey, self::CACHE_DURATION, function () use ($user) {
+            return $user->moneyCategories()->orderBy('name')->get();
         });
     }
 
@@ -62,6 +61,7 @@ class TransactionCacheService
     {
         Cache::forget(self::USER_CACHE_PREFIX.$user->id.'_counts');
         Cache::forget(self::USER_CACHE_PREFIX.$user->id.'_total');
+        Cache::forget(self::CATEGORY_CACHE_PREFIX.$user->id);
     }
 
     /**
@@ -115,6 +115,6 @@ class TransactionCacheService
     {
         $this->getUserAccountCounts($user);
         $this->getUserTotalCount($user);
-        $this->getCategories();
+        $this->getCategories($user);
     }
 }

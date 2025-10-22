@@ -110,7 +110,7 @@ class TestTransactionPerformance extends Command
         $start = microtime(true);
         $counts = $cacheService->getUserAccountCounts($user);
         $total = $cacheService->getUserTotalCount($user);
-        $categories = $cacheService->getCategories();
+        $categories = $cacheService->getCategories($user);
         $end = microtime(true);
         $cacheTime = round(($end - $start) * 1000, 2);
 

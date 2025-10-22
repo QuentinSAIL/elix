@@ -116,6 +116,33 @@ class CategorySelect extends Component
         Toaster::success(__('Category saved successfully'));
     }
 
+    public function removeCategory()
+    {
+        if (! $this->transaction) {
+            Toaster::error(__('No transaction found.'));
+
+            return;
+        }
+
+        // Remove the category from the transaction
+        $this->transaction->category()->dissociate();
+        $this->transaction->save();
+        $this->transaction->refresh();
+
+        // Update the selected category
+        $this->selectedCategory = null;
+        $this->category = null;
+
+        // Dispatch events
+        $this->dispatch('transaction-categorized', $this->transaction->id);
+        $this->dispatch('transactions-edited');
+
+        // Close the modal
+        Flux::modals()->close('category-form-'.$this->transaction->id);
+
+        Toaster::success(__('Category removed successfully'));
+    }
+
     public function render()
     {
         return view('livewire.money.category-select');

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -44,6 +45,12 @@ class MoneyCategory extends Model
     protected static function boot()
     {
         parent::boot();
+
+        static::addGlobalScope('user', function (Builder $builder) {
+            if (Auth::check()) {
+                $builder->where('user_id', Auth::id());
+            }
+        });
 
         static::addGlobalScope('created_at', function (Builder $builder) {
             $builder->orderBy('created_at', 'desc');
