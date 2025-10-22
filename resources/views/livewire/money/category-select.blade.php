@@ -111,7 +111,13 @@
 
             <!-- Footer -->
             <div class="flex-shrink-0">
-                <div class="flex justify-end">
+                <div class="flex justify-between">
+                    @if ($transaction && $transaction->category)
+                        <flux:button wire:click="removeCategory" variant="danger">
+                            {{ __('Remove Category') }}
+                        </flux:button>
+                    @endif
+
                     <flux:button wire:click="save" variant="primary" wire:keydown.enter="save">
                         {{ __('Save') }}
                     </flux:button>
